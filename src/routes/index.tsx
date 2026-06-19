@@ -445,7 +445,7 @@ function Planos() {
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3 items-stretch">
           <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} />
-          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} featured />
+          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} />
           <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} />
         </div>
       </div>
