@@ -2,7 +2,80 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Manual";
+  src: url("/__l5e/assets-v1/645d8b13-fbd0-4001-a55e-c7c8efe0639a/manual-regular.otf") format("opentype");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/2c3d7253-a2b3-4e4f-9f28-6b00bb8b2b95/Volte-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/807ff784-b714-4207-b163-fa89b738bfc7/Volte-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/3d76f106-ec47-4f89-87b7-dad9c1b5ed92/Volte-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/6f41afba-0e12-419b-8303-39912de427d2/Volte-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/824b161d-921a-45c0-bc6c-b6dfa8035268/Volte-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/5f9948b6-e3cb-4967-be65-e3415b76333a/Volte-Semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/76ad8b60-62d5-438f-bed8-d4825a83b476/Volte-SemiboldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/ccc12d15-9a36-4c3f-a7b1-47afa30f8246/Volte-Bold.ttf") format("truetype");
+  font-weight: 700 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Volte";
+  src: url("/__l5e/assets-v1/5f6566fc-e3c9-4a30-81cd-8dd6d6a6a7b8/Volte-BoldItalic.ttf") format("truetype");
+  font-weight: 700 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -29,8 +102,9 @@
   --color-ink: var(--ink);
   --color-gray-mid: var(--gray-mid);
   --color-gray-deep: var(--gray-deep);
-  --font-display: "Montserrat", sans-serif;
-  --font-sans: "Inter", sans-serif;
+  --font-display: "Manual", "Montserrat", sans-serif;
+  --font-sans: "Volte", "Inter", sans-serif;
+
   --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.07);
   --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.12);
 }
