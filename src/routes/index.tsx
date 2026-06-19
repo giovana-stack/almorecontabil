@@ -406,19 +406,13 @@ function PlanCard({
   name,
   subtitle,
   items,
-  featured,
 }: {
   name: string;
   subtitle: string;
   items: string[];
-  featured?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-xl p-8 bg-white flex flex-col card-hover reveal ${
-        featured ? "border-t-[3px] border-[#7C1638] shadow-card-hover" : "shadow-card"
-      }`}
-    >
+    <div className="plan-card rounded-xl p-8 bg-white flex flex-col reveal shadow-card border-t-[3px] border-transparent transition-all duration-200 ease-out hover:border-[#7C1638] hover:shadow-[0_8px_32px_rgba(0,0,0,0.13)]">
       <h3 className="font-display font-bold text-ink text-[28px]">{name}</h3>
       <p className="mt-2 italic text-gray-mid text-[15px]">{subtitle}</p>
       <ul className="mt-6 space-y-3 flex-1">
