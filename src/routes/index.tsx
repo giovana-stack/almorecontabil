@@ -180,7 +180,7 @@ function Hero() {
       {/* Office photo — bordeaux monochrome */}
       <div aria-hidden className="hidden md:block absolute right-0 top-0 w-1/2 h-full pointer-events-none">
         <img
-          src={heroOffice.url}
+          src={businessmanOffice.url}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: "grayscale(100%) brightness(0.55)" }}
@@ -188,6 +188,11 @@ function Hero() {
         <div
           className="absolute inset-0"
           style={{ background: "#7C1638", opacity: 0.55, mixBlendMode: "multiply" }}
+        />
+        {/* Soft edge blend gradient on the left edge of the photo */}
+        <div
+          className="absolute left-0 top-0 h-full w-[220px]"
+          style={{ background: "linear-gradient(to right, #7C1638 0%, transparent 100%)" }}
         />
       </div>
       <div className="relative mx-auto max-w-7xl w-full">
