@@ -242,7 +242,7 @@ function Hero() {
             A contabilidade que responde quando você precisa e enxerga muito além da obrigação.
           </p>
           <div className="mt-8 h-px w-[60px] bg-white/20" />
-          <p className="mt-6 max-w-[520px] text-white/60 text-[14px] italic leading-relaxed">
+          <p className="mt-6 max-w-[520px] text-white/60 text-[18px] italic leading-relaxed">
             Empresas sem orientação contábil pagam, em média, 25% mais imposto do que deveriam.
           </p>
           <button
@@ -276,11 +276,11 @@ function Dor() {
                 i === 4 ? "md:col-span-2" : ""
               }`}
             >
-              <p className="text-ink text-[16px] font-medium leading-[1.6]">{p}</p>
+              <p className="text-ink text-[18px] font-medium leading-[1.6]">{p}</p>
             </div>
           ))}
         </div>
-        <p className="mt-12 mx-auto max-w-[640px] text-center text-gray-deep text-[16px] leading-relaxed reveal">
+        <p className="mt-12 mx-auto max-w-[640px] text-center text-gray-deep text-[18px] leading-relaxed reveal">
           Se você se reconheceu em algum desses pontos, não é coincidência. São as queixas mais comuns
           de empresários que ainda não encontraram uma contabilidade consultiva de verdade.
         </p>
@@ -299,7 +299,7 @@ function QuemSomos() {
           <br />
           <span className="text-[#7C1638]">Nosso trabalho começa depois dela.</span>
         </h2>
-        <p className="mt-8 text-[17px] leading-[1.75] text-gray-deep">
+        <p className="mt-8 text-[19px] leading-[1.75] text-gray-deep">
           Mais do que apurar impostos e entregar obrigações, a Almore traduz os números em direção:
           mostra onde dá para melhorar, antecipa o que vem pela frente e está perto quando você
           precisa decidir.
@@ -426,7 +426,7 @@ function Entregamos() {
               <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>
               <ul className="mt-5 space-y-3">
                 {c.items.map((it) => (
-                  <li key={it} className="flex gap-3 text-gray-deep text-[15px] leading-relaxed">
+                  <li key={it} className="flex gap-3 text-gray-deep text-[19px] leading-relaxed">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-[#7C1638]" />
                     <span>{it}</span>
                   </li>
@@ -452,10 +452,10 @@ function PlanCard({
   return (
     <div className="plan-card rounded-xl p-8 bg-white flex flex-col reveal shadow-card border-t-[3px] border-transparent transition-all duration-200 ease-out hover:border-[#7C1638] hover:shadow-[0_8px_32px_rgba(0,0,0,0.13)]">
       <h3 className="font-display font-bold text-ink text-[28px]">{name}</h3>
-      <p className="mt-2 italic text-gray-mid text-[15px]">{subtitle}</p>
+      <p className="mt-2 italic text-gray-mid text-[19px]">{subtitle}</p>
       <ul className="mt-6 space-y-3 flex-1">
         {items.map((it) => (
-          <li key={it} className="flex gap-3 text-gray-deep text-[15px] leading-relaxed">
+          <li key={it} className="flex gap-3 text-gray-deep text-[19px] leading-relaxed">
             <span className="text-[#7C1638] font-bold shrink-0">✓</span>
             <span>{it}</span>
           </li>
@@ -511,7 +511,7 @@ function FAQ() {
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="w-full flex items-center justify-between gap-6 text-left px-6 py-5"
                 >
-                  <span className="font-display font-semibold text-ink text-[17px] leading-snug">
+                  <span className="font-display font-semibold text-ink text-[19px] leading-snug">
                     {f.q}
                   </span>
                   <span className="text-[#7C1638] text-2xl font-light shrink-0 leading-none w-6 text-center">
@@ -523,7 +523,7 @@ function FAQ() {
                   style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-6 pb-5 text-gray-deep text-[16px] leading-[1.7]">{f.a}</p>
+                    <p className="px-6 pb-5 text-gray-deep text-[18px] leading-[1.7]">{f.a}</p>
                   </div>
                 </div>
               </div>
@@ -571,10 +571,10 @@ function Reforma() {
         <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
           A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
         </h2>
-        <p className="mt-8 text-[17px] leading-[1.7] text-gray-deep">
+        <p className="mt-8 text-[19px] leading-[1.7] text-gray-deep">
           Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
         </p>
-        <p className="mt-5 text-[17px] leading-[1.7] text-gray-deep">
+        <p className="mt-5 text-[19px] leading-[1.7] text-gray-deep">
           Nós acompanhamos cada mudança e orientamos a sua empresa antes do prazo apertar.
         </p>
         <p className="mt-8 font-display font-semibold text-[#7C1638] text-xl leading-snug">
@@ -595,7 +595,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClass =
-  "w-full bg-white text-ink rounded-md px-4 py-3.5 text-[15px] border border-transparent focus:outline-none focus:ring-2 focus:ring-white/60 placeholder:text-gray-mid";
+  "w-full bg-white text-ink rounded-md px-4 py-3.5 text-[19px] border border-transparent focus:outline-none focus:ring-2 focus:ring-white/60 placeholder:text-gray-mid";
 
 function Formulario() {
   const [sent, setSent] = useState(false);
@@ -627,7 +627,7 @@ function Formulario() {
           <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
             Estamos à disposição.
           </h2>
-          <p className="mt-5 text-white/80 text-[17px]">
+          <p className="mt-5 text-white/80 text-[19px]">
             É só falar com a gente: é rápido, como tudo por aqui.
           </p>
         </div>
@@ -694,7 +694,7 @@ function Formulario() {
                         checked={active}
                         onChange={() => toggle(opt)}
                       />
-                      <span className="text-ink text-[14px] font-medium leading-snug">{opt}</span>
+                      <span className="text-ink text-[18px] font-medium leading-snug">{opt}</span>
                     </label>
                   );
                 })}
@@ -762,7 +762,7 @@ function Footer() {
         />
         <p className="mt-5 text-[#8a8a8a] text-sm">CNPJ: 67.132.226/0001-17</p>
         <div className="mt-8 mx-auto max-w-md h-px bg-white/15" />
-        <p className="mt-6 text-[#7a7a7a] text-[13px]">
+        <p className="mt-6 text-[#7a7a7a] text-[19px]">
           © 2025 Almore Inteligência Contábil. Todos os direitos reservados.
         </p>
       </div>
