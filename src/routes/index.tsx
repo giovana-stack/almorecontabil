@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import logoBordeaux from "@/assets/almore-logo.png.asset.json";
+import logoWhite from "@/assets/almore-logo-white.png.asset.json";
+import isotipo from "@/assets/almore-isotipo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -8,7 +11,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Contabilidade 100% digital, consultiva e ágil. Conheça os planos Bronze, Prata e Ouro da Almore Inteligência Contábil.",
+          "Contabilidade 100% digital, consultiva e ágil. Atendimento rápido, orientação proativa e planos Bronze, Prata e Ouro.",
       },
       { property: "og:title", content: "Almore Inteligência Contábil" },
       {
@@ -35,6 +38,14 @@ const expectations = [
 
 const regimes = ["MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real", "Ainda não tenho"];
 const tipos = ["MEI", "ME — Microempresa", "EPP — Empresa de Pequeno Porte", "Ltda.", "S/A", "Ainda não tenho"];
+
+const pains = [
+  "Mandou mensagem pro contador e esperou dias para ter uma resposta.",
+  "Ficou sabendo da multa ou do prazo perdido depois que já aconteceu.",
+  "Recebe guias todo mês mas não entende nada do que está acontecendo com os números da empresa.",
+  "Sua empresa cresceu — e a contabilidade ficou no mesmo lugar de sempre.",
+  "Nunca recebeu uma orientação que você não pediu. Só responde quando você pergunta.",
+];
 
 const bronzeItems = [
   "Relatório consultivo mensal",
@@ -71,6 +82,29 @@ const ouroItems = [
   "Assistente de inteligência artificial personalizado",
 ];
 
+const faqs = [
+  {
+    q: "Posso trocar de contador sem problema?",
+    a: "Sim, e é mais simples do que parece. A Almore conduz toda a migração — do distrato com o escritório anterior à transferência de documentos e acessos. Você não precisa se preocupar com burocracia. O processo é feito sem interromper nenhuma obrigação da sua empresa.",
+  },
+  {
+    q: "Durante a transição, fico sem emitir nota fiscal?",
+    a: "Não. A migração é planejada justamente para que sua operação continue sem nenhuma interrupção. Emissão de notas, pagamento de guias e entrega de obrigações seguem normalmente desde o primeiro dia.",
+  },
+  {
+    q: "Meu contador já me conhece há anos. Vale a pena mudar?",
+    a: "Conhecer o histórico da empresa é importante — mas não é suficiente. A questão não é quanto tempo seu contador te conhece, é o que ele faz com esse conhecimento. Se você nunca recebeu uma orientação que não pediu, nunca teve um relatório que ajudasse a tomar decisão, talvez o problema não seja o tempo de relacionamento.",
+  },
+  {
+    q: "A contabilidade digital tem atendimento humano de verdade?",
+    a: "Na Almore, sim. Você fala com quem conhece a sua empresa — não com uma fila de suporte. O atendimento rápido e próximo é o nosso compromisso número um. Não existe bot respondendo no lugar de contador.",
+  },
+  {
+    q: "Quando é o momento certo para trocar?",
+    a: "Quando você se pergunta se deveria trocar, já é hora de pelo menos conversar. Mas se você já perdeu prazo por falta de aviso, se cresceu e a contabilidade não acompanhou, ou se nunca recebeu uma orientação proativa — o momento é agora.",
+  },
+];
+
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
@@ -90,6 +124,10 @@ function useReveal() {
   }, []);
 }
 
+function scrollToContato() {
+  document.getElementById("contato")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function LandingPage() {
   useReveal();
   return (
@@ -97,11 +135,13 @@ function LandingPage() {
       <Navbar />
       <main>
         <Hero />
+        <Dor />
         <QuemSomos />
         <Diferencial />
         <ComoTrabalhamos />
         <Entregamos />
         <Planos />
+        <FAQ />
         <MudaParaVoce />
         <Reforma />
         <Formulario />
@@ -111,19 +151,12 @@ function LandingPage() {
   );
 }
 
-function scrollToContato() {
-  document.getElementById("contato")?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 function Navbar() {
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-border">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#f0eeeb]">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
-        <a href="#top" className="flex flex-col leading-tight">
-          <span className="font-display font-bold text-[#7C1638] text-lg tracking-tight">ALMORE</span>
-          <span className="font-display font-medium text-[10px] text-gray-mid tracking-[0.18em]">
-            INTELIGÊNCIA CONTÁBIL
-          </span>
+        <a href="#top" className="flex items-center">
+          <img src={logoBordeaux.url} alt="Almore Inteligência Contábil" className="h-9 w-auto" />
         </a>
         <button
           onClick={scrollToContato}
@@ -140,29 +173,79 @@ function Hero() {
   return (
     <section
       id="top"
-      className="relative min-h-[90vh] flex items-center justify-center px-5 py-24"
-      style={{
-        background: "linear-gradient(160deg, #7C1638 0%, #7C1638 55%, #68112F 100%)",
-      }}
+      className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
+      style={{ background: "linear-gradient(160deg, #7C1638 0%, #7C1638 55%, #68112F 100%)" }}
     >
-      <div className="max-w-3xl text-center text-white reveal">
-        <div className="eyebrow text-white/70 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
-        <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[78px]">
-          Rápido.
-          <br />
-          Consultivo.
-          <br />
-          Sempre.
-        </h1>
-        <p className="mt-8 mx-auto max-w-[560px] text-white/85 text-lg sm:text-xl leading-relaxed">
-          A contabilidade que responde quando você precisa e enxerga muito além da obrigação.
+      {/* Decorative isotipo */}
+      <div
+        aria-hidden
+        className="hidden md:block absolute right-[-60px] top-1/2 -translate-y-1/2 pointer-events-none"
+        style={{
+          width: 520,
+          height: 520,
+          opacity: 0.09,
+          backgroundImage: `url(${isotipo.url})`,
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          filter: "brightness(0) invert(1)",
+        }}
+      />
+      <div className="relative mx-auto max-w-7xl w-full">
+        <div className="max-w-[600px] text-white reveal">
+          <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
+          <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
+            Rápido.
+            <br />
+            Consultivo.
+            <br />
+            Sempre.
+          </h1>
+          <p className="mt-8 max-w-[520px] text-white/80 text-lg sm:text-xl leading-relaxed">
+            A contabilidade que responde quando você precisa e enxerga muito além da obrigação.
+          </p>
+          <div className="mt-8 h-px w-[60px] bg-white/20" />
+          <p className="mt-6 max-w-[520px] text-white/60 text-[14px] italic leading-relaxed">
+            Empresas sem orientação contábil pagam, em média, 25% mais imposto do que deveriam.
+          </p>
+          <button
+            onClick={scrollToContato}
+            className="btn-on-dark mt-10 font-display font-bold text-base px-8 py-4 rounded-md"
+          >
+            Quero conhecer a Almore
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Dor() {
+  return (
+    <section className="bg-surface px-5 py-24 sm:py-32">
+      <div className="mx-auto max-w-[960px]">
+        <div className="max-w-[760px] reveal">
+          <div className="eyebrow text-gray-deep mb-6">ISSO TE PARECE FAMILIAR?</div>
+          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[40px] leading-[1.15] tracking-tight">
+            Se você já viveu alguma dessas situações,{" "}
+            <span className="text-[#7C1638]">a Almore foi feita para você.</span>
+          </h2>
+        </div>
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          {pains.map((p, i) => (
+            <div
+              key={i}
+              className={`rounded-xl p-7 bg-white shadow-card card-hover reveal border-l-[3px] border-[#7C1638] ${
+                i === 4 ? "md:col-span-2" : ""
+              }`}
+            >
+              <p className="text-ink text-[16px] font-medium leading-[1.6]">{p}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-12 mx-auto max-w-[640px] text-center text-gray-deep text-[16px] leading-relaxed reveal">
+          Se você se reconheceu em algum desses pontos, não é coincidência. São as queixas mais comuns
+          de empresários que ainda não encontraram uma contabilidade consultiva de verdade.
         </p>
-        <button
-          onClick={scrollToContato}
-          className="btn-on-dark mt-10 font-display font-semibold text-base px-8 py-4 rounded-md"
-        >
-          Quero conhecer a Almore
-        </button>
       </div>
     </section>
   );
@@ -170,7 +253,7 @@ function Hero() {
 
 function QuemSomos() {
   return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
+    <section className="bg-white px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-[800px] reveal">
         <div className="eyebrow text-gray-deep mb-6">QUEM SOMOS</div>
         <h2 className="font-display font-bold text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
@@ -178,12 +261,12 @@ function QuemSomos() {
           <br />
           <span className="text-[#7C1638]">Nosso trabalho começa depois dela.</span>
         </h2>
-        <p className="mt-8 text-[17px] leading-[1.7] text-gray-deep">
+        <p className="mt-8 text-[17px] leading-[1.75] text-gray-deep">
           Mais do que apurar impostos e entregar obrigações, a Almore traduz os números em direção:
           mostra onde dá para melhorar, antecipa o que vem pela frente e está perto quando você
           precisa decidir.
         </p>
-        <div className="mt-10 bg-white rounded-lg border-l-4 border-[#7C1638] px-6 py-5 shadow-card">
+        <div className="mt-10 bg-surface rounded-lg border-l-4 border-[#7C1638] px-6 py-5">
           <div className="eyebrow text-gray-mid mb-2">NOTA CONSULTIVA</div>
           <p className="font-display font-semibold text-[#7C1638] text-lg sm:text-xl leading-snug">
             Contabilidade que serve para decidir, não só para arquivar.
@@ -199,8 +282,8 @@ function Diferencial() {
     <section className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl reveal">
-          <div className="eyebrow text-white/70 mb-6">O NOSSO DIFERENCIAL</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
+          <div className="eyebrow text-white/60 mb-6">O NOSSO DIFERENCIAL</div>
+          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
             Dois compromissos que sustentam tudo.
           </h2>
         </div>
@@ -217,14 +300,8 @@ function Diferencial() {
               d: "Não esperamos a pergunta. Antecipamos, alertamos e recomendamos em cada decisão que afeta o seu caixa.",
             },
           ].map((c) => (
-            <div
-              key={c.n}
-              className="rounded-xl p-8 reveal"
-              style={{ backgroundColor: "#68112F" }}
-            >
-              <div className="font-display font-extrabold text-[60px] leading-none text-white/25">
-                {c.n}
-              </div>
+            <div key={c.n} className="rounded-xl p-8 reveal" style={{ backgroundColor: "#68112F" }}>
+              <div className="font-display font-extrabold text-[72px] leading-none text-white/15">{c.n}</div>
               <h3 className="mt-4 font-display font-bold text-white text-[22px]">{c.t}</h3>
               <p className="mt-3 text-white/80 text-base leading-relaxed">{c.d}</p>
             </div>
@@ -237,11 +314,11 @@ function Diferencial() {
 
 function ComoTrabalhamos() {
   return (
-    <section className="bg-white px-5 py-24 sm:py-32">
+    <section className="bg-surface px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl reveal">
           <div className="eyebrow text-gray-deep mb-6">COMO TRABALHAMOS</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
+          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
             Estrutura no início, <span className="text-[#7C1638]">proximidade no dia a dia.</span>
           </h2>
         </div>
@@ -256,7 +333,7 @@ function ComoTrabalhamos() {
               d: "Relatório consultivo mensal e atendimento próximo e personalizado, que acompanha o seu negócio e te responde rápido sempre que você precisa.",
             },
           ].map((c) => (
-            <div key={c.t} className="rounded-xl p-8 bg-surface card-hover reveal">
+            <div key={c.t} className="rounded-xl p-8 bg-white shadow-card card-hover reveal">
               <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>
               <p className="mt-3 text-gray-deep text-base leading-relaxed">{c.d}</p>
             </div>
@@ -297,17 +374,17 @@ function Entregamos() {
     },
   ];
   return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
+    <section className="bg-white px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl reveal">
           <div className="eyebrow text-gray-deep mb-6">O QUE ENTREGAMOS</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
+          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
             Fiscal, pessoal e consultivo. <span className="text-[#7C1638]">Tudo sob o mesmo cuidado.</span>
           </h2>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {cols.map((c) => (
-            <div key={c.t} className="rounded-xl p-7 bg-white shadow-card card-hover reveal">
+            <div key={c.t} className="rounded-xl p-7 bg-surface card-hover reveal">
               <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>
               <ul className="mt-5 space-y-3">
                 {c.items.map((it) => (
@@ -330,28 +407,21 @@ function PlanCard({
   subtitle,
   items,
   featured,
-  prefix,
 }: {
   name: string;
   subtitle: string;
   items: string[];
   featured?: boolean;
-  prefix?: string;
 }) {
   return (
     <div
-      className={`rounded-xl p-8 bg-surface flex flex-col card-hover reveal ${
+      className={`rounded-xl p-8 bg-white flex flex-col card-hover reveal ${
         featured ? "border-t-[3px] border-[#7C1638] shadow-card-hover" : "shadow-card"
       }`}
     >
       <h3 className="font-display font-bold text-ink text-[28px]">{name}</h3>
       <p className="mt-2 italic text-gray-mid text-[15px]">{subtitle}</p>
-      {prefix && (
-        <p className="mt-5 font-display font-semibold text-[#7C1638] text-xs uppercase tracking-wider">
-          {prefix}
-        </p>
-      )}
-      <ul className="mt-5 space-y-3 flex-1">
+      <ul className="mt-6 space-y-3 flex-1">
         {items.map((it) => (
           <li key={it} className="flex gap-3 text-gray-deep text-[15px] leading-relaxed">
             <span className="text-[#7C1638] font-bold shrink-0">✓</span>
@@ -371,33 +441,62 @@ function PlanCard({
 
 function Planos() {
   return (
-    <section className="bg-white px-5 py-24 sm:py-32">
+    <section className="bg-surface px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl reveal">
           <div className="eyebrow text-gray-deep mb-6">PLANOS</div>
-          <h2 className="font-display font-bold text-ink text-[28px] sm:text-[38px] leading-[1.15] tracking-tight">
+          <h2 className="font-display font-bold text-ink text-[28px] sm:text-[36px] leading-[1.15] tracking-tight">
             Escolha o plano certo para o seu negócio.
           </h2>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3 items-stretch">
-          <PlanCard
-            name="Bronze"
-            subtitle="Nosso atendimento essencial e completo."
-            items={bronzeItems}
-          />
-          <PlanCard
-            name="Prata"
-            subtitle="Inclui tudo do Bronze, e acrescenta:"
-            items={prataItems}
-            featured
-            prefix="Tudo do Bronze, mais:"
-          />
-          <PlanCard
-            name="Ouro"
-            subtitle="Inclui tudo do Prata, e acrescenta:"
-            items={ouroItems}
-            prefix="Tudo do Prata, mais:"
-          />
+          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} />
+          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} featured />
+          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <section className="bg-white px-5 py-24 sm:py-32">
+      <div className="mx-auto max-w-[720px]">
+        <div className="reveal">
+          <div className="eyebrow text-gray-deep mb-6">DÚVIDAS FREQUENTES</div>
+          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[36px] leading-[1.15] tracking-tight">
+            Perguntas que a gente recebe antes de começar.
+          </h2>
+        </div>
+        <div className="mt-12 space-y-3 reveal">
+          {faqs.map((f, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={i} className="bg-surface rounded-[10px] overflow-hidden">
+                <button
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="w-full flex items-center justify-between gap-6 text-left px-6 py-5"
+                >
+                  <span className="font-display font-semibold text-ink text-[17px] leading-snug">
+                    {f.q}
+                  </span>
+                  <span className="text-[#7C1638] text-2xl font-light shrink-0 leading-none w-6 text-center">
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+                <div
+                  className="grid transition-all duration-[250ms] ease-out"
+                  style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-6 pb-5 text-gray-deep text-[16px] leading-[1.7]">{f.a}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -415,18 +514,14 @@ function MudaParaVoce() {
     <section className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl reveal">
-          <div className="eyebrow text-white/70 mb-6">O QUE MUDA PARA VOCÊ</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
-            No fim, você ganha o que <span className="text-white/70">+</span> importa.
+          <div className="eyebrow text-white/60 mb-6">O QUE MUDA PARA VOCÊ</div>
+          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+            No fim, você ganha o que importa.
           </h2>
         </div>
         <div className="mt-14 grid gap-6 sm:grid-cols-2">
           {items.map((t) => (
-            <div
-              key={t}
-              className="rounded-xl p-8 reveal"
-              style={{ backgroundColor: "#68112F" }}
-            >
+            <div key={t} className="rounded-xl p-8 reveal" style={{ backgroundColor: "#68112F" }}>
               <p className="font-display font-semibold text-white text-xl leading-snug">{t}</p>
             </div>
           ))}
@@ -441,9 +536,8 @@ function Reforma() {
     <section className="bg-surface px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-[720px] reveal">
         <div className="eyebrow text-gray-deep mb-6">À FRENTE</div>
-        <h2 className="font-display font-bold text-ink text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
-          A maior reforma tributária em décadas{" "}
-          <span className="text-[#7C1638]">já começou.</span>
+        <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+          A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
         </h2>
         <p className="mt-8 text-[17px] leading-[1.7] text-gray-deep">
           Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
@@ -459,13 +553,7 @@ function Reforma() {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="block text-white/80 text-sm font-medium mb-2">{label}</span>
@@ -503,8 +591,8 @@ function Formulario() {
     <section id="contato" className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
       <div className="mx-auto max-w-[560px]">
         <div className="text-center reveal">
-          <div className="eyebrow text-white/70 mb-6">FALE COM A ALMORE</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
+          <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
+          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
             Estamos à disposição.
           </h2>
           <p className="mt-5 text-white/80 text-[17px]">
@@ -546,14 +634,11 @@ function Formulario() {
                 O que você espera de uma contabilidade?{" "}
                 <span className="text-white/60">(opcional)</span>
               </span>
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 bg-white rounded-md p-4">
+              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 bg-white rounded-lg p-4">
                 {expectations.map((opt) => {
                   const active = checks.includes(opt);
                   return (
-                    <label
-                      key={opt}
-                      className="flex items-start gap-3 cursor-pointer"
-                    >
+                    <label key={opt} className="flex items-start gap-3 cursor-pointer">
                       <span
                         className={`mt-0.5 h-[18px] w-[18px] shrink-0 rounded-[4px] border-[1.5px] flex items-center justify-center transition-colors ${
                           active ? "bg-[#7C1638] border-[#7C1638]" : "bg-white border-[#d4d0cb]"
@@ -638,10 +723,12 @@ function Footer() {
   return (
     <footer className="px-5 py-14" style={{ backgroundColor: "#1A1A1A" }}>
       <div className="mx-auto max-w-6xl text-center">
-        <div className="font-display font-bold text-white tracking-[0.15em] text-sm">
-          ALMORE · INTELIGÊNCIA CONTÁBIL
-        </div>
-        <p className="mt-3 text-[#8a8a8a] text-sm">CNPJ: 67.132.226/0001-17</p>
+        <img
+          src={logoWhite.url}
+          alt="Almore Inteligência Contábil"
+          className="h-10 w-auto mx-auto opacity-90"
+        />
+        <p className="mt-5 text-[#8a8a8a] text-sm">CNPJ: 67.132.226/0001-17</p>
         <div className="mt-8 mx-auto max-w-md h-px bg-white/15" />
         <p className="mt-6 text-[#7a7a7a] text-[13px]">
           © 2025 Almore Inteligência Contábil. Todos os direitos reservados.
