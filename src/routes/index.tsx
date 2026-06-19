@@ -621,7 +621,7 @@ function Formulario() {
 
   return (
     <section id="contato" className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
-      <div className="mx-auto max-w-[760px]">
+      <div className="mx-auto max-w-[900px]">
         <div className="text-center reveal">
           <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
           <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
