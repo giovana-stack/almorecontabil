@@ -177,22 +177,40 @@ function Hero() {
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
       style={{ background: "linear-gradient(160deg, #7C1638 0%, #7C1638 55%, #68112F 100%)" }}
     >
-      {/* Office photo — bordeaux monochrome */}
-      <div aria-hidden className="hidden md:block absolute right-0 top-0 w-1/2 h-full pointer-events-none">
+      {/* Office photo — bordeaux monochrome, seamless blend */}
+      <div aria-hidden className="hidden md:block absolute right-0 top-0 w-[62%] h-full pointer-events-none">
         <img
           src={businessmanOffice.url}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: "grayscale(100%) brightness(0.55)" }}
+          style={{
+            filter: "grayscale(100%) brightness(0.45)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 18%, rgba(0,0,0,0.6) 38%, black 60%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 18%, rgba(0,0,0,0.6) 38%, black 60%)",
+          }}
         />
+        {/* Bordeaux tone match overlay */}
         <div
           className="absolute inset-0"
-          style={{ background: "#7C1638", opacity: 0.55, mixBlendMode: "multiply" }}
+          style={{ background: "#7C1638", opacity: 0.7, mixBlendMode: "multiply" }}
         />
-        {/* Soft edge blend gradient on the left edge of the photo */}
+        {/* Horizontal fade from bordeaux into photo */}
         <div
-          className="absolute left-0 top-0 h-full w-[220px]"
-          style={{ background: "linear-gradient(to right, #7C1638 0%, transparent 100%)" }}
+          className="absolute left-0 top-0 h-full w-[55%]"
+          style={{
+            background:
+              "linear-gradient(to right, #7C1638 0%, rgba(124,22,56,0.95) 25%, rgba(124,22,56,0.6) 60%, rgba(124,22,56,0) 100%)",
+          }}
+        />
+        {/* Vertical vignette to dissolve top and bottom edges */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(124,22,56,0.45) 0%, rgba(124,22,56,0) 20%, rgba(124,22,56,0) 80%, rgba(124,22,56,0.45) 100%)",
+          }}
         />
       </div>
       <div className="relative mx-auto max-w-7xl w-full">
