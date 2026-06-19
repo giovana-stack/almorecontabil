@@ -177,20 +177,19 @@ function Hero() {
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
       style={{ background: "linear-gradient(160deg, #7C1638 0%, #7C1638 55%, #68112F 100%)" }}
     >
-      {/* Decorative isotipo */}
-      <div
-        aria-hidden
-        className="hidden md:block absolute right-[-60px] top-1/2 -translate-y-1/2 pointer-events-none"
-        style={{
-          width: 520,
-          height: 520,
-          opacity: 0.09,
-          backgroundImage: `url(${isotipo.url})`,
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          filter: "brightness(0) invert(1)",
-        }}
-      />
+      {/* Office photo — bordeaux monochrome */}
+      <div aria-hidden className="hidden md:block absolute right-0 top-0 w-1/2 h-full pointer-events-none">
+        <img
+          src={heroOffice.url}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: "grayscale(100%) brightness(0.55)" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: "#7C1638", opacity: 0.55, mixBlendMode: "multiply" }}
+        />
+      </div>
       <div className="relative mx-auto max-w-7xl w-full">
         <div className="max-w-[600px] text-white reveal">
           <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
