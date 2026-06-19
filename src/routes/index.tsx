@@ -175,7 +175,7 @@ function Hero() {
     <section
       id="top"
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
-      style={{ background: "linear-gradient(160deg, #7C1638 0%, #7C1638 55%, #68112F 100%)" }}
+      style={{ backgroundColor: "#7C1638" }}
     >
       {/* Office photo — bordeaux monochrome, seamless blend */}
       <div aria-hidden className="hidden md:block absolute right-0 top-0 w-[68%] h-full pointer-events-none">
