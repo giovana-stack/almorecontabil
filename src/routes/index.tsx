@@ -212,6 +212,13 @@ function Hero() {
               "linear-gradient(to bottom, rgba(124,22,56,0.55) 0%, rgba(124,22,56,0) 22%, rgba(124,22,56,0) 70%, rgba(124,22,56,0.75) 100%)",
           }}
         />
+        {/* Bottom fade from photo into bordeaux */}
+        <div
+          className="absolute bottom-0 left-0 h-[180px] w-full"
+          style={{
+            background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
+          }}
+        />
         {/* Radial bordeaux glow specifically over bottom-left corner */}
         <div
           className="absolute inset-0"
