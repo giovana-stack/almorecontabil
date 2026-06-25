@@ -402,6 +402,16 @@ function Entregamos() {
       ],
     },
     {
+      t: "Contábil",
+      items: [
+        "DRE",
+        "Balancete",
+        "Conciliações bancárias",
+        "Escriturações",
+        "Controle de mobilizado e depreciações",
+      ],
+    },
+    {
       t: "Consultivo & gestão",
       items: [
         "Diagnóstico e reunião de alinhamento",
@@ -417,10 +427,10 @@ function Entregamos() {
         <div className="max-w-3xl reveal">
           <div className="eyebrow text-gray-deep mb-6">O QUE ENTREGAMOS</div>
           <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Fiscal, pessoal e consultivo. <span className="text-[#7C1638]">Tudo sob o mesmo cuidado.</span>
+            Fiscal, pessoal, contábil e consultivo. <span className="text-[#7C1638]">Tudo sob o mesmo cuidado.</span>
           </h2>
         </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {cols.map((c) => (
             <div key={c.t} className="rounded-xl p-7 bg-surface card-hover reveal">
               <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>

@@ -1,10 +1,9 @@
-Plano para suavizar o canto inferior esquerdo da foto no hero:
-
-1. Ajustar somente o bloco da imagem do hero em `src/routes/index.tsx`.
-2. Manter a foto atual do executivo e todo o layout/textos intactos.
-3. Reforçar o fade no canto inferior esquerdo adicionando uma máscara combinada no próprio container/imagem:
-   - fade horizontal mais longo a partir da esquerda;
-   - fade vertical mais forte a partir da base;
-   - sobreposição radial/linear bordeaux no canto inferior esquerdo para dissolver a quina da foto no fundo.
-4. Expandir levemente a área de transição para que a imagem não tenha uma borda perceptível no rodapé.
-5. Preservar cores, espaçamentos gerais e hierarquia do hero; alterar apenas a composição visual da transição imagem/fundo.
+I will modify the "O QUE ENTREGAMOS" (Entregamos) section in `src/routes/index.tsx`:
+1. Change the main heading text from "Fiscal, pessoal e consultivo." to "Fiscal, pessoal, contábil e consultivo."
+2. Add a new card column for "Contábil" with the following deliverables:
+   - DRE
+   - Balancete
+   - Conciliações bancárias
+   - Escriturações
+   - Controle de mobilizado e depreciações
+3. Update the layout grid CSS class from `md:grid-cols-3` to `sm:grid-cols-2 lg:grid-cols-4` to perfectly fit the 4 columns on desktop and tablet screens.
