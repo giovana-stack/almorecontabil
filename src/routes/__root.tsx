@@ -91,6 +91,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "preload", as: "font", type: "font/otf", href: "/__l5e/assets-v1/645d8b13-fbd0-4001-a55e-c7c8efe0639a/manual-regular.otf", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/ttf", href: "/__l5e/assets-v1/3d76f106-ec47-4f89-87b7-dad9c1b5ed92/Volte-Regular.ttf", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/ttf", href: "/__l5e/assets-v1/824b161d-921a-45c0-bc6c-b6dfa8035268/Volte-Medium.ttf", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/ttf", href: "/__l5e/assets-v1/ccc12d15-9a36-4c3f-a7b1-47afa30f8246/Volte-Bold.ttf", crossOrigin: "anonymous" },
     ],
 
   }),
