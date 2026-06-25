@@ -41,9 +41,9 @@ const regimes = ["MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real", "Ai
 const tipos = ["MEI", "ME — Microempresa", "EPP — Empresa de Pequeno Porte", "Ltda.", "S/A", "Ainda não tenho"];
 
 const pains = [
-  "Mandou mensagem pro contador e esperou dias para ter uma resposta.",
+  "Mandou mensagem para o contador e esperou dias para ter uma resposta.",
   "Ficou sabendo da multa ou do prazo perdido depois que já aconteceu.",
-  "Recebe guias todo mês mas não entende nada do que está acontecendo com os números da empresa.",
+  "Recebe guias todos os meses, mas não entende nada do que está acontecendo com os números da empresa.",
   "Sua empresa cresceu — e a contabilidade ficou no mesmo lugar de sempre.",
   "Nunca recebeu uma orientação que você não pediu. Só responde quando você pergunta.",
 ];
@@ -243,7 +243,7 @@ function Hero() {
           </p>
           <div className="mt-8 h-px w-[60px] bg-white/20" />
           <p className="mt-6 max-w-[520px] text-white/60 text-[18px] italic leading-relaxed">
-            Empresas sem orientação contábil pagam, em média, 25% mais imposto do que deveriam.
+            Empresas sem orientação contábil pagam, em média, 12% mais imposto do que deveriam.
           </p>
           <button
             onClick={scrollToContato}
