@@ -1,16 +1,13 @@
 ## Diagnóstico
 
-A demora no aparecimento dos textos vem da combinação de três fatores no sistema de animação `reveal`:
+O flash de Montserrat acontece porque:
 
-1. **Transição longa** — `src/styles.css` define `transition: ... 0.7s ease-out` para `.reveal`. 700ms é perceptivelmente lento, especialmente somado ao delay do observer.
-2. **Threshold alto** — `IntersectionObserver` em `src/routes/index.tsx` usa `threshold: 0.12`, ou seja, o elemento só anima quando 12% dele está visível. Em blocos grandes (hero, cards), isso atrasa o disparo.
-3. **Atraso de hidratação** — Os elementos nascem com `opacity: 0` no HTML. Como o `useReveal` roda dentro de `useEffect` (só após hidratação do React), há um gap entre o paint inicial e o momento em que o observer começa a marcar elementos como `is-visible`. Em conexões/CPUs mais lentas isso é visível como “tela em branco de texto”.
+1. Em `src/styles.css`, cada `@font-face` está com `font-display: swap`. Isso instrui o navegador a renderizar **imediatamente** o texto usando o próximo fallback da pilha (`"Manual", "Montserrat", sans-serif` e `"Volte", "Inter", sans-serif`) enquanto a fonte real ainda está carregando, e depois trocar (FOUT — Flash of Unstyled Text).
+2. As fontes Manual e Volte são `.ttf/.otf` servidas via CDN externa, então levam algumas centenas de ms para chegar — tempo suficiente para o usuário ver Montserrat.
+3. Não existe `<link rel="preload">` para essas fontes no `__root.tsx`, então o navegador só descobre os arquivos depois de baixar e processar o CSS.
 
-## Correção proposta
+## Correção
 
-1. Em `src/styles.css`: reduzir a duração da transição de `0.7s` para `0.4s` (ease-out continua).
-2. Em `src/routes/index.tsx` (`useReveal`):
-   - Baixar `threshold` para `0` e adicionar `rootMargin: "0px 0px -10% 0px"` para disparar antes.
-   - Fazer uma primeira passada síncrona dentro do `useEffect` que marca como `is-visible` todos os elementos que já estão dentro do viewport no momento da hidratação (assim o hero e a primeira dobra revelam imediatamente, sem esperar o ciclo do IntersectionObserver).
-
-Resultado esperado: hero e textos da primeira dobra aparecem praticamente instantâneos após o carregamento; os demais blocos continuam com fade suave ao entrar em tela, mas bem mais ágil (400ms).
+1. **`src/routes/__root.tsx`** — Adicionar `<link rel="preload" as="font" type="font/...">` para os arquivos críticos (Manual Regular, Volte Medium 500 e Volte Bold 700) com `crossorigin="anonymous"`, dentro do `head()` do `__root`. Isso faz o navegador baixar essas fontes em paralelo com o CSS.
+2. **`src/styles.css`** — Trocar `font-display: swap` por `font-display: block` nas declarações `@font-face` de Manual e dos pesos principais de Volte (400/500/700). `block` mantém o texto invisível por até ~3s aguardando a fonte real, eliminando o flash da Montserrat. Como o preload faz a fonte chegar em <300ms na maioria dos casos, o usuário não percebe atraso — apenas vê o texto já renderizado na fonte correta.
+3. Remover `"Montserrat"` e `"Inter"` da pilha de fallback das variáveis `--font-display` e `--font-sans` (deixando apenas `sans-serif`), para garantir que, em qualquer cenário de fallback extremo, não apareça Montserrat — apenas a sans-serif do sistema, que é visualmente mais neutra.
