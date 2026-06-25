@@ -109,6 +109,14 @@ const faqs = [
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
+    const vh = window.innerHeight;
+    // Revela imediatamente o que já está no viewport na hidratação
+    els.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh && rect.bottom > 0) {
+        el.classList.add("is-visible");
+      }
+    });
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -118,9 +126,11 @@ function useReveal() {
           }
         });
       },
-      { threshold: 0.12 },
+      { threshold: 0, rootMargin: "0px 0px -10% 0px" },
     );
-    els.forEach((el) => io.observe(el));
+    els.forEach((el) => {
+      if (!el.classList.contains("is-visible")) io.observe(el);
+    });
     return () => io.disconnect();
   }, []);
 }
