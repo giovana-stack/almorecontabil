@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
@@ -619,6 +621,7 @@ const inputClass =
 
 function Formulario() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [checks, setChecks] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
@@ -627,16 +630,36 @@ function Formulario() {
     setChecks((c) => (c.includes(item) ? c.filter((x) => x !== item) : [...c, item]));
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting) return;
     const data = new FormData(e.currentTarget);
-    const required = ["nome", "email", "telefone", "regime", "tipo"];
+    const required = ["nome", "email", "telefone", "empresa", "regime", "tipo", "mensagem"];
     const errs: Record<string, boolean> = {};
     required.forEach((k) => {
       if (!String(data.get(k) || "").trim()) errs[k] = true;
     });
     setErrors(errs);
-    if (Object.keys(errs).length === 0) setSent(true);
+    if (Object.keys(errs).length > 0) return;
+
+    setSubmitting(true);
+    const { error } = await supabase.from("leads").insert({
+      nome: String(data.get("nome") || "").trim(),
+      email: String(data.get("email") || "").trim(),
+      telefone: String(data.get("telefone") || "").trim(),
+      empresa: String(data.get("empresa") || "").trim(),
+      regime_tributario: String(data.get("regime") || "").trim(),
+      tipo_servico: String(data.get("tipo") || "").trim(),
+      expectativas: checks,
+      mensagem: String(data.get("mensagem") || "").trim(),
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast.error("Não foi possível enviar sua mensagem. Tente novamente.");
+      return;
+    }
+    setSent(true);
   }
 
   return (
@@ -667,8 +690,9 @@ function Formulario() {
               <input name="nome" className={inputClass} placeholder="Seu nome" />
               {errors.nome && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
-            <Field label="Nome da empresa">
+            <Field label="Nome da empresa *">
               <input name="empresa" className={inputClass} placeholder="Sua empresa" />
+              {errors.empresa && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="E-mail *">
@@ -749,20 +773,22 @@ function Formulario() {
               {errors.tipo && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
 
-            <Field label="Mensagem">
+            <Field label="Mensagem *">
               <textarea
                 name="mensagem"
                 rows={4}
                 className={inputClass}
                 placeholder="Conta um pouco sobre o que você precisa..."
               />
+              {errors.mensagem && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
 
             <button
               type="submit"
-              className="btn-on-dark w-full font-display font-bold text-base px-8 py-4 rounded-md"
+              disabled={submitting}
+              className="btn-on-dark w-full font-display font-bold text-base px-8 py-4 rounded-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Enviar mensagem
+              {submitting ? "Enviando..." : "Enviar mensagem"}
             </button>
           </form>
         )}

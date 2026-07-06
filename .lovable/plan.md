@@ -1,13 +1,41 @@
-## Diagnóstico
+## Objetivo
+Ativar a Lovable Cloud e salvar os dados enviados pelo formulário de contato numa tabela do banco, sem notificações.
 
-O flash de Montserrat acontece porque:
+## Passos
 
-1. Em `src/styles.css`, cada `@font-face` está com `font-display: swap`. Isso instrui o navegador a renderizar **imediatamente** o texto usando o próximo fallback da pilha (`"Manual", "Montserrat", sans-serif` e `"Volte", "Inter", sans-serif`) enquanto a fonte real ainda está carregando, e depois trocar (FOUT — Flash of Unstyled Text).
-2. As fontes Manual e Volte são `.ttf/.otf` servidas via CDN externa, então levam algumas centenas de ms para chegar — tempo suficiente para o usuário ver Montserrat.
-3. Não existe `<link rel="preload">` para essas fontes no `__root.tsx`, então o navegador só descobre os arquivos depois de baixar e processar o CSS.
+1. **Ativar a Lovable Cloud**
+   - Provisiona banco de dados, autenticação e funções server-side.
 
-## Correção
+2. **Criar tabela `leads`** (via migration)
+   Colunas:
+   - `id` (uuid, PK, default gen_random_uuid())
+   - `created_at` (timestamptz, default now())
+   - `nome` (text, obrigatório)
+   - `email` (text, obrigatório)
+   - `telefone` (text, obrigatório)
+   - `empresa` (text, obrigatório)
+   - `regime_tributario` (text, obrigatório)
+   - `tipo_servico` (text, obrigatório)
+   - `expectativas` (text, obrigatório)
+   - `mensagem` (text, obrigatório)
 
-1. **`src/routes/__root.tsx`** — Adicionar `<link rel="preload" as="font" type="font/...">` para os arquivos críticos (Manual Regular, Volte Medium 500 e Volte Bold 700) com `crossorigin="anonymous"`, dentro do `head()` do `__root`. Isso faz o navegador baixar essas fontes em paralelo com o CSS.
-2. **`src/styles.css`** — Trocar `font-display: swap` por `font-display: block` nas declarações `@font-face` de Manual e dos pesos principais de Volte (400/500/700). `block` mantém o texto invisível por até ~3s aguardando a fonte real, eliminando o flash da Montserrat. Como o preload faz a fonte chegar em <300ms na maioria dos casos, o usuário não percebe atraso — apenas vê o texto já renderizado na fonte correta.
-3. Remover `"Montserrat"` e `"Inter"` da pilha de fallback das variáveis `--font-display` e `--font-sans` (deixando apenas `sans-serif`), para garantir que, em qualquer cenário de fallback extremo, não apareça Montserrat — apenas a sans-serif do sistema, que é visualmente mais neutra.
+   RLS + GRANTs:
+   - RLS ativado.
+   - `GRANT INSERT ON public.leads TO anon, authenticated` (para o formulário público inserir).
+   - Policy: `INSERT` permitido para `anon` e `authenticated`.
+   - Sem policy de SELECT — ninguém lê pelo Data API (dados ficam protegidos; você consulta pelo painel da Cloud).
+
+3. **Server function `submitLead`** (`src/lib/leads.functions.ts`)
+   - Valida todos os campos com Zod (todos obrigatórios, com limites de tamanho, email válido).
+   - Insere no banco usando o client publishable server-side.
+   - Retorna `{ ok: true }` ou erro tratado.
+
+4. **Integrar no formulário** (`src/routes/index.tsx`)
+   - Marcar todos os campos como `required` no HTML.
+   - Substituir o "envio simulado" por chamada real via `useServerFn(submitLead)`.
+   - Manter o toast "Mensagem recebida!" após sucesso.
+   - Exibir erro amigável em caso de falha.
+
+## O que NÃO faz
+- Sem envio de email de notificação.
+- Sem painel de leitura interno (leads consultados diretamente na Cloud → Tabela `leads`).
