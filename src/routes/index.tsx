@@ -773,20 +773,22 @@ function Formulario() {
               {errors.tipo && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
 
-            <Field label="Mensagem">
+            <Field label="Mensagem *">
               <textarea
                 name="mensagem"
                 rows={4}
                 className={inputClass}
                 placeholder="Conta um pouco sobre o que você precisa..."
               />
+              {errors.mensagem && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
 
             <button
               type="submit"
-              className="btn-on-dark w-full font-display font-bold text-base px-8 py-4 rounded-md"
+              disabled={submitting}
+              className="btn-on-dark w-full font-display font-bold text-base px-8 py-4 rounded-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Enviar mensagem
+              {submitting ? "Enviando..." : "Enviar mensagem"}
             </button>
           </form>
         )}
