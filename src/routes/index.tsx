@@ -690,8 +690,9 @@ function Formulario() {
               <input name="nome" className={inputClass} placeholder="Seu nome" />
               {errors.nome && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
-            <Field label="Nome da empresa">
+            <Field label="Nome da empresa *">
               <input name="empresa" className={inputClass} placeholder="Sua empresa" />
+              {errors.empresa && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
             </Field>
             <div className="grid sm:grid-cols-2 gap-5">
               <Field label="E-mail *">
