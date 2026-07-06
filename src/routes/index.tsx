@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
