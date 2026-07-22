@@ -121,7 +121,7 @@ function BlogIndex() {
                   <div style={{ width: "100%", aspectRatio: "16 / 9", background: "#F5F3F0", overflow: "hidden" }}>
                     <img
                       src={a.artigo_capa}
-                      alt={a.artigo_titulo || ""}
+                      alt={a.artigo_capa_alt || a.artigo_titulo || ""}
                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                       loading="lazy"
                     />
