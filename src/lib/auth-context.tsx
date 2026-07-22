@@ -10,8 +10,12 @@ type AuthState = {
   papel: string | null;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, nome: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateNome: (nome: string) => Promise<void>;
+  updateEmail: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
+  refreshPerfil: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthState | null>(null);
@@ -19,7 +23,7 @@ const Ctx = createContext<AuthState | null>(null);
 async function loadPerfil(user: User): Promise<Perfil | null> {
   const { data, error } = await supabaseExt
     .from("perfis")
-    .select("id, email, papel")
+    .select("id, email, nome, papel")
     .eq("id", user.id)
     .maybeSingle();
   if (error) {
@@ -69,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, nome: string) => {
     const { data, error } = await supabaseExt.auth.signUp({ email, password });
     if (error) {
       console.warn("[auth] signUp falhou:", error.message);
@@ -78,21 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const uid = data.user?.id;
     if (!uid) return;
 
-    // Garante que a sessão do próprio usuário esteja ativa antes do insert,
-    // para que a policy auth.uid() = id permita criar o perfil.
     let hasSession = !!data.session;
     if (!hasSession) {
       const { data: signInData } = await supabaseExt.auth.signInWithPassword({ email, password });
       hasSession = !!signInData.session;
     }
-    if (!hasSession) {
-      // Confirmação por e-mail provavelmente ativa; perfil será criado no primeiro login.
-      return;
-    }
+    if (!hasSession) return;
 
     const { error: pErr } = await supabaseExt
       .from("perfis")
-      .insert({ id: uid, email, papel: "comum" });
+      .insert({ id: uid, email, nome, papel: "comum" });
     if (pErr && !/duplicate|already/i.test(pErr.message)) {
       console.warn("[auth] erro ao criar perfil:", pErr.message);
     }
@@ -100,6 +99,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabaseExt.auth.signOut();
+  };
+
+  const refreshPerfil = async () => {
+    if (session?.user) {
+      const p = await loadPerfil(session.user);
+      setPerfil(p);
+    }
+  };
+
+  const updateNome = async (nome: string) => {
+    if (!session?.user) throw new Error("Não autenticado");
+    const { error } = await supabaseExt
+      .from("perfis")
+      .update({ nome })
+      .eq("id", session.user.id);
+    if (error) throw new Error("Não foi possível atualizar o nome");
+    await refreshPerfil();
+  };
+
+  const updateEmail = async (email: string) => {
+    const { error } = await supabaseExt.auth.updateUser({ email });
+    if (error) throw new Error(error.message || "Não foi possível atualizar o e-mail");
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabaseExt.auth.updateUser({ password });
+    if (error) throw new Error(error.message || "Não foi possível atualizar a senha");
   };
 
   const user = session?.user ?? null;
@@ -117,6 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        updateNome,
+        updateEmail,
+        updatePassword,
+        refreshPerfil,
       }}
     >
       {children}

@@ -13,10 +13,9 @@ type Comentario = {
   criado_em: string;
 };
 
-function emailHandle(email: string | null): string {
-  if (!email) return "Anônimo";
-  const at = email.indexOf("@");
-  return at > 0 ? email.slice(0, at) : email;
+function displayName(nome: string | null | undefined): string {
+  const n = (nome ?? "").trim();
+  return n || "Usuário";
 }
 
 function formatDateTime(iso: string): string {
@@ -36,6 +35,7 @@ function formatDateTime(iso: string): string {
 export function Comentarios({ artigoId }: { artigoId: string | number }) {
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState<Comentario[]>([]);
+  const [nomes, setNomes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [corpo, setCorpo] = useState("");
@@ -52,7 +52,22 @@ export function Comentarios({ artigoId }: { artigoId: string | number }) {
       .eq("artigo_id", String(artigoId))
       .order("criado_em", { ascending: true });
     if (error) setError(error.message);
-    setItems((data as Comentario[]) ?? []);
+    const rows = (data as Comentario[]) ?? [];
+    setItems(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.autor_id).filter(Boolean))) as string[];
+    if (ids.length) {
+      const { data: perfis } = await supabaseExt
+        .from("perfis")
+        .select("id, nome")
+        .in("id", ids);
+      const map: Record<string, string> = {};
+      (perfis as { id: string; nome: string | null }[] | null)?.forEach((p) => {
+        map[p.id] = (p.nome ?? "").trim();
+      });
+      setNomes(map);
+    } else {
+      setNomes({});
+    }
     setLoading(false);
   }, [artigoId]);
 
@@ -126,7 +141,7 @@ export function Comentarios({ artigoId }: { artigoId: string | number }) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-        <strong style={{ color: "#7C1638", fontSize: 14 }}>{emailHandle(c.autor_email)}</strong>
+        <strong style={{ color: "#7C1638", fontSize: 14 }}>{displayName(c.autor_id ? nomes[c.autor_id] : null)}</strong>
         <span style={{ color: "#818181", fontSize: 12 }}>{formatDateTime(c.criado_em)}</span>
       </div>
       <p style={{ margin: "8px 0 0", color: "#2b2b2b", fontSize: 15, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>

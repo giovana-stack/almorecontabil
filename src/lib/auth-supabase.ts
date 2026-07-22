@@ -15,5 +15,6 @@ export type Papel = "admin" | "comum" | string;
 export type Perfil = {
   id: string;
   email: string | null;
+  nome: string | null;
   papel: Papel;
 };
