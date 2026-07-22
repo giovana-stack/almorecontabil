@@ -35,6 +35,7 @@ function formatDateTime(iso: string): string {
 export function Comentarios({ artigoId }: { artigoId: string | number }) {
   const { user, isAdmin } = useAuth();
   const [items, setItems] = useState<Comentario[]>([]);
+  const [nomes, setNomes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [corpo, setCorpo] = useState("");
@@ -51,7 +52,22 @@ export function Comentarios({ artigoId }: { artigoId: string | number }) {
       .eq("artigo_id", String(artigoId))
       .order("criado_em", { ascending: true });
     if (error) setError(error.message);
-    setItems((data as Comentario[]) ?? []);
+    const rows = (data as Comentario[]) ?? [];
+    setItems(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.autor_id).filter(Boolean))) as string[];
+    if (ids.length) {
+      const { data: perfis } = await supabaseExt
+        .from("perfis")
+        .select("id, nome")
+        .in("id", ids);
+      const map: Record<string, string> = {};
+      (perfis as { id: string; nome: string | null }[] | null)?.forEach((p) => {
+        map[p.id] = (p.nome ?? "").trim();
+      });
+      setNomes(map);
+    } else {
+      setNomes({});
+    }
     setLoading(false);
   }, [artigoId]);
 
