@@ -53,6 +53,7 @@ function RedacaoPage() {
   const [titulo, setTitulo] = useState("");
   const [corpo, setCorpo] = useState("");
   const [capa, setCapa] = useState<string>("");
+  const [capaAlt, setCapaAlt] = useState<string>("");
   const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
