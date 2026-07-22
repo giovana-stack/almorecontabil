@@ -10,6 +10,7 @@ import {
   articlePath,
   type Artigo,
 } from "@/lib/blog";
+import { Comentarios } from "@/components/Comentarios";
 
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
@@ -139,6 +140,8 @@ function BlogArticle() {
           }}
           dangerouslySetInnerHTML={{ __html: artigo.artigo_corpo || "" }}
         />
+
+        <Comentarios artigoId={artigo.id} />
 
         <div style={{ marginTop: 32, textAlign: "center" }}>
           <Link
