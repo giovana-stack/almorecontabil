@@ -266,25 +266,40 @@ function RedacaoPage() {
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <header style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <h1 style={{ fontSize: 28, fontWeight: 700, color: "#7C1638", margin: 0 }}>Redação</h1>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            {gerando && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#595959", fontSize: 14 }}>
+                <span
+                  style={{
+                    width: 14,
+                    height: 14,
+                    border: "2px solid #7C1638",
+                    borderTopColor: "transparent",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+                Gerando artigos... a lista será atualizada em instantes
+              </span>
+            )}
             <button
               onClick={() => {
                 if (gerando) return;
                 setGerando(true);
-                try {
-                  fetch(
-                    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz",
-                    { method: "GET", mode: "no-cors" }
-                  ).catch(() => {});
-                } finally {
-                  alert("Geração disparada. Aguarde 1-2 minutos e clique em Recarregar para ver os novos artigos.");
-                  setTimeout(() => setGerando(false), 5000);
-                }
+                fetch(
+                  "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz",
+                  { method: "GET", mode: "no-cors" }
+                ).catch(() => {});
+                setTimeout(() => {
+                  load();
+                  setGerando(false);
+                }, 90000);
               }}
               disabled={gerando}
               style={{ ...btnOutline, opacity: gerando ? 0.6 : 1, cursor: gerando ? "not-allowed" : "pointer" }}
             >
-              {gerando ? "Disparado…" : "Gerar artigos agora"}
+              {gerando ? "Gerando…" : "Gerar artigos agora"}
             </button>
             <button onClick={load} style={btnPrimary}>Recarregar</button>
           </div>
