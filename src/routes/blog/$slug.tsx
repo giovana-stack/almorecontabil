@@ -6,6 +6,7 @@ import {
   excerpt,
   formatDate,
   SITE_URL,
+  DEFAULT_OG_IMAGE,
   articlePath,
   type Artigo,
 } from "@/lib/blog";
@@ -13,7 +14,7 @@ import {
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
   const res = await fetch(
-    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,publicado_em,status,criado_em&limit=1`,
+    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,publicado_em,status,criado_em&limit=1`,
     { headers: restHeaders }
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/blog/$slug")({
     const title = loaderData?.artigo_titulo || "Artigo";
     const desc = excerpt(loaderData?.artigo_corpo ?? null, 160);
     const url = `${SITE_URL}${articlePath({ id: loaderData?.id ?? params.slug.split("-")[0], artigo_titulo: title })}`;
+    const image = loaderData?.artigo_capa || DEFAULT_OG_IMAGE;
     return {
       meta: [
         { title: `${title} — Almore Inteligência Contábil` },
@@ -36,6 +38,9 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
+        { property: "og:image", content: image },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: image },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -101,7 +106,28 @@ function BlogArticle() {
       </header>
 
       <main style={{ maxWidth: 760, margin: "0 auto", padding: "48px 20px 80px" }}>
+        {artigo.artigo_capa && (
+          <div
+            style={{
+              width: "100%",
+              aspectRatio: "16 / 9",
+              overflow: "hidden",
+              borderRadius: 8,
+              marginBottom: 28,
+              background: "#F5F3F0",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+          >
+            <img
+              src={artigo.artigo_capa}
+              alt={artigo.artigo_titulo || ""}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          </div>
+        )}
+
         <article
+          className="blog-content"
           style={{
             background: "#fff",
             padding: "40px 36px",
@@ -111,13 +137,8 @@ function BlogArticle() {
             lineHeight: 1.75,
             color: "#2b2b2b",
           }}
-        >
-          {(artigo.artigo_corpo || "").split(/\n{2,}/).map((para: string, i: number) => (
-            <p key={i} style={{ margin: "0 0 1.2em", whiteSpace: "pre-wrap" }}>
-              {para}
-            </p>
-          ))}
-        </article>
+          dangerouslySetInnerHTML={{ __html: artigo.artigo_corpo || "" }}
+        />
 
         <div style={{ marginTop: 32, textAlign: "center" }}>
           <Link
