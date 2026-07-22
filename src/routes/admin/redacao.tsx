@@ -181,7 +181,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, status: "escrito" },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, status: "escrito" },
       "rascunho",
       true
     );
