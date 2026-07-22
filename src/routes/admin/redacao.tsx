@@ -69,7 +69,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "escrito" | "publicado";
+type Tab = "novo" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -179,55 +179,12 @@ function RedacaoPage() {
     }
   };
 
-  const publishIt = async (id: Artigo["id"]) => {
-    if (!confirm("Publicar este artigo?")) return;
-    setSaving("publicar-card");
-    try {
-      const res = await fetch(`${REST}?id=eq.${id}`, {
-        method: "PATCH",
-        headers: {
-          ...baseHeaders,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify({
-          status: "publicado",
-          publicado_em: new Date().toISOString(),
-        }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setItems((prev) => prev.filter((x) => x.id !== id));
-    } catch (e: any) {
-      alert(`Erro: ${e.message}`);
-    } finally {
-      setSaving(null);
-    }
-  };
-
   // Novos
-  const salvarRascunho = () =>
-    selected &&
-    patchIt(
-      selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, status: "escrito" },
-      "rascunho",
-      true
-    );
   const descartar = () => {
     if (!selected) return;
     if (!confirm("Descartar este artigo?")) return;
     patchIt(selected.id, { status: "descartado" }, "descartar", true);
   };
-
-  // Escritos
-  const salvarAlteracoes = () =>
-    selected &&
-    patchIt(
-      selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
-      "alteracoes",
-      false
-    );
   const publicar = () => {
     if (!selected) return;
     if (!confirm("Publicar este artigo?")) return;
@@ -245,14 +202,20 @@ function RedacaoPage() {
       true
     );
   };
-  const voltarParaNovos = () =>
-    selected && patchIt(selected.id, { status: "novo" }, "voltar", true);
 
   // Publicados
+  const salvarAlteracoes = () =>
+    selected &&
+    patchIt(
+      selected.id,
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
+      "alteracoes",
+      false
+    );
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
-    patchIt(selected.id, { status: "escrito" }, "despublicar", true);
+    patchIt(selected.id, { status: "novo" }, "despublicar", true);
   };
 
   const tabBtn = (t: Tab, label: string) => (
@@ -322,7 +285,6 @@ function RedacaoPage() {
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
-          {tabBtn("escrito", "Escritos")}
           {tabBtn("publicado", "Publicados")}
         </div>
 
@@ -342,11 +304,6 @@ function RedacaoPage() {
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
-                {tab === "escrito" && (
-                  <button onClick={() => publishIt(item.id)} disabled={!!saving} style={btnPrimarySm}>
-                    Publicar
-                  </button>
-                )}
                 <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
                   Excluir
                 </button>
@@ -380,22 +337,6 @@ function RedacaoPage() {
                     )}
                   </div>
                   {item.angulos && <pre style={preStyle}>{item.angulos}</pre>}
-                </article>
-              );
-            }
-            if (tab === "escrito") {
-              return (
-                <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                  <div style={cardHeaderStyle}>
-                    <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
-                      {item.artigo_titulo || "(sem título)"}
-                    </h2>
-                    {actions}
-                  </div>
-                  <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
-                    {htmlToText(item.artigo_corpo).slice(0, 260)}
-                    {htmlToText(item.artigo_corpo).length > 260 ? "…" : ""}
-                  </p>
                 </article>
               );
             }
@@ -566,20 +507,6 @@ function RedacaoPage() {
                   <>
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
-                    </button>
-                    <button onClick={salvarRascunho} disabled={!!saving} style={btnPrimary}>
-                      {saving === "rascunho" ? "Salvando…" : "Salvar rascunho"}
-                    </button>
-                  </>
-                )}
-
-                {tab === "escrito" && (
-                  <>
-                    <button onClick={voltarParaNovos} disabled={!!saving} style={btnOutline}>
-                      {saving === "voltar" ? "Movendo…" : "Voltar para novos"}
-                    </button>
-                    <button onClick={salvarAlteracoes} disabled={!!saving} style={btnOutline}>
-                      {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar"}
