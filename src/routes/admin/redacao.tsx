@@ -29,18 +29,30 @@ type Artigo = {
   publicado_em: string | null;
 };
 
-function parseCapasSugeridas(raw: unknown): string[] {
+type CapaSugerida = { url: string; alt: string };
+
+function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
   if (!raw) return [];
   try {
     const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
     if (Array.isArray(parsed)) {
-      return parsed.filter((u): u is string => typeof u === "string" && !!u).slice(0, 3);
+      return parsed
+        .map((item): CapaSugerida | null => {
+          if (typeof item === "string" && item) return { url: item, alt: "" };
+          if (item && typeof item === "object" && typeof (item as any).url === "string") {
+            return { url: (item as any).url, alt: typeof (item as any).alt === "string" ? (item as any).alt : "" };
+          }
+          return null;
+        })
+        .filter((v): v is CapaSugerida => !!v && !!v.url)
+        .slice(0, 3);
     }
   } catch {
     // ignore
   }
   return [];
 }
+
 
 type Tab = "novo" | "escrito" | "publicado";
 
