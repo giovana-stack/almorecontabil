@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { RichEditor } from "@/components/RichEditor";
+import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate } from "@/lib/blog";
 
 export const Route = createFileRoute("/admin/redacao")({
   head: () => ({
@@ -11,16 +13,6 @@ export const Route = createFileRoute("/admin/redacao")({
   component: RedacaoPage,
 });
 
-const SUPABASE_URL = "https://adgcnounhstuqwpvfpgp.supabase.co";
-const SUPABASE_ANON =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZ2Nub3VuaHN0dXF3cHZmcGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NjEzMDksImV4cCI6MjEwMDEzNzMwOX0.SPPob6NXrKVimnaTqy_HLEn8l1LZla2gUjfF2y_jrA8";
-const REST = `${SUPABASE_URL}/rest/v1/blog_artigos`;
-
-const baseHeaders = {
-  apikey: SUPABASE_ANON,
-  Authorization: `Bearer ${SUPABASE_ANON}`,
-};
-
 type Artigo = {
   id: string | number;
   noticia_titulo: string | null;
@@ -29,25 +21,13 @@ type Artigo = {
   angulos: string | null;
   artigo_titulo: string | null;
   artigo_corpo: string | null;
+  artigo_capa: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;
 };
 
 type Tab = "novo" | "escrito" | "publicado";
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return "";
-  }
-}
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
