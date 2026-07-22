@@ -31,9 +31,23 @@ type Artigo = {
   artigo_corpo: string | null;
   status: string;
   criado_em: string;
+  publicado_em: string | null;
 };
 
-type Tab = "novo" | "escrito";
+type Tab = "novo" | "escrito" | "publicado";
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -49,8 +63,9 @@ function RedacaoPage() {
     setLoading(true);
     setError(null);
     try {
+      const orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
       const res = await fetch(
-        `${REST}?status=eq.${tab}&order=criado_em.desc&select=*`,
+        `${REST}?status=eq.${tab}&order=${orderBy}&select=*`,
         { headers: baseHeaders }
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -92,13 +107,30 @@ function RedacaoPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (removeFromList) {
         setItems((prev) => prev.filter((x) => x.id !== id));
-        setSelected(null);
       } else {
         setItems((prev) =>
           prev.map((x) => (x.id === id ? ({ ...x, ...body } as Artigo) : x))
         );
-        setSelected(null);
       }
+      setSelected(null);
+    } catch (e: any) {
+      alert(`Erro: ${e.message}`);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const deleteIt = async (id: Artigo["id"]) => {
+    if (!confirm("Tem certeza que deseja excluir? Esta ação não pode ser desfeita.")) return;
+    setSaving("excluir");
+    try {
+      const res = await fetch(`${REST}?id=eq.${id}`, {
+        method: "DELETE",
+        headers: { ...baseHeaders, Prefer: "return=minimal" },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setItems((prev) => prev.filter((x) => x.id !== id));
+      setSelected(null);
     } catch (e: any) {
       alert(`Erro: ${e.message}`);
     } finally {
@@ -148,6 +180,13 @@ function RedacaoPage() {
   const voltarParaNovos = () =>
     selected && patchIt(selected.id, { status: "novo" }, "voltar", true);
 
+  // Publicados
+  const despublicar = () => {
+    if (!selected) return;
+    if (!confirm("Despublicar este artigo?")) return;
+    patchIt(selected.id, { status: "escrito" }, "despublicar", true);
+  };
+
   const tabBtn = (t: Tab, label: string) => (
     <button
       onClick={() => {
@@ -180,6 +219,7 @@ function RedacaoPage() {
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
           {tabBtn("escrito", "Escritos")}
+          {tabBtn("publicado", "Publicados")}
         </div>
 
         {loading && <p>Carregando…</p>}
@@ -189,43 +229,59 @@ function RedacaoPage() {
         )}
 
         <div style={{ display: "grid", gap: 16 }}>
-          {items.map((item) =>
-            tab === "novo" ? (
+          {items.map((item) => {
+            if (tab === "novo") {
+              return (
+                <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
+                  <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
+                    {item.noticia_titulo || "(sem título)"}
+                  </h2>
+                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10 }}>
+                    <strong>{item.noticia_fonte || "—"}</strong>
+                    {item.noticia_link && (
+                      <>
+                        {" · "}
+                        <a
+                          href={item.noticia_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ color: "#7C1638" }}
+                        >
+                          abrir notícia
+                        </a>
+                      </>
+                    )}
+                  </div>
+                  {item.angulos && <pre style={preStyle}>{item.angulos}</pre>}
+                </article>
+              );
+            }
+            if (tab === "escrito") {
+              return (
+                <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
+                  <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
+                    {item.artigo_titulo || "(sem título)"}
+                  </h2>
+                  <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
+                    {(item.artigo_corpo || "").slice(0, 260)}
+                    {(item.artigo_corpo || "").length > 260 ? "…" : ""}
+                  </p>
+                </article>
+              );
+            }
+            // publicado
+            return (
               <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
-                  {item.noticia_titulo || "(sem título)"}
-                </h2>
-                <div style={{ fontSize: 13, color: "#818181", marginBottom: 10 }}>
-                  <strong>{item.noticia_fonte || "—"}</strong>
-                  {item.noticia_link && (
-                    <>
-                      {" · "}
-                      <a
-                        href={item.noticia_link}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ color: "#7C1638" }}
-                      >
-                        abrir notícia
-                      </a>
-                    </>
-                  )}
-                </div>
-                {item.angulos && <pre style={preStyle}>{item.angulos}</pre>}
-              </article>
-            ) : (
-              <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
+                <h2 style={{ margin: "0 0 6px", fontSize: 18, color: "#111" }}>
                   {item.artigo_titulo || "(sem título)"}
                 </h2>
-                <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
-                  {(item.artigo_corpo || "").slice(0, 260)}
-                  {(item.artigo_corpo || "").length > 260 ? "…" : ""}
-                </p>
+                <div style={{ fontSize: 13, color: "#818181" }}>
+                  Publicado em {formatDate(item.publicado_em)}
+                </div>
               </article>
-            )
-          )}
+            );
+          })}
         </div>
       </div>
 
@@ -279,31 +335,54 @@ function RedacaoPage() {
             <label style={labelStyle}>Corpo do artigo</label>
             <textarea value={corpo} onChange={(e) => setCorpo(e.target.value)} rows={18} style={textareaStyle} />
 
-            <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "flex-end", flexWrap: "wrap" }}>
-              <button onClick={() => setSelected(null)} style={btnGhost}>Cancelar</button>
+            <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+              <button
+                onClick={() => deleteIt(selected.id)}
+                disabled={!!saving}
+                style={btnDanger}
+              >
+                {saving === "excluir" ? "Excluindo…" : "Excluir"}
+              </button>
 
-              {tab === "novo" ? (
-                <>
-                  <button onClick={descartar} disabled={!!saving} style={btnOutline}>
-                    {saving === "descartar" ? "Descartando…" : "Descartar"}
-                  </button>
-                  <button onClick={salvarRascunho} disabled={!!saving} style={btnPrimary}>
-                    {saving === "rascunho" ? "Salvando…" : "Salvar rascunho"}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button onClick={voltarParaNovos} disabled={!!saving} style={btnOutline}>
-                    {saving === "voltar" ? "Movendo…" : "Voltar para novos"}
-                  </button>
-                  <button onClick={salvarAlteracoes} disabled={!!saving} style={btnOutline}>
-                    {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
-                  </button>
-                  <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
-                    {saving === "publicar" ? "Publicando…" : "Publicar"}
-                  </button>
-                </>
-              )}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button onClick={() => setSelected(null)} style={btnGhost}>Cancelar</button>
+
+                {tab === "novo" && (
+                  <>
+                    <button onClick={descartar} disabled={!!saving} style={btnOutline}>
+                      {saving === "descartar" ? "Descartando…" : "Descartar"}
+                    </button>
+                    <button onClick={salvarRascunho} disabled={!!saving} style={btnPrimary}>
+                      {saving === "rascunho" ? "Salvando…" : "Salvar rascunho"}
+                    </button>
+                  </>
+                )}
+
+                {tab === "escrito" && (
+                  <>
+                    <button onClick={voltarParaNovos} disabled={!!saving} style={btnOutline}>
+                      {saving === "voltar" ? "Movendo…" : "Voltar para novos"}
+                    </button>
+                    <button onClick={salvarAlteracoes} disabled={!!saving} style={btnOutline}>
+                      {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
+                    </button>
+                    <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
+                      {saving === "publicar" ? "Publicando…" : "Publicar"}
+                    </button>
+                  </>
+                )}
+
+                {tab === "publicado" && (
+                  <>
+                    <button onClick={despublicar} disabled={!!saving} style={btnOutline}>
+                      {saving === "despublicar" ? "Despublicando…" : "Despublicar"}
+                    </button>
+                    <button onClick={salvarAlteracoes} disabled={!!saving} style={btnPrimary}>
+                      {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -368,6 +447,15 @@ const btnPrimary: React.CSSProperties = {
   background: "#7C1638",
   color: "#fff",
   border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
+  fontSize: 14,
+};
+const btnDanger: React.CSSProperties = {
+  padding: "10px 18px",
+  background: "#fff",
+  color: "#b00020",
+  border: "1px solid #b00020",
   borderRadius: 6,
   cursor: "pointer",
   fontSize: 14,
