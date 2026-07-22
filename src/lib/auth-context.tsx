@@ -119,13 +119,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateEmail = async (email: string) => {
-    const { error } = await supabaseExt.auth.updateUser({ email });
+    const { data: sessionData } = await supabaseExt.auth.getSession();
+    if (!sessionData.session) throw new Error("Sessão expirada. Faça login novamente.");
+    const { data, error } = await supabaseExt.auth.updateUser({ email });
     if (error) throw new Error(error.message || "Não foi possível atualizar o e-mail");
+    if (!data?.user) throw new Error("Resposta inválida do servidor ao atualizar e-mail");
   };
 
   const updatePassword = async (password: string) => {
-    const { error } = await supabaseExt.auth.updateUser({ password });
+    const { data: sessionData } = await supabaseExt.auth.getSession();
+    if (!sessionData.session) throw new Error("Sessão expirada. Faça login novamente.");
+    const { data, error } = await supabaseExt.auth.updateUser({ password });
     if (error) throw new Error(error.message || "Não foi possível atualizar a senha");
+    if (!data?.user) throw new Error("Resposta inválida do servidor ao atualizar a senha");
   };
 
   const user = session?.user ?? null;
