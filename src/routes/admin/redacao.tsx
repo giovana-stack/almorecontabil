@@ -134,6 +134,31 @@ function RedacaoPage() {
     }
   };
 
+  const publishIt = async (id: Artigo["id"]) => {
+    if (!confirm("Publicar este artigo?")) return;
+    setSaving("publicar-card");
+    try {
+      const res = await fetch(`${REST}?id=eq.${id}`, {
+        method: "PATCH",
+        headers: {
+          ...baseHeaders,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          status: "publicado",
+          publicado_em: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setItems((prev) => prev.filter((x) => x.id !== id));
+    } catch (e: any) {
+      alert(`Erro: ${e.message}`);
+    } finally {
+      setSaving(null);
+    }
+  };
+
   // Novos
   const salvarRascunho = () =>
     selected &&
@@ -235,6 +260,11 @@ function RedacaoPage() {
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
+                {tab === "escrito" && (
+                  <button onClick={() => publishIt(item.id)} disabled={!!saving} style={btnPrimarySm}>
+                    Publicar
+                  </button>
+                )}
                 <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
                   Excluir
                 </button>
@@ -532,6 +562,15 @@ const btnDangerSm: React.CSSProperties = {
   background: "#fff",
   color: "#b00020",
   border: "1px solid #b00020",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
+};
+const btnPrimarySm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#7C1638",
+  color: "#fff",
+  border: "none",
   borderRadius: 4,
   cursor: "pointer",
   fontSize: 13,
