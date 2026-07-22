@@ -22,6 +22,7 @@ type Artigo = {
   artigo_titulo: string | null;
   artigo_corpo: string | null;
   artigo_capa: string | null;
+  artigo_capa_alt: string | null;
   capas_sugeridas: string | null;
   status: string;
   criado_em: string;
