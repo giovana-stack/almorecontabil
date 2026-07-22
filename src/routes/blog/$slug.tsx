@@ -122,9 +122,10 @@ function BlogArticle() {
                 position: "absolute",
                 inset: 0,
                 background:
-                  "linear-gradient(180deg, rgba(42,7,16,0.55) 0%, rgba(42,7,16,0.65) 55%, rgba(124,22,56,0.85) 100%)",
+                  "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%)",
               }}
             />
+
           </>
         )}
 
