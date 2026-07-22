@@ -149,7 +149,6 @@ function BlogArticle() {
               fontWeight: 700,
               lineHeight: 1.15,
               margin: 0,
-              textShadow: hasCapa ? "0 2px 16px rgba(0,0,0,0.55)" : "none",
             }}
           >
             {artigo.artigo_titulo}
@@ -161,9 +160,9 @@ function BlogArticle() {
               opacity: 0.95,
               textTransform: "uppercase",
               letterSpacing: 0.6,
-              textShadow: hasCapa ? "0 1px 8px rgba(0,0,0,0.6)" : "none",
             }}
           >
+
             {formatDate(artigo.publicado_em)}
           </div>
         </div>
