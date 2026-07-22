@@ -74,22 +74,6 @@ function BlogArticle() {
     <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
       <SiteNavbar />
 
-      {/* Breadcrumb / voltar */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #eee" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "12px 20px" }}>
-          <Link
-            to="/blog"
-            style={{
-              color: "#7C1638",
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            ← Voltar ao Blog
-          </Link>
-        </div>
-      </div>
 
       {/* Hero banner: capa + título sobreposto */}
       <section
@@ -115,7 +99,7 @@ function BlogArticle() {
                 display: "block",
               }}
             />
-            {/* Overlay bordeaux + escurecimento para legibilidade */}
+            {/* Overlay preto para legibilidade do texto branco */}
             <div
               aria-hidden
               style={{
@@ -126,10 +110,70 @@ function BlogArticle() {
               }}
             />
 
+            {/* Voltar ao Blog — discreto, sobre o overlay */}
+            <div
+              style={{
+                position: "absolute",
+                top: 20,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "100%",
+                maxWidth: 900,
+                padding: "0 20px",
+                zIndex: 2,
+              }}
+            >
+              <Link
+                to="/blog"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  color: "rgba(255,255,255,0.92)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  textShadow: "none",
+                }}
+              >
+                ← Voltar ao Blog
+              </Link>
+            </div>
           </>
         )}
 
+        {!hasCapa && (
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100%",
+              maxWidth: 900,
+              padding: "0 20px",
+              zIndex: 2,
+            }}
+          >
+            <Link
+              to="/blog"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                color: "rgba(255,255,255,0.92)",
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              ← Voltar ao Blog
+            </Link>
+          </div>
+        )}
+
         <div
+
           style={{
             position: "relative",
             maxWidth: 900,
