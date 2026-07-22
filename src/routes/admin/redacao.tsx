@@ -37,7 +37,10 @@ function RedacaoPage() {
   const [selected, setSelected] = useState<Artigo | null>(null);
   const [titulo, setTitulo] = useState("");
   const [corpo, setCorpo] = useState("");
+  const [capa, setCapa] = useState<string>("");
+  const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
+  const capaInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -65,6 +68,19 @@ function RedacaoPage() {
     setSelected(item);
     setTitulo(item.artigo_titulo || "");
     setCorpo(item.artigo_corpo || "");
+    setCapa(item.artigo_capa || "");
+  };
+
+  const onPickCapa = async (file: File) => {
+    setUploadingCapa(true);
+    try {
+      const url = await uploadBlogImage(file);
+      setCapa(url);
+    } catch (e: any) {
+      alert(`Erro no upload: ${e.message}`);
+    } finally {
+      setUploadingCapa(false);
+    }
   };
 
   const patchIt = async (
