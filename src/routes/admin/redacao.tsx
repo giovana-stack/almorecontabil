@@ -483,3 +483,27 @@ const btnDanger: React.CSSProperties = {
   cursor: "pointer",
   fontSize: 14,
 };
+const cardHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+};
+const btnOutlineSm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#fff",
+  color: "#7C1638",
+  border: "1px solid #7C1638",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
+};
+const btnDangerSm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#fff",
+  color: "#b00020",
+  border: "1px solid #b00020",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
+};
