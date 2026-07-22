@@ -14,7 +14,7 @@ import {
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
   const res = await fetch(
-    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,publicado_em,status,criado_em&limit=1`,
+    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,publicado_em,status,criado_em&limit=1`,
     { headers: restHeaders }
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -120,7 +120,7 @@ function BlogArticle() {
           >
             <img
               src={artigo.artigo_capa}
-              alt={artigo.artigo_titulo || ""}
+              alt={artigo.artigo_capa_alt || artigo.artigo_titulo || ""}
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
           </div>

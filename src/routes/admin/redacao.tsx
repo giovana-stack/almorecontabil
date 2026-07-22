@@ -22,6 +22,7 @@ type Artigo = {
   artigo_titulo: string | null;
   artigo_corpo: string | null;
   artigo_capa: string | null;
+  artigo_capa_alt: string | null;
   capas_sugeridas: string | null;
   status: string;
   criado_em: string;
@@ -52,6 +53,7 @@ function RedacaoPage() {
   const [titulo, setTitulo] = useState("");
   const [corpo, setCorpo] = useState("");
   const [capa, setCapa] = useState<string>("");
+  const [capaAlt, setCapaAlt] = useState<string>("");
   const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +85,7 @@ function RedacaoPage() {
     setTitulo(item.artigo_titulo || "");
     setCorpo(item.artigo_corpo || "");
     setCapa(item.artigo_capa || "");
+    setCapaAlt(item.artigo_capa_alt || "");
   };
 
   const onPickCapa = async (file: File) => {
@@ -178,7 +181,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, status: "escrito" },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, status: "escrito" },
       "rascunho",
       true
     );
@@ -193,7 +196,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
       "alteracoes",
       false
     );
@@ -206,6 +209,7 @@ function RedacaoPage() {
         artigo_titulo: titulo,
         artigo_corpo: corpo,
         artigo_capa: capa || null,
+        artigo_capa_alt: capaAlt || null,
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
@@ -463,6 +467,15 @@ function RedacaoPage() {
                 </div>
               );
             })()}
+
+            <label style={labelStyle}>Texto alternativo da capa (alt)</label>
+            <input
+              value={capaAlt}
+              onChange={(e) => setCapaAlt(e.target.value)}
+              placeholder="Descreva a imagem de capa para acessibilidade e SEO"
+              style={inputStyle}
+            />
+
 
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>

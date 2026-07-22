@@ -18,6 +18,7 @@ export type Artigo = {
   artigo_titulo: string | null;
   artigo_corpo: string | null;
   artigo_capa?: string | null;
+  artigo_capa_alt?: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;
