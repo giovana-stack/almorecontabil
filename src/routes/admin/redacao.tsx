@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { RichEditor } from "@/components/RichEditor";
+import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate } from "@/lib/blog";
 
 export const Route = createFileRoute("/admin/redacao")({
   head: () => ({
@@ -11,16 +13,6 @@ export const Route = createFileRoute("/admin/redacao")({
   component: RedacaoPage,
 });
 
-const SUPABASE_URL = "https://adgcnounhstuqwpvfpgp.supabase.co";
-const SUPABASE_ANON =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZ2Nub3VuaHN0dXF3cHZmcGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NjEzMDksImV4cCI6MjEwMDEzNzMwOX0.SPPob6NXrKVimnaTqy_HLEn8l1LZla2gUjfF2y_jrA8";
-const REST = `${SUPABASE_URL}/rest/v1/blog_artigos`;
-
-const baseHeaders = {
-  apikey: SUPABASE_ANON,
-  Authorization: `Bearer ${SUPABASE_ANON}`,
-};
-
 type Artigo = {
   id: string | number;
   noticia_titulo: string | null;
@@ -29,25 +21,13 @@ type Artigo = {
   angulos: string | null;
   artigo_titulo: string | null;
   artigo_corpo: string | null;
+  artigo_capa: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;
 };
 
 type Tab = "novo" | "escrito" | "publicado";
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return "";
-  }
-}
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -57,7 +37,10 @@ function RedacaoPage() {
   const [selected, setSelected] = useState<Artigo | null>(null);
   const [titulo, setTitulo] = useState("");
   const [corpo, setCorpo] = useState("");
+  const [capa, setCapa] = useState<string>("");
+  const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
+  const capaInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -85,6 +68,19 @@ function RedacaoPage() {
     setSelected(item);
     setTitulo(item.artigo_titulo || "");
     setCorpo(item.artigo_corpo || "");
+    setCapa(item.artigo_capa || "");
+  };
+
+  const onPickCapa = async (file: File) => {
+    setUploadingCapa(true);
+    try {
+      const url = await uploadBlogImage(file);
+      setCapa(url);
+    } catch (e: any) {
+      alert(`Erro no upload: ${e.message}`);
+    } finally {
+      setUploadingCapa(false);
+    }
   };
 
   const patchIt = async (
@@ -143,7 +139,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, status: "escrito" },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, status: "escrito" },
       "rascunho",
       true
     );
@@ -158,7 +154,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null },
       "alteracoes",
       false
     );
@@ -170,6 +166,7 @@ function RedacaoPage() {
       {
         artigo_titulo: titulo,
         artigo_corpo: corpo,
+        artigo_capa: capa || null,
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
@@ -284,8 +281,8 @@ function RedacaoPage() {
                     {actions}
                   </div>
                   <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
-                    {(item.artigo_corpo || "").slice(0, 260)}
-                    {(item.artigo_corpo || "").length > 260 ? "…" : ""}
+                    {htmlToText(item.artigo_corpo).slice(0, 260)}
+                    {htmlToText(item.artigo_corpo).length > 260 ? "…" : ""}
                   </p>
                 </article>
               );
@@ -355,8 +352,40 @@ function RedacaoPage() {
             <label style={labelStyle}>Título do artigo</label>
             <input value={titulo} onChange={(e) => setTitulo(e.target.value)} style={inputStyle} />
 
+            <label style={labelStyle}>Imagem de capa</label>
+            <div style={{ marginBottom: 16 }}>
+              {capa && (
+                <div style={{ marginBottom: 10, aspectRatio: "16 / 9", width: "100%", overflow: "hidden", borderRadius: 6, background: "#F5F3F0" }}>
+                  <img src={capa} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button type="button" onClick={() => capaInputRef.current?.click()} disabled={uploadingCapa} style={btnOutline}>
+                  {uploadingCapa ? "Enviando…" : capa ? "Trocar capa" : "Enviar capa"}
+                </button>
+                {capa && (
+                  <button type="button" onClick={() => setCapa("")} style={btnGhost}>
+                    Remover
+                  </button>
+                )}
+              </div>
+              <input
+                ref={capaInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) onPickCapa(f);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
             <label style={labelStyle}>Corpo do artigo</label>
-            <textarea value={corpo} onChange={(e) => setCorpo(e.target.value)} rows={18} style={textareaStyle} />
+            <div style={{ marginBottom: 16 }}>
+              <RichEditor value={corpo} onChange={setCorpo} />
+            </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
               <button
