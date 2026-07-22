@@ -139,7 +139,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, status: "escrito" },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, status: "escrito" },
       "rascunho",
       true
     );
@@ -154,7 +154,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null },
       "alteracoes",
       false
     );
@@ -166,6 +166,7 @@ function RedacaoPage() {
       {
         artigo_titulo: titulo,
         artigo_corpo: corpo,
+        artigo_capa: capa || null,
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
