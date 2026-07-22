@@ -449,13 +449,16 @@ function RedacaoPage() {
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Capas sugeridas</label>
                   <div style={{ display: "grid", gridTemplateColumns: `repeat(${sugeridas.length}, 1fr)`, gap: 10 }}>
-                    {sugeridas.map((url) => {
-                      const active = capa === url;
+                    {sugeridas.map((s) => {
+                      const active = capa === s.url;
                       return (
                         <button
-                          key={url}
+                          key={s.url}
                           type="button"
-                          onClick={() => setCapa(url)}
+                          onClick={() => {
+                            setCapa(s.url);
+                            if (s.alt) setCapaAlt(s.alt);
+                          }}
                           style={{
                             padding: 0,
                             border: active ? "3px solid #7C1638" : "1px solid #ddd",
@@ -468,13 +471,14 @@ function RedacaoPage() {
                           title={active ? "Capa selecionada" : "Usar esta capa"}
                         >
                           <img
-                            src={url}
-                            alt="Capa sugerida"
+                            src={s.url}
+                            alt={s.alt || "Capa sugerida"}
                             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                           />
                         </button>
                       );
                     })}
+
                   </div>
                 </div>
               );
