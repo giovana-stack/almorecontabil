@@ -13,10 +13,9 @@ type Comentario = {
   criado_em: string;
 };
 
-function emailHandle(email: string | null): string {
-  if (!email) return "Anônimo";
-  const at = email.indexOf("@");
-  return at > 0 ? email.slice(0, at) : email;
+function displayName(nome: string | null | undefined): string {
+  const n = (nome ?? "").trim();
+  return n || "Usuário";
 }
 
 function formatDateTime(iso: string): string {
