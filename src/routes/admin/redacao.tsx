@@ -69,7 +69,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "escrito" | "publicado";
+type Tab = "novo" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -205,29 +205,11 @@ function RedacaoPage() {
   };
 
   // Novos
-  const salvarRascunho = () =>
-    selected &&
-    patchIt(
-      selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, status: "escrito" },
-      "rascunho",
-      true
-    );
   const descartar = () => {
     if (!selected) return;
     if (!confirm("Descartar este artigo?")) return;
     patchIt(selected.id, { status: "descartado" }, "descartar", true);
   };
-
-  // Escritos
-  const salvarAlteracoes = () =>
-    selected &&
-    patchIt(
-      selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
-      "alteracoes",
-      false
-    );
   const publicar = () => {
     if (!selected) return;
     if (!confirm("Publicar este artigo?")) return;
@@ -245,14 +227,20 @@ function RedacaoPage() {
       true
     );
   };
-  const voltarParaNovos = () =>
-    selected && patchIt(selected.id, { status: "novo" }, "voltar", true);
 
   // Publicados
+  const salvarAlteracoes = () =>
+    selected &&
+    patchIt(
+      selected.id,
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
+      "alteracoes",
+      false
+    );
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
-    patchIt(selected.id, { status: "escrito" }, "despublicar", true);
+    patchIt(selected.id, { status: "novo" }, "despublicar", true);
   };
 
   const tabBtn = (t: Tab, label: string) => (
