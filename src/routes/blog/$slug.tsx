@@ -74,22 +74,6 @@ function BlogArticle() {
     <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
       <SiteNavbar />
 
-      {/* Breadcrumb / voltar */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #eee" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "12px 20px" }}>
-          <Link
-            to="/blog"
-            style={{
-              color: "#7C1638",
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            ← Voltar ao Blog
-          </Link>
-        </div>
-      </div>
 
       {/* Hero banner: capa + título sobreposto */}
       <section
