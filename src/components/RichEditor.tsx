@@ -2,7 +2,7 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uploadBlogImage } from "@/lib/blog";
 
 type Props = {
@@ -10,8 +10,17 @@ type Props = {
   onChange: (html: string) => void;
 };
 
+type AltModalState =
+  | { mode: "upload"; file: File; initialAlt: string }
+  | { mode: "edit"; initialAlt: string }
+  | null;
+
 export function RichEditor({ value, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [altModal, setAltModal] = useState<AltModalState>(null);
+  const [altValue, setAltValue] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -54,23 +63,68 @@ export function RichEditor({ value, onChange }: Props) {
     );
   }
 
-  const onPickImage = async (file: File) => {
-    const alt = window.prompt("Texto alternativo (alt) para a imagem — obrigatório:");
-    if (!alt || !alt.trim()) {
-      alert("Texto alternativo é obrigatório.");
+  const openUploadModal = (file: File) => {
+    setUploadError(null);
+    setAltValue("");
+    setAltModal({ mode: "upload", file, initialAlt: "" });
+  };
+
+  const openEditAltModal = () => {
+    if (!editor.isActive("image")) return;
+    const attrs = editor.getAttributes("image");
+    const currentAlt = (attrs.alt as string) || "";
+    setUploadError(null);
+    setAltValue(currentAlt);
+    setAltModal({ mode: "edit", initialAlt: currentAlt });
+  };
+
+  const closeModal = () => {
+    if (uploading) return;
+    setAltModal(null);
+    setAltValue("");
+    setUploadError(null);
+  };
+
+  const confirmAlt = async () => {
+    const alt = altValue.trim();
+    if (!alt) {
+      setUploadError("Texto alternativo é obrigatório.");
       return;
     }
+    if (!altModal) return;
+
+    if (altModal.mode === "edit") {
+      editor.chain().focus().updateAttributes("image", { alt }).run();
+      setAltModal(null);
+      setAltValue("");
+      return;
+    }
+
+    // upload
+    setUploading(true);
+    setUploadError(null);
     try {
-      const url = await uploadBlogImage(file);
-      editor.chain().focus().setImage({ src: url, alt: alt.trim() }).run();
+      const url = await uploadBlogImage(altModal.file);
+      editor.chain().focus().setImage({ src: url, alt }).run();
+      setAltModal(null);
+      setAltValue("");
     } catch (e: any) {
-      alert(`Erro no upload: ${e.message}`);
+      setUploadError(`Erro no upload: ${e.message}`);
+    } finally {
+      setUploading(false);
     }
   };
 
+  const imageActive = editor.isActive("image");
+
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff" }}>
-      <Toolbar editor={editor} onInsertImage={() => fileRef.current?.click()} />
+    <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
+      <Toolbar
+        editor={editor}
+        onInsertImage={() => fileRef.current?.click()}
+        onEditAlt={openEditAltModal}
+        imageActive={imageActive}
+      />
       <input
         ref={fileRef}
         type="file"
@@ -78,11 +132,139 @@ export function RichEditor({ value, onChange }: Props) {
         style={{ display: "none" }}
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) onPickImage(f);
+          if (f) openUploadModal(f);
           e.target.value = "";
         }}
       />
       <EditorContent editor={editor} />
+
+      {altModal && (
+        <AltModal
+          mode={altModal.mode}
+          value={altValue}
+          onChange={setAltValue}
+          onConfirm={confirmAlt}
+          onCancel={closeModal}
+          uploading={uploading}
+          error={uploadError}
+        />
+      )}
+    </div>
+  );
+}
+
+function AltModal({
+  mode,
+  value,
+  onChange,
+  onConfirm,
+  onCancel,
+  uploading,
+  error,
+}: {
+  mode: "upload" | "edit";
+  value: string;
+  onChange: (v: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  uploading: boolean;
+  error: string | null;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 20,
+        borderRadius: 4,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          padding: 20,
+          borderRadius: 6,
+          width: "min(440px, 92%)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: "#7C1638" }}>
+          {mode === "upload" ? "Inserir imagem" : "Editar texto alternativo"}
+        </div>
+        <div style={{ fontSize: 13, color: "#595959", marginBottom: 12 }}>
+          Texto alternativo (alt) — obrigatório. Descreva a imagem para acessibilidade e SEO.
+        </div>
+        <input
+          type="text"
+          autoFocus
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onConfirm();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          placeholder="Ex.: Gráfico mostrando crescimento de receita"
+          disabled={uploading}
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            border: "1px solid #ddd",
+            borderRadius: 4,
+            fontSize: 14,
+            outline: "none",
+          }}
+        />
+        {error && (
+          <div style={{ color: "#b00020", fontSize: 13, marginTop: 8 }}>{error}</div>
+        )}
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={uploading}
+            style={{
+              padding: "8px 14px",
+              background: "#fff",
+              color: "#333",
+              border: "1px solid #ddd",
+              borderRadius: 4,
+              cursor: uploading ? "not-allowed" : "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={uploading}
+            style={{
+              padding: "8px 14px",
+              background: "#7C1638",
+              color: "#fff",
+              border: "1px solid #7C1638",
+              borderRadius: 4,
+              cursor: uploading ? "not-allowed" : "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            {uploading ? "Enviando…" : mode === "upload" ? "Inserir" : "Salvar"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -90,32 +272,40 @@ export function RichEditor({ value, onChange }: Props) {
 function Toolbar({
   editor,
   onInsertImage,
+  onEditAlt,
+  imageActive,
 }: {
   editor: Editor;
   onInsertImage: () => void;
+  onEditAlt: () => void;
+  imageActive: boolean;
 }) {
   const Btn = ({
     onClick,
     active,
     children,
     title,
+    disabled,
   }: {
     onClick: () => void;
     active?: boolean;
     children: React.ReactNode;
     title: string;
+    disabled?: boolean;
   }) => (
     <button
       type="button"
       title={title}
       onClick={onClick}
+      disabled={disabled}
       style={{
         padding: "6px 10px",
         background: active ? "#7C1638" : "#fff",
         color: active ? "#fff" : "#333",
         border: "1px solid #ddd",
         borderRadius: 4,
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
         fontSize: 13,
         fontWeight: 600,
       }}
@@ -179,6 +369,13 @@ function Toolbar({
       </Btn>
       <Btn title="Inserir imagem" onClick={onInsertImage}>
         🖼 Imagem
+      </Btn>
+      <Btn
+        title="Editar alt da imagem selecionada"
+        onClick={onEditAlt}
+        disabled={!imageActive}
+      >
+        Alt
       </Btn>
     </div>
   );
