@@ -29,18 +29,30 @@ type Artigo = {
   publicado_em: string | null;
 };
 
-function parseCapasSugeridas(raw: unknown): string[] {
+type CapaSugerida = { url: string; alt: string };
+
+function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
   if (!raw) return [];
   try {
     const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
     if (Array.isArray(parsed)) {
-      return parsed.filter((u): u is string => typeof u === "string" && !!u).slice(0, 3);
+      return parsed
+        .map((item): CapaSugerida | null => {
+          if (typeof item === "string" && item) return { url: item, alt: "" };
+          if (item && typeof item === "object" && typeof (item as any).url === "string") {
+            return { url: (item as any).url, alt: typeof (item as any).alt === "string" ? (item as any).alt : "" };
+          }
+          return null;
+        })
+        .filter((v): v is CapaSugerida => !!v && !!v.url)
+        .slice(0, 3);
     }
   } catch {
     // ignore
   }
   return [];
 }
+
 
 type Tab = "novo" | "escrito" | "publicado";
 
@@ -437,13 +449,16 @@ function RedacaoPage() {
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Capas sugeridas</label>
                   <div style={{ display: "grid", gridTemplateColumns: `repeat(${sugeridas.length}, 1fr)`, gap: 10 }}>
-                    {sugeridas.map((url) => {
-                      const active = capa === url;
+                    {sugeridas.map((s) => {
+                      const active = capa === s.url;
                       return (
                         <button
-                          key={url}
+                          key={s.url}
                           type="button"
-                          onClick={() => setCapa(url)}
+                          onClick={() => {
+                            setCapa(s.url);
+                            if (s.alt) setCapaAlt(s.alt);
+                          }}
                           style={{
                             padding: 0,
                             border: active ? "3px solid #7C1638" : "1px solid #ddd",
@@ -456,13 +471,14 @@ function RedacaoPage() {
                           title={active ? "Capa selecionada" : "Usar esta capa"}
                         >
                           <img
-                            src={url}
-                            alt="Capa sugerida"
+                            src={s.url}
+                            alt={s.alt || "Capa sugerida"}
                             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                           />
                         </button>
                       );
                     })}
+
                   </div>
                 </div>
               );
