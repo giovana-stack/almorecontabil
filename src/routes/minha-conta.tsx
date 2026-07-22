@@ -13,7 +13,7 @@ export const Route = createFileRoute("/minha-conta")({
 });
 
 function MinhaContaPage() {
-  const { user, perfil, isAdmin, loading, signOut, updateNome, updateEmail, updatePassword } = useAuth();
+  const { user, perfil, isAdmin, loading, signOut, updateNome } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,23 +84,6 @@ function MinhaContaPage() {
           label="Nome"
           initial={perfil?.nome ?? ""}
           onSave={updateNome}
-        />
-        <SectionCard
-          title="Alterar e-mail"
-          label="Novo e-mail"
-          type="email"
-          initial={user.email ?? ""}
-          onSave={updateEmail}
-          hint="Você pode precisar confirmar o novo endereço por e-mail."
-        />
-        <SectionCard
-          title="Alterar senha"
-          label="Nova senha"
-          type="password"
-          initial=""
-          minLength={6}
-          onSave={updatePassword}
-          clearAfterSave
         />
       </main>
     </div>
