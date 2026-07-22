@@ -71,15 +71,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabaseExt.auth.signUp({ email, password });
-    if (error) throw error;
+    if (error) {
+      console.warn("[auth] signUp falhou:", error.message);
+      throw new Error("Não foi possível criar a conta");
+    }
     const uid = data.user?.id;
-    if (uid) {
-      const { error: pErr } = await supabaseExt
-        .from("perfis")
-        .insert({ id: uid, email, papel: "comum" });
-      if (pErr && !/duplicate|already/i.test(pErr.message)) {
-        console.warn("[auth] erro ao criar perfil:", pErr.message);
-      }
+    if (!uid) return;
+
+    // Garante que a sessão do próprio usuário esteja ativa antes do insert,
+    // para que a policy auth.uid() = id permita criar o perfil.
+    let hasSession = !!data.session;
+    if (!hasSession) {
+      const { data: signInData } = await supabaseExt.auth.signInWithPassword({ email, password });
+      hasSession = !!signInData.session;
+    }
+    if (!hasSession) {
+      // Confirmação por e-mail provavelmente ativa; perfil será criado no primeiro login.
+      return;
+    }
+
+    const { error: pErr } = await supabaseExt
+      .from("perfis")
+      .insert({ id: uid, email, papel: "comum" });
+    if (pErr && !/duplicate|already/i.test(pErr.message)) {
+      console.warn("[auth] erro ao criar perfil:", pErr.message);
     }
   };
 
