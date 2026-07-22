@@ -57,6 +57,19 @@ function LoginPage() {
         </p>
 
         <form onSubmit={onSubmit}>
+          {mode === "signup" && (
+            <>
+              <label style={label}>Nome</label>
+              <input
+                type="text"
+                required
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                style={input}
+                autoComplete="name"
+              />
+            </>
+          )}
           <label style={label}>E-mail</label>
           <input
             type="email"
