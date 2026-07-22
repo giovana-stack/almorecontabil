@@ -22,10 +22,24 @@ type Artigo = {
   artigo_titulo: string | null;
   artigo_corpo: string | null;
   artigo_capa: string | null;
+  capas_sugeridas: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;
 };
+
+function parseCapasSugeridas(raw: unknown): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((u): u is string => typeof u === "string" && !!u).slice(0, 3);
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+}
 
 type Tab = "novo" | "escrito" | "publicado";
 
@@ -411,6 +425,44 @@ function RedacaoPage() {
                 }}
               />
             </div>
+
+            {(() => {
+              const sugeridas = parseCapasSugeridas(selected.capas_sugeridas);
+              if (sugeridas.length === 0) return null;
+              return (
+                <div style={{ marginBottom: 16 }}>
+                  <label style={labelStyle}>Capas sugeridas</label>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${sugeridas.length}, 1fr)`, gap: 10 }}>
+                    {sugeridas.map((url) => {
+                      const active = capa === url;
+                      return (
+                        <button
+                          key={url}
+                          type="button"
+                          onClick={() => setCapa(url)}
+                          style={{
+                            padding: 0,
+                            border: active ? "3px solid #7C1638" : "1px solid #ddd",
+                            borderRadius: 6,
+                            overflow: "hidden",
+                            cursor: "pointer",
+                            aspectRatio: "16 / 9",
+                            background: "#F5F3F0",
+                          }}
+                          title={active ? "Capa selecionada" : "Usar esta capa"}
+                        >
+                          <img
+                            src={url}
+                            alt="Capa sugerida"
+                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>
