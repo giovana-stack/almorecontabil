@@ -61,18 +61,32 @@ function BlogIndex() {
       <SiteNavbar />
 
       <main style={{ maxWidth: 820, margin: "0 auto", padding: "40px 20px 48px" }}>
-        <h1
-          className="font-display"
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: "#7C1638",
-            margin: "0 0 24px",
-            letterSpacing: 0.2,
-          }}
-        >
-          Blog
-        </h1>
+        <header style={{ textAlign: "center", margin: "0 auto 40px", maxWidth: 720 }}>
+          <h1
+            className="font-display"
+            style={{
+              fontSize: "clamp(30px, 5vw, 42px)",
+              fontWeight: 700,
+              color: "#7C1638",
+              margin: "0 0 14px",
+              letterSpacing: -0.2,
+              lineHeight: 1.15,
+            }}
+          >
+            Blog Almore
+          </h1>
+          <p
+            style={{
+              margin: 0,
+              color: "#595959",
+              fontSize: "clamp(15px, 2.2vw, 18px)",
+              lineHeight: 1.55,
+            }}
+          >
+            Notícias e análises sobre contabilidade, impostos, reforma tributária e gestão para MEI, Simples Nacional e pequenas empresas.
+          </p>
+        </header>
+
 
         {loading && <p style={{ color: "#595959" }}>Carregando…</p>}
         {error && <p style={{ color: "#b00" }}>Erro: {error}</p>}
