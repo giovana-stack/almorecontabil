@@ -209,6 +209,7 @@ function RedacaoPage() {
         artigo_titulo: titulo,
         artigo_corpo: corpo,
         artigo_capa: capa || null,
+        artigo_capa_alt: capaAlt || null,
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
