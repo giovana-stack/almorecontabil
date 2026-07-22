@@ -260,6 +260,11 @@ function RedacaoPage() {
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
+                {tab === "escrito" && (
+                  <button onClick={() => publishIt(item.id)} disabled={!!saving} style={btnPrimarySm}>
+                    Publicar
+                  </button>
+                )}
                 <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
                   Excluir
                 </button>
