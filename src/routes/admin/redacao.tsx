@@ -468,6 +468,15 @@ function RedacaoPage() {
               );
             })()}
 
+            <label style={labelStyle}>Texto alternativo da capa (alt)</label>
+            <input
+              value={capaAlt}
+              onChange={(e) => setCapaAlt(e.target.value)}
+              placeholder="Descreva a imagem de capa para acessibilidade e SEO"
+              style={inputStyle}
+            />
+
+
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>
               <RichEditor value={corpo} onChange={setCorpo} />
