@@ -22,10 +22,24 @@ type Artigo = {
   artigo_titulo: string | null;
   artigo_corpo: string | null;
   artigo_capa: string | null;
+  capas_sugeridas: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;
 };
+
+function parseCapasSugeridas(raw: unknown): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((u): u is string => typeof u === "string" && !!u).slice(0, 3);
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+}
 
 type Tab = "novo" | "escrito" | "publicado";
 
