@@ -85,23 +85,6 @@ function MinhaContaPage() {
           initial={perfil?.nome ?? ""}
           onSave={updateNome}
         />
-        <SectionCard
-          title="Alterar e-mail"
-          label="Novo e-mail"
-          type="email"
-          initial={user.email ?? ""}
-          onSave={updateEmail}
-          hint="Você pode precisar confirmar o novo endereço por e-mail."
-        />
-        <SectionCard
-          title="Alterar senha"
-          label="Nova senha"
-          type="password"
-          initial=""
-          minLength={6}
-          onSave={updatePassword}
-          clearAfterSave
-        />
       </main>
     </div>
   );
