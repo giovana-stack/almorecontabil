@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { RichEditor } from "@/components/RichEditor";
 import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate } from "@/lib/blog";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/admin/redacao")({
   head: () => ({
@@ -10,8 +11,22 @@ export const Route = createFileRoute("/admin/redacao")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: RedacaoPage,
+  component: RedacaoGate,
 });
+
+function RedacaoGate() {
+  const { loading, user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (loading) return;
+    if (!user || !isAdmin) navigate({ to: "/", replace: true });
+  }, [loading, user, isAdmin, navigate]);
+  if (loading) {
+    return <div style={{ minHeight: "100vh", background: "#F5F3F0", display: "flex", alignItems: "center", justifyContent: "center", color: "#595959" }}>Carregando…</div>;
+  }
+  if (!user || !isAdmin) return null;
+  return <RedacaoPage />;
+}
 
 type Artigo = {
   id: string | number;

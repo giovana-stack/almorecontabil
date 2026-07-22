@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
@@ -165,6 +166,7 @@ function LandingPage() {
 }
 
 function Navbar() {
+  const { user, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#f0eeeb]">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
@@ -178,6 +180,24 @@ function Navbar() {
           >
             Blog
           </a>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline text-sm text-[#595959] truncate max-w-[180px]">{user.email}</span>
+              <button
+                onClick={() => signOut()}
+                className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+              >
+                Sair
+              </button>
+            </div>
+          ) : (
+            <a
+              href="/login"
+              className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+            >
+              Entrar
+            </a>
+          )}
           <button
             onClick={scrollToContato}
             className="btn-primary font-display font-semibold text-sm px-5 py-2.5 rounded-md"
