@@ -60,45 +60,20 @@ function BlogIndex() {
     <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
       <SiteNavbar />
 
-      <header
-        style={{
-          background: "#7C1638",
-          color: "#fff",
-          padding: "28px 20px",
-        }}
-      >
-        <div
+      <main style={{ maxWidth: 820, margin: "0 auto", padding: "40px 20px 48px" }}>
+        <h1
+          className="font-display"
           style={{
-            maxWidth: 1120,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-            flexWrap: "wrap",
+            fontSize: 22,
+            fontWeight: 700,
+            color: "#7C1638",
+            margin: "0 0 24px",
+            letterSpacing: 0.2,
           }}
         >
-          <a
-            href="/"
-            style={{
-              color: "#fff",
-              opacity: 0.85,
-              fontSize: 13,
-              textDecoration: "none",
-            }}
-          >
-            ← Voltar ao site
-          </a>
-          <span style={{ opacity: 0.4 }}>/</span>
-          <h1
-            className="font-display"
-            style={{ fontSize: 28, fontWeight: 700, margin: 0, lineHeight: 1 }}
-          >
-            Blog
-          </h1>
-        </div>
-      </header>
+          Blog
+        </h1>
 
-      <main style={{ maxWidth: 820, margin: "0 auto", padding: "48px 20px" }}>
         {loading && <p style={{ color: "#595959" }}>Carregando…</p>}
         {error && <p style={{ color: "#b00" }}>Erro: {error}</p>}
         {!loading && !error && items.length === 0 && (
