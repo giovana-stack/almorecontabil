@@ -179,31 +179,6 @@ function RedacaoPage() {
     }
   };
 
-  const publishIt = async (id: Artigo["id"]) => {
-    if (!confirm("Publicar este artigo?")) return;
-    setSaving("publicar-card");
-    try {
-      const res = await fetch(`${REST}?id=eq.${id}`, {
-        method: "PATCH",
-        headers: {
-          ...baseHeaders,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify({
-          status: "publicado",
-          publicado_em: new Date().toISOString(),
-        }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setItems((prev) => prev.filter((x) => x.id !== id));
-    } catch (e: any) {
-      alert(`Erro: ${e.message}`);
-    } finally {
-      setSaving(null);
-    }
-  };
-
   // Novos
   const descartar = () => {
     if (!selected) return;
