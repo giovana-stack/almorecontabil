@@ -566,3 +566,12 @@ const btnDangerSm: React.CSSProperties = {
   cursor: "pointer",
   fontSize: 13,
 };
+const btnPrimarySm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#7C1638",
+  color: "#fff",
+  border: "none",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
+};
