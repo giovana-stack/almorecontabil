@@ -120,7 +120,7 @@ function BlogArticle() {
           >
             <img
               src={artigo.artigo_capa}
-              alt={artigo.artigo_titulo || ""}
+              alt={artigo.artigo_capa_alt || artigo.artigo_titulo || ""}
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
           </div>
