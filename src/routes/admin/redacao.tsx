@@ -352,8 +352,40 @@ function RedacaoPage() {
             <label style={labelStyle}>Título do artigo</label>
             <input value={titulo} onChange={(e) => setTitulo(e.target.value)} style={inputStyle} />
 
+            <label style={labelStyle}>Imagem de capa</label>
+            <div style={{ marginBottom: 16 }}>
+              {capa && (
+                <div style={{ marginBottom: 10, aspectRatio: "16 / 9", width: "100%", overflow: "hidden", borderRadius: 6, background: "#F5F3F0" }}>
+                  <img src={capa} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button type="button" onClick={() => capaInputRef.current?.click()} disabled={uploadingCapa} style={btnOutline}>
+                  {uploadingCapa ? "Enviando…" : capa ? "Trocar capa" : "Enviar capa"}
+                </button>
+                {capa && (
+                  <button type="button" onClick={() => setCapa("")} style={btnGhost}>
+                    Remover
+                  </button>
+                )}
+              </div>
+              <input
+                ref={capaInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) onPickCapa(f);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
             <label style={labelStyle}>Corpo do artigo</label>
-            <textarea value={corpo} onChange={(e) => setCorpo(e.target.value)} rows={18} style={textareaStyle} />
+            <div style={{ marginBottom: 16 }}>
+              <RichEditor value={corpo} onChange={setCorpo} />
+            </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
               <button
