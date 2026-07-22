@@ -68,6 +68,7 @@ function RedacaoPage() {
   const [capaAlt, setCapaAlt] = useState<string>("");
   const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
+  const [gerando, setGerando] = useState(false);
   const capaInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -263,9 +264,30 @@ function RedacaoPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3F0", padding: "32px 20px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <header style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <header style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <h1 style={{ fontSize: 28, fontWeight: 700, color: "#7C1638", margin: 0 }}>Redação</h1>
-          <button onClick={load} style={btnPrimary}>Recarregar</button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                if (gerando) return;
+                setGerando(true);
+                try {
+                  fetch(
+                    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz",
+                    { method: "GET", mode: "no-cors" }
+                  ).catch(() => {});
+                } finally {
+                  alert("Geração disparada. Aguarde 1-2 minutos e clique em Recarregar para ver os novos artigos.");
+                  setTimeout(() => setGerando(false), 5000);
+                }
+              }}
+              disabled={gerando}
+              style={{ ...btnOutline, opacity: gerando ? 0.6 : 1, cursor: gerando ? "not-allowed" : "pointer" }}
+            >
+              {gerando ? "Disparado…" : "Gerar artigos agora"}
+            </button>
+            <button onClick={load} style={btnPrimary}>Recarregar</button>
+          </div>
         </header>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
