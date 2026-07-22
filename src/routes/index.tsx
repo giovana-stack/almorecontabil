@@ -171,16 +171,25 @@ function Navbar() {
         <a href="#top" className="flex items-center">
           <img src={logoBordeaux.url} alt="Almore Inteligência Contábil" className="h-9 w-auto" />
         </a>
-        <button
-          onClick={scrollToContato}
-          className="btn-primary font-display font-semibold text-sm px-5 py-2.5 rounded-md"
-        >
-          Falar com a Almore
-        </button>
+        <div className="flex items-center gap-5">
+          <a
+            href="/blog"
+            className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+          >
+            Blog
+          </a>
+          <button
+            onClick={scrollToContato}
+            className="btn-primary font-display font-semibold text-sm px-5 py-2.5 rounded-md"
+          >
+            Falar com a Almore
+          </button>
+        </div>
       </div>
     </header>
   );
 }
+
 
 function Hero() {
   return (
