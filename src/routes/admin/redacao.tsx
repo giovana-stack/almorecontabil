@@ -230,12 +230,29 @@ function RedacaoPage() {
 
         <div style={{ display: "grid", gap: 16 }}>
           {items.map((item) => {
+            const actions = (
+              <div
+                style={{ display: "flex", gap: 8, flexShrink: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button onClick={() => openEditor(item)} style={btnOutlineSm}>
+                  Editar
+                </button>
+                <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
+                  Excluir
+                </button>
+              </div>
+            );
+
             if (tab === "novo") {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                  <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
-                    {item.noticia_titulo || "(sem título)"}
-                  </h2>
+                  <div style={cardHeaderStyle}>
+                    <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
+                      {item.noticia_titulo || "(sem título)"}
+                    </h2>
+                    {actions}
+                  </div>
                   <div style={{ fontSize: 13, color: "#818181", marginBottom: 10 }}>
                     <strong>{item.noticia_fonte || "—"}</strong>
                     {item.noticia_link && (
@@ -260,9 +277,12 @@ function RedacaoPage() {
             if (tab === "escrito") {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                  <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111" }}>
-                    {item.artigo_titulo || "(sem título)"}
-                  </h2>
+                  <div style={cardHeaderStyle}>
+                    <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
+                      {item.artigo_titulo || "(sem título)"}
+                    </h2>
+                    {actions}
+                  </div>
                   <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
                     {(item.artigo_corpo || "").slice(0, 260)}
                     {(item.artigo_corpo || "").length > 260 ? "…" : ""}
@@ -273,9 +293,12 @@ function RedacaoPage() {
             // publicado
             return (
               <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                <h2 style={{ margin: "0 0 6px", fontSize: 18, color: "#111" }}>
-                  {item.artigo_titulo || "(sem título)"}
-                </h2>
+                <div style={cardHeaderStyle}>
+                  <h2 style={{ margin: "0 0 6px", fontSize: 18, color: "#111", flex: 1 }}>
+                    {item.artigo_titulo || "(sem título)"}
+                  </h2>
+                  {actions}
+                </div>
                 <div style={{ fontSize: 13, color: "#818181" }}>
                   Publicado em {formatDate(item.publicado_em)}
                 </div>
@@ -459,4 +482,28 @@ const btnDanger: React.CSSProperties = {
   borderRadius: 6,
   cursor: "pointer",
   fontSize: 14,
+};
+const cardHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+};
+const btnOutlineSm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#fff",
+  color: "#7C1638",
+  border: "1px solid #7C1638",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
+};
+const btnDangerSm: React.CSSProperties = {
+  padding: "6px 12px",
+  background: "#fff",
+  color: "#b00020",
+  border: "1px solid #b00020",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: 13,
 };
