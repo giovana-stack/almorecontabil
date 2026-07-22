@@ -4,7 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { NodeSelection } from "@tiptap/pm/state";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { uploadBlogImage } from "@/lib/blog";
 
 type Props = {
@@ -211,7 +211,7 @@ export function RichEditor({ value, onChange }: Props) {
       />
       <EditorContent editor={editor} />
 
-      <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} />
+      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} />}
 
       {altModal && (
         <AltModal
@@ -241,7 +241,7 @@ function ImageBubbleMenu({ editor, onEditAlt }: { editor: Editor; onEditAlt: () 
     editor.chain().focus().deleteSelection().run();
   };
 
-  const menuButtonStyle = (active = false): React.CSSProperties => ({
+  const menuButtonStyle = (active = false): CSSProperties => ({
     border: `1px solid ${active ? "#7C1638" : "#e6ddd8"}`,
     background: active ? "#7C1638" : "#fff",
     color: active ? "#fff" : "#333",
