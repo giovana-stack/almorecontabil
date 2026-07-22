@@ -281,8 +281,8 @@ function RedacaoPage() {
                     {actions}
                   </div>
                   <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
-                    {(item.artigo_corpo || "").slice(0, 260)}
-                    {(item.artigo_corpo || "").length > 260 ? "…" : ""}
+                    {htmlToText(item.artigo_corpo).slice(0, 260)}
+                    {htmlToText(item.artigo_corpo).length > 260 ? "…" : ""}
                   </p>
                 </article>
               );
