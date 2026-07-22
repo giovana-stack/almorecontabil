@@ -310,7 +310,6 @@ function RedacaoPage() {
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
-          {tabBtn("escrito", "Escritos")}
           {tabBtn("publicado", "Publicados")}
         </div>
 
@@ -330,11 +329,6 @@ function RedacaoPage() {
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
-                {tab === "escrito" && (
-                  <button onClick={() => publishIt(item.id)} disabled={!!saving} style={btnPrimarySm}>
-                    Publicar
-                  </button>
-                )}
                 <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
                   Excluir
                 </button>
@@ -368,22 +362,6 @@ function RedacaoPage() {
                     )}
                   </div>
                   {item.angulos && <pre style={preStyle}>{item.angulos}</pre>}
-                </article>
-              );
-            }
-            if (tab === "escrito") {
-              return (
-                <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
-                  <div style={cardHeaderStyle}>
-                    <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
-                      {item.artigo_titulo || "(sem título)"}
-                    </h2>
-                    {actions}
-                  </div>
-                  <p style={{ margin: 0, fontSize: 14, color: "#595959", lineHeight: 1.5 }}>
-                    {htmlToText(item.artigo_corpo).slice(0, 260)}
-                    {htmlToText(item.artigo_corpo).length > 260 ? "…" : ""}
-                  </p>
                 </article>
               );
             }
@@ -554,20 +532,6 @@ function RedacaoPage() {
                   <>
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
-                    </button>
-                    <button onClick={salvarRascunho} disabled={!!saving} style={btnPrimary}>
-                      {saving === "rascunho" ? "Salvando…" : "Salvar rascunho"}
-                    </button>
-                  </>
-                )}
-
-                {tab === "escrito" && (
-                  <>
-                    <button onClick={voltarParaNovos} disabled={!!saving} style={btnOutline}>
-                      {saving === "voltar" ? "Movendo…" : "Voltar para novos"}
-                    </button>
-                    <button onClick={salvarAlteracoes} disabled={!!saving} style={btnOutline}>
-                      {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar"}
