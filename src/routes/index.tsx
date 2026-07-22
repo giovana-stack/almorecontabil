@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { SiteNavbar } from "@/components/SiteNavbar";
 
 import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
@@ -167,55 +168,9 @@ function LandingPage() {
 }
 
 function Navbar() {
-  const { user, signOut } = useAuth();
-  return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#f0eeeb]">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
-        <a href="#top" className="flex items-center">
-          <img src={logoBordeaux.url} alt="Almore Inteligência Contábil" className="h-9 w-auto" />
-        </a>
-        <div className="flex items-center gap-5">
-          <a
-            href="/blog"
-            className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
-          >
-            Blog
-          </a>
-          {user ? (
-            <div className="flex items-center gap-3">
-              <a
-                href="/minha-conta"
-                className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
-              >
-                Minha conta
-              </a>
-              <button
-                onClick={() => signOut()}
-                className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
-                style={{ background: "none", border: "none", cursor: "pointer" }}
-              >
-                Sair
-              </button>
-            </div>
-          ) : (
-            <a
-              href="/login"
-              className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
-            >
-              Entrar
-            </a>
-          )}
-          <button
-            onClick={scrollToContato}
-            className="btn-primary font-display font-semibold text-sm px-5 py-2.5 rounded-md"
-          >
-            Falar com a Almore
-          </button>
-        </div>
-      </div>
-    </header>
-  );
+  return <SiteNavbar />;
 }
+
 
 
 function Hero() {

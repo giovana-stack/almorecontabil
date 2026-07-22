@@ -11,6 +11,7 @@ import {
   type Artigo,
 } from "@/lib/blog";
 import { Comentarios } from "@/components/Comentarios";
+import { SiteNavbar } from "@/components/SiteNavbar";
 
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
@@ -47,16 +48,19 @@ export const Route = createFileRoute("/blog/$slug")({
     };
   },
   notFoundComponent: () => (
-    <div style={{ minHeight: "100vh", background: "#F5F3F0", padding: "80px 20px", textAlign: "center" }}>
-      <h1 className="font-display" style={{ color: "#7C1638", fontSize: 32 }}>
-        Artigo não encontrado
-      </h1>
-      <p style={{ color: "#595959", marginTop: 12 }}>
-        Este artigo pode ter sido removido ou ainda não está publicado.
-      </p>
-      <Link to="/blog" style={{ color: "#7C1638", fontWeight: 600 }}>
-        ← Voltar ao blog
-      </Link>
+    <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
+      <SiteNavbar />
+      <div style={{ padding: "80px 20px", textAlign: "center" }}>
+        <h1 className="font-display" style={{ color: "#7C1638", fontSize: 32 }}>
+          Artigo não encontrado
+        </h1>
+        <p style={{ color: "#595959", marginTop: 12 }}>
+          Este artigo pode ter sido removido ou ainda não está publicado.
+        </p>
+        <Link to="/blog" style={{ color: "#7C1638", fontWeight: 600 }}>
+          ← Voltar ao blog
+        </Link>
+      </div>
     </div>
   ),
   component: BlogArticle,
@@ -64,69 +68,107 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogArticle() {
   const artigo = Route.useLoaderData();
+  const hasCapa = !!artigo.artigo_capa;
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
-      <header
-        style={{
-          background: "#7C1638",
-          color: "#fff",
-          padding: "48px 20px",
-        }}
-      >
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <SiteNavbar />
+
+      {/* Breadcrumb / voltar */}
+      <div style={{ background: "#fff", borderBottom: "1px solid #eee" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "12px 20px" }}>
           <Link
             to="/blog"
-            style={{ color: "#fff", opacity: 0.85, fontSize: 14, textDecoration: "none" }}
-          >
-            ← Blog
-          </Link>
-          <div
             style={{
-              marginTop: 20,
+              color: "#7C1638",
               fontSize: 13,
-              opacity: 0.9,
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
+              fontWeight: 600,
+              textDecoration: "none",
             }}
           >
-            {formatDate(artigo.publicado_em)}
-          </div>
+            ← Voltar ao Blog
+          </Link>
+        </div>
+      </div>
+
+      {/* Hero banner: capa + título sobreposto */}
+      <section
+        style={{
+          position: "relative",
+          width: "100%",
+          minHeight: hasCapa ? 420 : 220,
+          background: hasCapa ? "#2a0710" : "#7C1638",
+          overflow: "hidden",
+        }}
+      >
+        {hasCapa && (
+          <>
+            <img
+              src={artigo.artigo_capa!}
+              alt={artigo.artigo_capa_alt || artigo.artigo_titulo || ""}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+            {/* Overlay bordeaux + escurecimento para legibilidade */}
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(180deg, rgba(42,7,16,0.55) 0%, rgba(42,7,16,0.65) 55%, rgba(124,22,56,0.85) 100%)",
+              }}
+            />
+          </>
+        )}
+
+        <div
+          style={{
+            position: "relative",
+            maxWidth: 900,
+            margin: "0 auto",
+            padding: hasCapa ? "80px 20px 56px" : "56px 20px",
+            color: "#fff",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            minHeight: "inherit",
+          }}
+        >
           <h1
-            className="font-display"
+            className="font-display blog-hero-title"
             style={{
-              fontSize: 40,
+              fontSize: "clamp(28px, 5vw, 46px)",
               fontWeight: 700,
-              margin: "10px 0 0",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
+              margin: 0,
+              textShadow: hasCapa ? "0 2px 16px rgba(0,0,0,0.55)" : "none",
             }}
           >
             {artigo.artigo_titulo}
           </h1>
-        </div>
-      </header>
-
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "48px 20px 80px" }}>
-        {artigo.artigo_capa && (
           <div
             style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
-              overflow: "hidden",
-              borderRadius: 8,
-              marginBottom: 28,
-              background: "#F5F3F0",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              marginTop: 14,
+              fontSize: 13,
+              opacity: 0.95,
+              textTransform: "uppercase",
+              letterSpacing: 0.6,
+              textShadow: hasCapa ? "0 1px 8px rgba(0,0,0,0.6)" : "none",
             }}
           >
-            <img
-              src={artigo.artigo_capa}
-              alt={artigo.artigo_capa_alt || artigo.artigo_titulo || ""}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
+            {formatDate(artigo.publicado_em)}
           </div>
-        )}
+        </div>
+      </section>
 
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "48px 20px 80px" }}>
         <article
           className="blog-content"
           style={{

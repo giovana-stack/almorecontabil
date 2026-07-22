@@ -9,6 +9,7 @@ import {
   SITE_URL,
   type Artigo,
 } from "@/lib/blog";
+import { SiteNavbar } from "@/components/SiteNavbar";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -57,30 +58,43 @@ function BlogIndex() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3F0" }}>
+      <SiteNavbar />
+
       <header
         style={{
           background: "#7C1638",
           color: "#fff",
-          padding: "56px 20px",
-          textAlign: "center",
+          padding: "28px 20px",
         }}
       >
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div
+          style={{
+            maxWidth: 1120,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            flexWrap: "wrap",
+          }}
+        >
           <a
             href="/"
-            style={{ color: "#fff", opacity: 0.8, fontSize: 14, textDecoration: "none" }}
+            style={{
+              color: "#fff",
+              opacity: 0.85,
+              fontSize: 13,
+              textDecoration: "none",
+            }}
           >
             ← Voltar ao site
           </a>
+          <span style={{ opacity: 0.4 }}>/</span>
           <h1
             className="font-display"
-            style={{ fontSize: 44, fontWeight: 700, margin: "16px 0 8px" }}
+            style={{ fontSize: 28, fontWeight: 700, margin: 0, lineHeight: 1 }}
           >
             Blog
           </h1>
-          <p style={{ opacity: 0.9, fontSize: 17, margin: 0 }}>
-            Análises e conteúdo da Almore Inteligência Contábil.
-          </p>
         </div>
       </header>
 
