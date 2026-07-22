@@ -142,8 +142,38 @@ function BlogArticle() {
           </>
         )}
 
+        {!hasCapa && (
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100%",
+              maxWidth: 900,
+              padding: "0 20px",
+              zIndex: 2,
+            }}
+          >
+            <Link
+              to="/blog"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                color: "rgba(255,255,255,0.92)",
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              ← Voltar ao Blog
+            </Link>
+          </div>
+        )}
 
         <div
+
           style={{
             position: "relative",
             maxWidth: 900,
