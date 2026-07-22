@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { MinhaContaMenu } from "@/components/MinhaContaMenu";
+
 import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
@@ -183,10 +183,16 @@ function Navbar() {
           </a>
           {user ? (
             <div className="flex items-center gap-3">
-              <MinhaContaMenu />
+              <a
+                href="/minha-conta"
+                className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+              >
+                Minha conta
+              </a>
               <button
                 onClick={() => signOut()}
                 className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+                style={{ background: "none", border: "none", cursor: "pointer" }}
               >
                 Sair
               </button>
