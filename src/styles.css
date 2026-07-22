@@ -260,6 +260,14 @@
   margin: 1.4em auto;
   border-radius: 8px;
 }
+.tiptap-content img {
+  cursor: pointer;
+}
+.tiptap-content img.ProseMirror-selectednode {
+  outline: 3px solid #7C1638;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px rgba(124, 22, 56, 0.12);
+}
 .tiptap-content:focus { outline: none; }
 .tiptap-content p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

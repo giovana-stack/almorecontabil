@@ -1,8 +1,10 @@
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
-import { useEffect, useRef, useState } from "react";
+import { NodeSelection } from "@tiptap/pm/state";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { uploadBlogImage } from "@/lib/blog";
 
 type Props = {
@@ -12,8 +14,55 @@ type Props = {
 
 type AltModalState =
   | { mode: "upload"; file: File; initialAlt: string }
-  | { mode: "edit"; initialAlt: string }
+  | { mode: "edit"; initialAlt: string; pos: number }
   | null;
+
+const imageWidths = [
+  { label: "Pequena", value: "40%" },
+  { label: "Média", value: "70%" },
+  { label: "Total", value: "100%" },
+];
+
+const normalizeImageWidth = (width: unknown) => {
+  if (typeof width === "number" && Number.isFinite(width)) return `${width}px`;
+  if (typeof width !== "string") return null;
+  const trimmed = width.trim();
+  if (!trimmed) return null;
+  if (/^\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+  return trimmed;
+};
+
+const EditableImage = Image.extend({
+  selectable: true,
+  draggable: true,
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-width") ||
+          element.style.width ||
+          element.getAttribute("width") ||
+          null,
+        renderHTML: (attributes) => {
+          const width = normalizeImageWidth(attributes.width);
+          if (!width) return {};
+          return {
+            width,
+            "data-width": width,
+            style: `width: ${width};`,
+          };
+        },
+      },
+    };
+  },
+});
+
+const isImageSelected = (editor: Editor) => {
+  const { selection } = editor.state;
+  return selection instanceof NodeSelection && selection.node.type.name === "image";
+};
 
 export function RichEditor({ value, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -26,7 +75,7 @@ export function RichEditor({ value, onChange }: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Image.configure({ inline: false, allowBase64: false }),
+      EditableImage.configure({ inline: false, allowBase64: false }),
       Link.configure({ openOnClick: false, autolink: true }),
     ],
     content: value || "<p></p>",
@@ -36,6 +85,31 @@ export function RichEditor({ value, onChange }: Props) {
         class: "tiptap-content",
         style:
           "min-height: 360px; padding: 16px; outline: none; font-size: 16px; line-height: 1.7; color: #2b2b2b;",
+      },
+      handleClickOn: (view, _pos, node, nodePos, event) => {
+        if (node.type.name !== "image") return false;
+
+        event.preventDefault();
+        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, nodePos)));
+        return true;
+      },
+      handleDOMEvents: {
+        click: (view, event) => {
+          const target = event.target as HTMLElement | null;
+          if (!target || target.tagName !== "IMG" || !view.dom.contains(target)) return false;
+
+          try {
+            const pos = view.posAtDOM(target, 0);
+            const node = view.state.doc.nodeAt(pos);
+            if (node?.type.name !== "image") return false;
+
+            event.preventDefault();
+            view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+            return true;
+          } catch {
+            return false;
+          }
+        },
       },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -73,12 +147,12 @@ export function RichEditor({ value, onChange }: Props) {
   };
 
   const openEditAltModal = () => {
-    if (!editor.isActive("image")) return;
+    if (!isImageSelected(editor)) return;
     const attrs = editor.getAttributes("image");
     const currentAlt = (attrs.alt as string) || "";
     setUploadError(null);
     setAltValue(currentAlt);
-    setAltModal({ mode: "edit", initialAlt: currentAlt });
+    setAltModal({ mode: "edit", initialAlt: currentAlt, pos: editor.state.selection.from });
   };
 
   const closeModal = () => {
@@ -97,7 +171,7 @@ export function RichEditor({ value, onChange }: Props) {
     if (!altModal) return;
 
     if (altModal.mode === "edit") {
-      editor.chain().focus().updateAttributes("image", { alt }).run();
+      editor.chain().focus().setNodeSelection(altModal.pos).updateAttributes("image", { alt }).run();
       setAltModal(null);
       setAltValue("");
       return;
@@ -118,15 +192,11 @@ export function RichEditor({ value, onChange }: Props) {
     }
   };
 
-  const imageActive = editor.isActive("image");
-
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
       <Toolbar
         editor={editor}
         onInsertImage={() => fileRef.current?.click()}
-        onEditAlt={openEditAltModal}
-        imageActive={imageActive}
       />
       <input
         ref={fileRef}
@@ -141,6 +211,8 @@ export function RichEditor({ value, onChange }: Props) {
       />
       <EditorContent editor={editor} />
 
+      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} />}
+
       {altModal && (
         <AltModal
           mode={altModal.mode}
@@ -153,6 +225,89 @@ export function RichEditor({ value, onChange }: Props) {
         />
       )}
     </div>
+  );
+}
+
+function ImageBubbleMenu({ editor, onEditAlt }: { editor: Editor; onEditAlt: () => void }) {
+  const selectedWidth = normalizeImageWidth(editor.getAttributes("image").width);
+
+  const setWidth = (width: string) => {
+    if (!isImageSelected(editor)) return;
+    editor.chain().focus().updateAttributes("image", { width }).run();
+  };
+
+  const removeImage = () => {
+    if (!isImageSelected(editor)) return;
+    editor.chain().focus().deleteSelection().run();
+  };
+
+  const menuButtonStyle = (active = false): CSSProperties => ({
+    border: `1px solid ${active ? "#7C1638" : "#e6ddd8"}`,
+    background: active ? "#7C1638" : "#fff",
+    color: active ? "#fff" : "#333",
+    borderRadius: 4,
+    padding: "7px 10px",
+    fontSize: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  });
+
+  return (
+    <BubbleMenu
+      editor={editor}
+      pluginKey="imageBubbleMenu"
+      updateDelay={0}
+      options={{ placement: "top", strategy: "absolute" }}
+      shouldShow={({ editor }) => isImageSelected(editor)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        flexWrap: "wrap",
+        maxWidth: "min(520px, 92vw)",
+        padding: 8,
+        background: "#fff",
+        border: "1px solid #e6ddd8",
+        borderRadius: 6,
+        boxShadow: "0 10px 28px rgba(0,0,0,0.16)",
+        zIndex: 30,
+      }}
+    >
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onEditAlt}
+        style={menuButtonStyle()}
+      >
+        Editar alt
+      </button>
+      <span style={{ color: "#818181", fontSize: 12, fontWeight: 700 }}>Largura</span>
+      {imageWidths.map((item) => (
+        <button
+          key={item.value}
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setWidth(item.value)}
+          style={menuButtonStyle(selectedWidth === item.value)}
+        >
+          {item.label}
+        </button>
+      ))}
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={removeImage}
+        style={{
+          ...menuButtonStyle(),
+          color: "#8f132d",
+          borderColor: "#f0c7d0",
+          marginLeft: 2,
+        }}
+      >
+        Remover
+      </button>
+    </BubbleMenu>
   );
 }
 
@@ -275,13 +430,9 @@ function AltModal({
 function Toolbar({
   editor,
   onInsertImage,
-  onEditAlt,
-  imageActive,
 }: {
   editor: Editor;
   onInsertImage: () => void;
-  onEditAlt: () => void;
-  imageActive: boolean;
 }) {
   const Btn = ({
     onClick,
@@ -372,13 +523,6 @@ function Toolbar({
       </Btn>
       <Btn title="Inserir imagem" onClick={onInsertImage}>
         🖼 Imagem
-      </Btn>
-      <Btn
-        title="Editar alt da imagem selecionada"
-        onClick={onEditAlt}
-        disabled={!imageActive}
-      >
-        Alt
       </Btn>
     </div>
   );
