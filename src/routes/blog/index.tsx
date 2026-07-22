@@ -42,7 +42,7 @@ function BlogIndex() {
     (async () => {
       try {
         const res = await fetch(
-          `${REST_ARTIGOS}?status=eq.publicado&order=publicado_em.desc&select=id,artigo_titulo,artigo_corpo,artigo_capa,publicado_em`,
+          `${REST_ARTIGOS}?status=eq.publicado&order=publicado_em.desc&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,publicado_em`,
           { headers: restHeaders }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
