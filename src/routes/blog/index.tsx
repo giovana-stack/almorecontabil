@@ -83,7 +83,7 @@ function BlogIndex() {
               lineHeight: 1.55,
             }}
           >
-            Notícias e análises sobre contabilidade, impostos, reforma tributária e gestão para MEI, Simples Nacional e pequenas empresas.
+            Notícias e análises sobre contabilidade, impostos, reforma tributária e gestão empresarial — do MEI ao Lucro Real.
           </p>
         </header>
 
