@@ -21,6 +21,7 @@ export function RichEditor({ value, onChange }: Props) {
   const [altValue, setAltValue] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [, forceTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -38,6 +39,8 @@ export function RichEditor({ value, onChange }: Props) {
       },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onSelectionUpdate: () => forceTick((n) => n + 1),
+    onTransaction: () => forceTick((n) => n + 1),
   });
 
   // Sync when switching articles
