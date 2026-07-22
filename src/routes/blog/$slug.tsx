@@ -122,9 +122,10 @@ function BlogArticle() {
                 position: "absolute",
                 inset: 0,
                 background:
-                  "linear-gradient(180deg, rgba(42,7,16,0.55) 0%, rgba(42,7,16,0.65) 55%, rgba(124,22,56,0.85) 100%)",
+                  "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%)",
               }}
             />
+
           </>
         )}
 
@@ -148,7 +149,6 @@ function BlogArticle() {
               fontWeight: 700,
               lineHeight: 1.15,
               margin: 0,
-              textShadow: hasCapa ? "0 2px 16px rgba(0,0,0,0.55)" : "none",
             }}
           >
             {artigo.artigo_titulo}
@@ -160,9 +160,9 @@ function BlogArticle() {
               opacity: 0.95,
               textTransform: "uppercase",
               letterSpacing: 0.6,
-              textShadow: hasCapa ? "0 1px 8px rgba(0,0,0,0.6)" : "none",
             }}
           >
+
             {formatDate(artigo.publicado_em)}
           </div>
         </div>
