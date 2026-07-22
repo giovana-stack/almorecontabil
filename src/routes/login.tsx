@@ -18,6 +18,7 @@ function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nome, setNome] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -32,7 +33,7 @@ function LoginPage() {
         await signIn(email, password);
         navigate({ to: "/" });
       } else {
-        await signUp(email, password);
+        await signUp(email, password, nome.trim());
         setInfo(
           "Conta criada. Se a confirmação por e-mail estiver ativa, verifique sua caixa de entrada antes de entrar."
         );
