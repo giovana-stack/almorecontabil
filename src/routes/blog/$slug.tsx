@@ -112,7 +112,7 @@ function BlogArticle() {
             color: "#2b2b2b",
           }}
         >
-          {(artigo.artigo_corpo || "").split(/\n{2,}/).map((para, i) => (
+          {(artigo.artigo_corpo || "").split(/\n{2,}/).map((para: string, i: number) => (
             <p key={i} style={{ margin: "0 0 1.2em", whiteSpace: "pre-wrap" }}>
               {para}
             </p>
