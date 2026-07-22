@@ -13,7 +13,7 @@ export const Route = createFileRoute("/minha-conta")({
 });
 
 function MinhaContaPage() {
-  const { user, perfil, isAdmin, loading, signOut, updateNome, updateEmail, updatePassword } = useAuth();
+  const { user, perfil, isAdmin, loading, signOut, updateNome } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
