@@ -85,6 +85,7 @@ function RedacaoPage() {
     setTitulo(item.artigo_titulo || "");
     setCorpo(item.artigo_corpo || "");
     setCapa(item.artigo_capa || "");
+    setCapaAlt(item.artigo_capa_alt || "");
   };
 
   const onPickCapa = async (file: File) => {
