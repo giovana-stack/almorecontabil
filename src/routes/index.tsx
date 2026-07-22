@@ -182,7 +182,7 @@ function Navbar() {
           </a>
           {user ? (
             <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-sm text-[#595959] truncate max-w-[180px]">{user.email}</span>
+              <MinhaContaMenu />
               <button
                 onClick={() => signOut()}
                 className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
