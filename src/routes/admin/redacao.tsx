@@ -60,7 +60,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
           return null;
         })
         .filter((v): v is CapaSugerida => !!v && !!v.url)
-        .slice(0, 3);
+        .slice(0, 6);
     }
   } catch {
     // ignore
