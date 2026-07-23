@@ -441,7 +441,7 @@ function RedacaoPage() {
               return (
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Capas sugeridas</label>
-                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${sugeridas.length}, 1fr)`, gap: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
                     {sugeridas.map((s) => {
                       const active = capa === s.url;
                       return (
