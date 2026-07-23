@@ -60,7 +60,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
           return null;
         })
         .filter((v): v is CapaSugerida => !!v && !!v.url)
-        .slice(0, 3);
+        .slice(0, 6);
     }
   } catch {
     // ignore
@@ -441,7 +441,7 @@ function RedacaoPage() {
               return (
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Capas sugeridas</label>
-                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${sugeridas.length}, 1fr)`, gap: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
                     {sugeridas.map((s) => {
                       const active = capa === s.url;
                       return (
