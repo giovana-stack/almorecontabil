@@ -81,13 +81,20 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
   const [altValue, setAltValue] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [linkModal, setLinkModal] = useState<LinkModalState>(null);
+  const [linkText, setLinkText] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [, forceTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       EditableImage.configure({ inline: false, allowBase64: false }),
-      Link.configure({ openOnClick: false, autolink: true }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      }),
     ],
     content: value || "<p></p>",
     immediatelyRender: false,
@@ -96,6 +103,14 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         class: "tiptap-content",
         style:
           "min-height: 360px; padding: 16px; outline: none; font-size: 16px; line-height: 1.7; color: #2b2b2b;",
+      },
+      handleKeyDown: (_view, event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          openLinkModalRef.current?.();
+          return true;
+        }
+        return false;
       },
       handleClickOn: (view, _pos, node, nodePos, event) => {
         if (node.type.name !== "image") return false;
