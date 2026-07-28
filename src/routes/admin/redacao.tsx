@@ -398,7 +398,6 @@ function RedacaoPage() {
 
       {selected && (
         <div
-          onClick={() => setSelected(null)}
           style={{
             position: "fixed",
             inset: 0,
@@ -412,9 +411,29 @@ function RedacaoPage() {
           }}
         >
           <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", maxWidth: 900, width: "100%", borderRadius: 8, padding: 28, marginTop: 20 }}
+            style={{ background: "#fff", maxWidth: 900, width: "100%", borderRadius: 8, padding: 28, marginTop: 20, position: "relative" }}
           >
+            <button
+              type="button"
+              aria-label="Fechar editor"
+              onClick={() => setSelected(null)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                background: "transparent",
+                border: "none",
+                fontSize: 22,
+                lineHeight: 1,
+                cursor: "pointer",
+                color: "#595959",
+                padding: "4px 8px",
+                borderRadius: 4,
+              }}
+            >
+              ×
+            </button>
+
             {(selected.noticia_fonte || selected.noticia_link) && (
               <div style={{ marginBottom: 16, fontSize: 13, color: "#818181" }}>
                 <strong>{selected.noticia_fonte}</strong>
