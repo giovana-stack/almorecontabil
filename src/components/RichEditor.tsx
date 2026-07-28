@@ -77,6 +77,7 @@ const isImageSelected = (editor: Editor) => {
 
 export function RichEditor({ value, onChange, contextTitle }: Props) {
   const imageInsertPosRef = useRef<number | null>(null);
+  const openLinkModalRef = useRef<(() => void) | null>(null);
   const [altModal, setAltModal] = useState<AltModalState>(null);
   const [altValue, setAltValue] = useState("");
   const [uploading, setUploading] = useState(false);
