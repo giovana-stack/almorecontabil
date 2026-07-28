@@ -654,6 +654,18 @@ function Toolbar({
       >
         ¶
       </Btn>
+      <Btn
+        title="Inserir/editar link (Ctrl+K)"
+        active={editor.isActive("link")}
+        onClick={onOpenLink}
+      >
+        🔗 Link
+      </Btn>
+      {editor.isActive("link") && (
+        <Btn title="Remover link" onClick={onRemoveLink}>
+          Remover link
+        </Btn>
+      )}
       <label
         title="Inserir imagem"
         onMouseDown={onImagePointerDown}
