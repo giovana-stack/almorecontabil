@@ -212,7 +212,7 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
       />
       <EditorContent editor={editor} />
 
-      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} />}
+      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} contextTitle={contextTitle} />}
 
       {altModal && (
         <AltModal
