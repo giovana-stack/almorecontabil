@@ -700,3 +700,136 @@ function Toolbar({
     </div>
   );
 }
+
+function LinkModal({
+  hasSelection,
+  text,
+  url,
+  onChangeText,
+  onChangeUrl,
+  onConfirm,
+  onCancel,
+}: {
+  hasSelection: boolean;
+  text: string;
+  url: string;
+  onChangeText: (v: string) => void;
+  onChangeUrl: (v: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const canSubmit = url.trim().length > 0 && (hasSelection || text.trim().length > 0);
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 25,
+        borderRadius: 4,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          padding: 20,
+          borderRadius: 6,
+          width: "min(460px, 92%)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: "#7C1638" }}>
+          {hasSelection ? "Adicionar link" : "Inserir link"}
+        </div>
+        {!hasSelection && (
+          <>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "#595959" }}>Texto</label>
+            <input
+              type="text"
+              autoFocus
+              value={text}
+              onChange={(e) => onChangeText(e.target.value)}
+              placeholder="Texto do link"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                fontSize: 14,
+                outline: "none",
+                marginTop: 4,
+                marginBottom: 12,
+              }}
+            />
+          </>
+        )}
+        <label style={{ fontSize: 12, fontWeight: 700, color: "#595959" }}>URL</label>
+        <input
+          type="text"
+          autoFocus={hasSelection}
+          value={url}
+          onChange={(e) => onChangeUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (canSubmit) onConfirm();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          placeholder="https://exemplo.com"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            border: "1px solid #ddd",
+            borderRadius: 4,
+            fontSize: 14,
+            outline: "none",
+            marginTop: 4,
+          }}
+        />
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: "8px 14px",
+              background: "#fff",
+              color: "#333",
+              border: "1px solid #ddd",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={!canSubmit}
+            style={{
+              padding: "8px 14px",
+              background: canSubmit ? "#7C1638" : "#c9a0ac",
+              color: "#fff",
+              border: "1px solid #7C1638",
+              borderRadius: 4,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Aplicar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
