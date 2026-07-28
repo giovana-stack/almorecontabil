@@ -133,7 +133,7 @@ function RedacaoPage() {
     body: Record<string, unknown>,
     kind: string,
     removeFromList: boolean
-  ) => {
+  ): Promise<boolean> => {
     setSaving(kind);
     try {
       const res = await fetch(`${REST}?id=eq.${id}`, {
@@ -154,8 +154,10 @@ function RedacaoPage() {
         );
       }
       setSelected(null);
+      return true;
     } catch (e: any) {
       alert(`Erro: ${e.message}`);
+      return false;
     } finally {
       setSaving(null);
     }
