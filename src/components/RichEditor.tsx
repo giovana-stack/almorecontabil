@@ -303,6 +303,18 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
           error={uploadError}
         />
       )}
+
+      {linkModal && (
+        <LinkModal
+          hasSelection={linkModal.hasSelection}
+          text={linkText}
+          url={linkUrl}
+          onChangeText={setLinkText}
+          onChangeUrl={setLinkUrl}
+          onConfirm={confirmLink}
+          onCancel={closeLinkModal}
+        />
+      )}
     </div>
   );
 }
