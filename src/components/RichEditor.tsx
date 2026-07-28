@@ -197,13 +197,27 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
       <Toolbar
         editor={editor}
-        onInsertImage={() => fileRef.current?.click()}
+        onInsertImage={() => {
+          const input = fileRef.current;
+          if (!input) return;
+          // Reset before opening so selecting the same file twice still fires change
+          input.value = "";
+          input.click();
+        }}
       />
       <input
         ref={fileRef}
         type="file"
         accept="image/*"
-        style={{ display: "none" }}
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          opacity: 0,
+          pointerEvents: "none",
+          left: -9999,
+          top: -9999,
+        }}
         onChange={(e) => {
           const f = e.target.files?.[0];
           if (f) openUploadModal(f);
@@ -211,6 +225,7 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         }}
       />
       <EditorContent editor={editor} />
+
 
       {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} contextTitle={contextTitle} />}
 
