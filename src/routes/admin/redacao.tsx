@@ -84,7 +84,23 @@ function RedacaoPage() {
   const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [gerando, setGerando] = useState(false);
+  const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
+  const [altCapaErro, setAltCapaErro] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGerarAltCapa = async () => {
+    if (!capa || gerandoAltCapa) return;
+    setGerandoAltCapa(true);
+    setAltCapaErro(null);
+    try {
+      const alt = await gerarAltComIA(capa, titulo || "");
+      setCapaAlt(alt);
+    } catch {
+      setAltCapaErro("Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+    } finally {
+      setGerandoAltCapa(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
