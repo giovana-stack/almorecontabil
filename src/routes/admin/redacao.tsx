@@ -124,6 +124,19 @@ function RedacaoPage() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [selected]);
+
+
   const openEditor = (item: Artigo) => {
     setSelected(item);
     setTitulo(item.artigo_titulo || "");
