@@ -654,17 +654,47 @@ function Toolbar({
       >
         ¶
       </Btn>
-      <Btn
+      <button
+        type="button"
         title="Inserir/editar link (Ctrl+K)"
-        active={editor.isActive("link")}
-        onClick={onOpenLink}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          onOpenLink();
+        }}
+        style={{
+          padding: "6px 10px",
+          background: editor.isActive("link") ? "#7C1638" : "#fff",
+          color: editor.isActive("link") ? "#fff" : "#333",
+          border: "1px solid #ddd",
+          borderRadius: 4,
+          cursor: "pointer",
+          fontSize: 13,
+          fontWeight: 600,
+        }}
       >
         🔗 Link
-      </Btn>
+      </button>
       {editor.isActive("link") && (
-        <Btn title="Remover link" onClick={onRemoveLink}>
+        <button
+          type="button"
+          title="Remover link"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onRemoveLink();
+          }}
+          style={{
+            padding: "6px 10px",
+            background: "#fff",
+            color: "#333",
+            border: "1px solid #ddd",
+            borderRadius: 4,
+            cursor: "pointer",
+            fontSize: 13,
+            fontWeight: 600,
+          }}
+        >
           Remover link
-        </Btn>
+        </button>
       )}
       <label
         title="Inserir imagem"
