@@ -303,6 +303,19 @@ function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; 
       >
         Editar alt
       </button>
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={gerarAlt}
+        disabled={gerandoAlt}
+        style={{ ...menuButtonStyle(), opacity: gerandoAlt ? 0.6 : 1, cursor: gerandoAlt ? "not-allowed" : "pointer" }}
+        title="Gerar alt com IA"
+      >
+        {gerandoAlt ? "Gerando…" : "Gerar alt com IA"}
+      </button>
+      {altErro && (
+        <span style={{ color: "#b00020", fontSize: 11, fontWeight: 600, flexBasis: "100%" }}>{altErro}</span>
+      )}
       <span style={{ color: "#818181", fontSize: 12, fontWeight: 700 }}>Largura</span>
       {imageWidths.map((item) => (
         <button
