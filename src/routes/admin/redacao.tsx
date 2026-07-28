@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { RichEditor } from "@/components/RichEditor";
-import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate } from "@/lib/blog";
+import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate, gerarAltComIA } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/admin/redacao")({
