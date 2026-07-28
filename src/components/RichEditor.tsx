@@ -14,7 +14,6 @@ type Props = {
 };
 
 type AltModalState =
-  | { mode: "upload"; file: File; initialAlt: string }
   | { mode: "edit"; initialAlt: string; pos: number }
   | null;
 
@@ -66,7 +65,7 @@ const isImageSelected = (editor: Editor) => {
 };
 
 export function RichEditor({ value, onChange, contextTitle }: Props) {
-  const fileRef = useRef<HTMLInputElement>(null);
+  const imageInsertPosRef = useRef<number | null>(null);
   const [altModal, setAltModal] = useState<AltModalState>(null);
   const [altValue, setAltValue] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -141,10 +140,30 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     );
   }
 
-  const openUploadModal = (file: File) => {
+  const rememberImageInsertPosition = () => {
+    imageInsertPosRef.current = editor.state.selection.from;
+  };
+
+  const insertImageFile = async (file: File) => {
+    if (uploading) return;
     setUploadError(null);
-    setAltValue("");
-    setAltModal({ mode: "upload", file, initialAlt: "" });
+    setUploading(true);
+    try {
+      const url = await uploadBlogImage(file);
+      const pos = imageInsertPosRef.current;
+      const imageNode = { type: "image", attrs: { src: url, alt: "" } };
+
+      if (typeof pos === "number" && pos >= 0 && pos <= editor.state.doc.content.size) {
+        editor.chain().focus().insertContentAt(pos, imageNode).setNodeSelection(pos).run();
+      } else {
+        editor.chain().focus().setImage({ src: url, alt: "" }).run();
+      }
+    } catch (e: any) {
+      setUploadError(`Erro no upload: ${e.message}`);
+    } finally {
+      imageInsertPosRef.current = null;
+      setUploading(false);
+    }
   };
 
   const openEditAltModal = () => {
@@ -171,59 +190,24 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     }
     if (!altModal) return;
 
-    if (altModal.mode === "edit") {
-      editor.chain().focus().setNodeSelection(altModal.pos).updateAttributes("image", { alt }).run();
-      setAltModal(null);
-      setAltValue("");
-      return;
-    }
-
-    // upload
-    setUploading(true);
-    setUploadError(null);
-    try {
-      const url = await uploadBlogImage(altModal.file);
-      editor.chain().focus().setImage({ src: url, alt }).run();
-      setAltModal(null);
-      setAltValue("");
-    } catch (e: any) {
-      setUploadError(`Erro no upload: ${e.message}`);
-    } finally {
-      setUploading(false);
-    }
+    editor.chain().focus().setNodeSelection(altModal.pos).updateAttributes("image", { alt }).run();
+    setAltModal(null);
+    setAltValue("");
   };
 
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
       <Toolbar
         editor={editor}
-        onInsertImage={() => {
-          const input = fileRef.current;
-          if (!input) return;
-          // Reset before opening so selecting the same file twice still fires change
-          input.value = "";
-          input.click();
-        }}
+        imageUploading={uploading}
+        onImagePointerDown={rememberImageInsertPosition}
+        onImageFileSelect={insertImageFile}
       />
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          opacity: 0,
-          pointerEvents: "none",
-          left: -9999,
-          top: -9999,
-        }}
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) openUploadModal(f);
-          e.target.value = "";
-        }}
-      />
+      {uploadError && !altModal && (
+        <div style={{ padding: "8px 12px 0", color: "#b00020", fontSize: 13 }}>
+          {uploadError}
+        </div>
+      )}
       <EditorContent editor={editor} />
 
 
@@ -236,7 +220,7 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
           onChange={setAltValue}
           onConfirm={confirmAlt}
           onCancel={closeModal}
-          uploading={uploading}
+          uploading={false}
           error={uploadError}
         />
       )}
@@ -402,7 +386,7 @@ function AltModal({
         }}
       >
         <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: "#7C1638" }}>
-          {mode === "upload" ? "Inserir imagem" : "Editar texto alternativo"}
+          Editar texto alternativo
         </div>
         <div style={{ fontSize: 13, color: "#595959", marginBottom: 12 }}>
           Texto alternativo (alt) — obrigatório. Descreva a imagem para acessibilidade e SEO.
@@ -468,7 +452,7 @@ function AltModal({
               fontWeight: 600,
             }}
           >
-            {uploading ? "Enviando…" : mode === "upload" ? "Inserir" : "Salvar"}
+            Salvar
           </button>
         </div>
       </div>
@@ -478,10 +462,14 @@ function AltModal({
 
 function Toolbar({
   editor,
-  onInsertImage,
+  imageUploading,
+  onImagePointerDown,
+  onImageFileSelect,
 }: {
   editor: Editor;
-  onInsertImage: () => void;
+  imageUploading: boolean;
+  onImagePointerDown: () => void;
+  onImageFileSelect: (file: File) => void;
 }) {
   const Btn = ({
     onClick,
@@ -571,9 +559,37 @@ function Toolbar({
       >
         ¶
       </Btn>
-      <Btn title="Inserir imagem" onClick={onInsertImage}>
-        🖼 Imagem
-      </Btn>
+      <label
+        title="Inserir imagem"
+        onMouseDown={onImagePointerDown}
+        style={{
+          padding: "6px 10px",
+          background: "#fff",
+          color: "#333",
+          border: "1px solid #ddd",
+          borderRadius: 4,
+          cursor: imageUploading ? "not-allowed" : "pointer",
+          opacity: imageUploading ? 0.5 : 1,
+          fontSize: 13,
+          fontWeight: 600,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+        }}
+      >
+        {imageUploading ? "Enviando…" : "🖼 Imagem"}
+        <input
+          type="file"
+          accept="image/*"
+          disabled={imageUploading}
+          style={{ position: "absolute", width: 1, height: 1, opacity: 0, overflow: "hidden" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) onImageFileSelect(file);
+            e.target.value = "";
+          }}
+        />
+      </label>
     </div>
   );
 }
