@@ -133,7 +133,7 @@ function RedacaoPage() {
     body: Record<string, unknown>,
     kind: string,
     removeFromList: boolean
-  ) => {
+  ): Promise<boolean> => {
     setSaving(kind);
     try {
       const res = await fetch(`${REST}?id=eq.${id}`, {
@@ -154,8 +154,10 @@ function RedacaoPage() {
         );
       }
       setSelected(null);
+      return true;
     } catch (e: any) {
       alert(`Erro: ${e.message}`);
+      return false;
     } finally {
       setSaving(null);
     }
@@ -185,11 +187,12 @@ function RedacaoPage() {
     if (!confirm("Descartar este artigo?")) return;
     patchIt(selected.id, { status: "descartado" }, "descartar", true);
   };
-  const publicar = () => {
+  const publicar = async () => {
     if (!selected) return;
     if (!confirm("Publicar este artigo?")) return;
-    patchIt(
-      selected.id,
+    const id = selected.id;
+    const ok = await patchIt(
+      id,
       {
         artigo_titulo: titulo,
         artigo_corpo: corpo,
@@ -201,6 +204,12 @@ function RedacaoPage() {
       "publicar",
       true
     );
+    if (ok) {
+      fetch(
+        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(id))}`,
+        { method: "GET", mode: "no-cors" }
+      ).catch(() => {});
+    }
   };
 
   // Publicados
