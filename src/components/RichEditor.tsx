@@ -7,6 +7,17 @@ import { NodeSelection } from "@tiptap/pm/state";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { uploadBlogImage, gerarAltComIA } from "@/lib/blog";
 
+type LinkModalState =
+  | { hasSelection: boolean; initialText: string; initialUrl: string }
+  | null;
+
+const normalizeUrl = (raw: string) => {
+  const v = raw.trim();
+  if (!v) return "";
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(v)) return v;
+  return `https://${v}`;
+};
+
 type Props = {
   value: string;
   onChange: (html: string) => void;
