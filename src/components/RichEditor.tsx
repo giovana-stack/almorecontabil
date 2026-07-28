@@ -556,11 +556,15 @@ function Toolbar({
   imageUploading,
   onImagePointerDown,
   onImageFileSelect,
+  onOpenLink,
+  onRemoveLink,
 }: {
   editor: Editor;
   imageUploading: boolean;
   onImagePointerDown: () => void;
   onImageFileSelect: (file: File) => void;
+  onOpenLink: () => void;
+  onRemoveLink: () => void;
 }) {
   const Btn = ({
     onClick,
