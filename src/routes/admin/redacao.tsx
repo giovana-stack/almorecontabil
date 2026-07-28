@@ -503,17 +503,35 @@ function RedacaoPage() {
             })()}
 
             <label style={labelStyle}>Texto alternativo da capa (alt)</label>
-            <input
-              value={capaAlt}
-              onChange={(e) => setCapaAlt(e.target.value)}
-              placeholder="Descreva a imagem de capa para acessibilidade e SEO"
-              style={inputStyle}
-            />
-
+            <div style={{ display: "flex", gap: 8, alignItems: "stretch", marginBottom: altCapaErro ? 6 : 16 }}>
+              <input
+                value={capaAlt}
+                onChange={(e) => setCapaAlt(e.target.value)}
+                placeholder="Descreva a imagem de capa para acessibilidade e SEO"
+                style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={handleGerarAltCapa}
+                disabled={!capa || gerandoAltCapa}
+                title={!capa ? "Envie uma capa primeiro" : "Gerar alt com IA"}
+                style={{
+                  ...btnOutline,
+                  whiteSpace: "nowrap",
+                  opacity: !capa || gerandoAltCapa ? 0.6 : 1,
+                  cursor: !capa || gerandoAltCapa ? "not-allowed" : "pointer",
+                }}
+              >
+                {gerandoAltCapa ? "Gerando…" : "Gerar alt com IA"}
+              </button>
+            </div>
+            {altCapaErro && (
+              <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>
+            )}
 
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>
-              <RichEditor value={corpo} onChange={setCorpo} />
+              <RichEditor value={corpo} onChange={setCorpo} contextTitle={titulo} />
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
