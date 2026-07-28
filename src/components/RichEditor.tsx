@@ -499,6 +499,7 @@ function Toolbar({
     <button
       type="button"
       title={title}
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       disabled={disabled}
       style={{
