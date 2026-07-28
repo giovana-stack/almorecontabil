@@ -5,11 +5,12 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { NodeSelection } from "@tiptap/pm/state";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { uploadBlogImage } from "@/lib/blog";
+import { uploadBlogImage, gerarAltComIA } from "@/lib/blog";
 
 type Props = {
   value: string;
   onChange: (html: string) => void;
+  contextTitle?: string;
 };
 
 type AltModalState =
@@ -64,7 +65,7 @@ const isImageSelected = (editor: Editor) => {
   return selection instanceof NodeSelection && selection.node.type.name === "image";
 };
 
-export function RichEditor({ value, onChange }: Props) {
+export function RichEditor({ value, onChange, contextTitle }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [altModal, setAltModal] = useState<AltModalState>(null);
   const [altValue, setAltValue] = useState("");
@@ -211,7 +212,7 @@ export function RichEditor({ value, onChange }: Props) {
       />
       <EditorContent editor={editor} />
 
-      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} />}
+      {!altModal && <ImageBubbleMenu editor={editor} onEditAlt={openEditAltModal} contextTitle={contextTitle} />}
 
       {altModal && (
         <AltModal
@@ -228,7 +229,27 @@ export function RichEditor({ value, onChange }: Props) {
   );
 }
 
-function ImageBubbleMenu({ editor, onEditAlt }: { editor: Editor; onEditAlt: () => void }) {
+function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; onEditAlt: () => void; contextTitle?: string }) {
+  const [gerandoAlt, setGerandoAlt] = useState(false);
+  const [altErro, setAltErro] = useState<string | null>(null);
+
+  const gerarAlt = async () => {
+    if (!isImageSelected(editor) || gerandoAlt) return;
+    const attrs = editor.getAttributes("image");
+    const src = typeof attrs.src === "string" ? attrs.src : "";
+    if (!src) return;
+    setAltErro(null);
+    setGerandoAlt(true);
+    try {
+      const alt = await gerarAltComIA(src, contextTitle || "");
+      editor.chain().focus().updateAttributes("image", { alt }).run();
+    } catch {
+      setAltErro("Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+    } finally {
+      setGerandoAlt(false);
+    }
+  };
+
   const selectedWidth = normalizeImageWidth(editor.getAttributes("image").width);
 
   const setWidth = (width: string) => {
@@ -282,6 +303,19 @@ function ImageBubbleMenu({ editor, onEditAlt }: { editor: Editor; onEditAlt: () 
       >
         Editar alt
       </button>
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={gerarAlt}
+        disabled={gerandoAlt}
+        style={{ ...menuButtonStyle(), opacity: gerandoAlt ? 0.6 : 1, cursor: gerandoAlt ? "not-allowed" : "pointer" }}
+        title="Gerar alt com IA"
+      >
+        {gerandoAlt ? "Gerando…" : "Gerar alt com IA"}
+      </button>
+      {altErro && (
+        <span style={{ color: "#b00020", fontSize: 11, fontWeight: 600, flexBasis: "100%" }}>{altErro}</span>
+      )}
       <span style={{ color: "#818181", fontSize: 12, fontWeight: 700 }}>Largura</span>
       {imageWidths.map((item) => (
         <button

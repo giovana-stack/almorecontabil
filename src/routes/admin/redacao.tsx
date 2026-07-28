@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { RichEditor } from "@/components/RichEditor";
-import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate } from "@/lib/blog";
+import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate, gerarAltComIA } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/admin/redacao")({
@@ -84,7 +84,23 @@ function RedacaoPage() {
   const [uploadingCapa, setUploadingCapa] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [gerando, setGerando] = useState(false);
+  const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
+  const [altCapaErro, setAltCapaErro] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGerarAltCapa = async () => {
+    if (!capa || gerandoAltCapa) return;
+    setGerandoAltCapa(true);
+    setAltCapaErro(null);
+    try {
+      const alt = await gerarAltComIA(capa, titulo || "");
+      setCapaAlt(alt);
+    } catch {
+      setAltCapaErro("Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+    } finally {
+      setGerandoAltCapa(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -487,17 +503,35 @@ function RedacaoPage() {
             })()}
 
             <label style={labelStyle}>Texto alternativo da capa (alt)</label>
-            <input
-              value={capaAlt}
-              onChange={(e) => setCapaAlt(e.target.value)}
-              placeholder="Descreva a imagem de capa para acessibilidade e SEO"
-              style={inputStyle}
-            />
-
+            <div style={{ display: "flex", gap: 8, alignItems: "stretch", marginBottom: altCapaErro ? 6 : 16 }}>
+              <input
+                value={capaAlt}
+                onChange={(e) => setCapaAlt(e.target.value)}
+                placeholder="Descreva a imagem de capa para acessibilidade e SEO"
+                style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={handleGerarAltCapa}
+                disabled={!capa || gerandoAltCapa}
+                title={!capa ? "Envie uma capa primeiro" : "Gerar alt com IA"}
+                style={{
+                  ...btnOutline,
+                  whiteSpace: "nowrap",
+                  opacity: !capa || gerandoAltCapa ? 0.6 : 1,
+                  cursor: !capa || gerandoAltCapa ? "not-allowed" : "pointer",
+                }}
+              >
+                {gerandoAltCapa ? "Gerando…" : "Gerar alt com IA"}
+              </button>
+            </div>
+            {altCapaErro && (
+              <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>
+            )}
 
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>
-              <RichEditor value={corpo} onChange={setCorpo} />
+              <RichEditor value={corpo} onChange={setCorpo} contextTitle={titulo} />
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
