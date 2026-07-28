@@ -7,6 +7,17 @@ import { NodeSelection } from "@tiptap/pm/state";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { uploadBlogImage, gerarAltComIA } from "@/lib/blog";
 
+type LinkModalState =
+  | { hasSelection: boolean; initialText: string; initialUrl: string }
+  | null;
+
+const normalizeUrl = (raw: string) => {
+  const v = raw.trim();
+  if (!v) return "";
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(v)) return v;
+  return `https://${v}`;
+};
+
 type Props = {
   value: string;
   onChange: (html: string) => void;
@@ -66,17 +77,25 @@ const isImageSelected = (editor: Editor) => {
 
 export function RichEditor({ value, onChange, contextTitle }: Props) {
   const imageInsertPosRef = useRef<number | null>(null);
+  const openLinkModalRef = useRef<(() => void) | null>(null);
   const [altModal, setAltModal] = useState<AltModalState>(null);
   const [altValue, setAltValue] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [linkModal, setLinkModal] = useState<LinkModalState>(null);
+  const [linkText, setLinkText] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [, forceTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       EditableImage.configure({ inline: false, allowBase64: false }),
-      Link.configure({ openOnClick: false, autolink: true }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      }),
     ],
     content: value || "<p></p>",
     immediatelyRender: false,
@@ -85,6 +104,14 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         class: "tiptap-content",
         style:
           "min-height: 360px; padding: 16px; outline: none; font-size: 16px; line-height: 1.7; color: #2b2b2b;",
+      },
+      handleKeyDown: (_view, event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          openLinkModalRef.current?.();
+          return true;
+        }
+        return false;
       },
       handleClickOn: (view, _pos, node, nodePos, event) => {
         if (node.type.name !== "image") return false;
@@ -195,6 +222,56 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     setAltValue("");
   };
 
+  const openLinkModal = () => {
+    const { from, to, empty } = editor.state.selection;
+    const existingHref = (editor.getAttributes("link").href as string) || "";
+    let selectedText = "";
+    if (!empty) {
+      selectedText = editor.state.doc.textBetween(from, to, " ");
+    }
+    setLinkText(selectedText);
+    setLinkUrl(existingHref);
+    setLinkModal({ hasSelection: !empty, initialText: selectedText, initialUrl: existingHref });
+  };
+  openLinkModalRef.current = openLinkModal;
+
+  const closeLinkModal = () => {
+    setLinkModal(null);
+    setLinkText("");
+    setLinkUrl("");
+  };
+
+  const confirmLink = () => {
+    const url = normalizeUrl(linkUrl);
+    if (!url) return;
+    if (!linkModal) return;
+
+    if (linkModal.hasSelection) {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: url, target: "_blank", rel: "noopener noreferrer" })
+        .run();
+    } else {
+      const text = linkText.trim() || url;
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: "text",
+          text,
+          marks: [{ type: "link", attrs: { href: url, target: "_blank", rel: "noopener noreferrer" } }],
+        })
+        .run();
+    }
+    closeLinkModal();
+  };
+
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+  };
+
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
       <Toolbar
@@ -202,6 +279,8 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         imageUploading={uploading}
         onImagePointerDown={rememberImageInsertPosition}
         onImageFileSelect={insertImageFile}
+        onOpenLink={openLinkModal}
+        onRemoveLink={removeLink}
       />
       {uploadError && !altModal && (
         <div style={{ padding: "8px 12px 0", color: "#b00020", fontSize: 13 }}>
@@ -222,6 +301,18 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
           onCancel={closeModal}
           uploading={false}
           error={uploadError}
+        />
+      )}
+
+      {linkModal && (
+        <LinkModal
+          hasSelection={linkModal.hasSelection}
+          text={linkText}
+          url={linkUrl}
+          onChangeText={setLinkText}
+          onChangeUrl={setLinkUrl}
+          onConfirm={confirmLink}
+          onCancel={closeLinkModal}
         />
       )}
     </div>
@@ -465,11 +556,15 @@ function Toolbar({
   imageUploading,
   onImagePointerDown,
   onImageFileSelect,
+  onOpenLink,
+  onRemoveLink,
 }: {
   editor: Editor;
   imageUploading: boolean;
   onImagePointerDown: () => void;
   onImageFileSelect: (file: File) => void;
+  onOpenLink: () => void;
+  onRemoveLink: () => void;
 }) {
   const Btn = ({
     onClick,
@@ -559,6 +654,18 @@ function Toolbar({
       >
         ¶
       </Btn>
+      <Btn
+        title="Inserir/editar link (Ctrl+K)"
+        active={editor.isActive("link")}
+        onClick={onOpenLink}
+      >
+        🔗 Link
+      </Btn>
+      {editor.isActive("link") && (
+        <Btn title="Remover link" onClick={onRemoveLink}>
+          Remover link
+        </Btn>
+      )}
       <label
         title="Inserir imagem"
         onMouseDown={onImagePointerDown}
@@ -590,6 +697,139 @@ function Toolbar({
           }}
         />
       </label>
+    </div>
+  );
+}
+
+function LinkModal({
+  hasSelection,
+  text,
+  url,
+  onChangeText,
+  onChangeUrl,
+  onConfirm,
+  onCancel,
+}: {
+  hasSelection: boolean;
+  text: string;
+  url: string;
+  onChangeText: (v: string) => void;
+  onChangeUrl: (v: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const canSubmit = url.trim().length > 0 && (hasSelection || text.trim().length > 0);
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 25,
+        borderRadius: 4,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          padding: 20,
+          borderRadius: 6,
+          width: "min(460px, 92%)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: "#7C1638" }}>
+          {hasSelection ? "Adicionar link" : "Inserir link"}
+        </div>
+        {!hasSelection && (
+          <>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "#595959" }}>Texto</label>
+            <input
+              type="text"
+              autoFocus
+              value={text}
+              onChange={(e) => onChangeText(e.target.value)}
+              placeholder="Texto do link"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                fontSize: 14,
+                outline: "none",
+                marginTop: 4,
+                marginBottom: 12,
+              }}
+            />
+          </>
+        )}
+        <label style={{ fontSize: 12, fontWeight: 700, color: "#595959" }}>URL</label>
+        <input
+          type="text"
+          autoFocus={hasSelection}
+          value={url}
+          onChange={(e) => onChangeUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (canSubmit) onConfirm();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          placeholder="https://exemplo.com"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            border: "1px solid #ddd",
+            borderRadius: 4,
+            fontSize: 14,
+            outline: "none",
+            marginTop: 4,
+          }}
+        />
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: "8px 14px",
+              background: "#fff",
+              color: "#333",
+              border: "1px solid #ddd",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={!canSubmit}
+            style={{
+              padding: "8px 14px",
+              background: canSubmit ? "#7C1638" : "#c9a0ac",
+              color: "#fff",
+              border: "1px solid #7C1638",
+              borderRadius: 4,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Aplicar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
