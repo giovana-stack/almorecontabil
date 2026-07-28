@@ -5,11 +5,12 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { NodeSelection } from "@tiptap/pm/state";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { uploadBlogImage } from "@/lib/blog";
+import { uploadBlogImage, gerarAltComIA } from "@/lib/blog";
 
 type Props = {
   value: string;
   onChange: (html: string) => void;
+  contextTitle?: string;
 };
 
 type AltModalState =
