@@ -101,3 +101,36 @@ export async function uploadBlogImage(file: File): Promise<string> {
   }
   return `${STORAGE_PUBLIC_URL}/${path}`;
 }
+
+async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType: string }> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Falha ao ler imagem (${res.status})`);
+  const blob = await res.blob();
+  const mimeType = blob.type || "image/jpeg";
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)) as any);
+  }
+  return { base64: btoa(bin), mimeType };
+}
+
+export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
+  const { base64, mimeType } = await imageUrlToBase64(imageUrl);
+  // Use text/plain para evitar preflight CORS no Apps Script
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alt=1",
+    {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ imagem: base64, mimeType, contexto: contexto || "" }),
+    }
+  );
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json().catch(() => null as any);
+  const alt = data && typeof data.alt === "string" ? data.alt.trim() : "";
+  if (!alt) throw new Error("Resposta sem alt");
+  return alt;
+}
