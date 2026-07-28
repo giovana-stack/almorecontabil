@@ -229,7 +229,27 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
   );
 }
 
-function ImageBubbleMenu({ editor, onEditAlt }: { editor: Editor; onEditAlt: () => void }) {
+function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; onEditAlt: () => void; contextTitle?: string }) {
+  const [gerandoAlt, setGerandoAlt] = useState(false);
+  const [altErro, setAltErro] = useState<string | null>(null);
+
+  const gerarAlt = async () => {
+    if (!isImageSelected(editor) || gerandoAlt) return;
+    const attrs = editor.getAttributes("image");
+    const src = typeof attrs.src === "string" ? attrs.src : "";
+    if (!src) return;
+    setAltErro(null);
+    setGerandoAlt(true);
+    try {
+      const alt = await gerarAltComIA(src, contextTitle || "");
+      editor.chain().focus().updateAttributes("image", { alt }).run();
+    } catch {
+      setAltErro("Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+    } finally {
+      setGerandoAlt(false);
+    }
+  };
+
   const selectedWidth = normalizeImageWidth(editor.getAttributes("image").width);
 
   const setWidth = (width: string) => {
