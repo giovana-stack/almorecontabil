@@ -65,7 +65,7 @@ const isImageSelected = (editor: Editor) => {
   return selection instanceof NodeSelection && selection.node.type.name === "image";
 };
 
-export function RichEditor({ value, onChange }: Props) {
+export function RichEditor({ value, onChange, contextTitle }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [altModal, setAltModal] = useState<AltModalState>(null);
   const [altValue, setAltValue] = useState("");
