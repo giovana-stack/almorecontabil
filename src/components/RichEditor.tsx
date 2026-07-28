@@ -222,6 +222,56 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     setAltValue("");
   };
 
+  const openLinkModal = () => {
+    const { from, to, empty } = editor.state.selection;
+    const existingHref = (editor.getAttributes("link").href as string) || "";
+    let selectedText = "";
+    if (!empty) {
+      selectedText = editor.state.doc.textBetween(from, to, " ");
+    }
+    setLinkText(selectedText);
+    setLinkUrl(existingHref);
+    setLinkModal({ hasSelection: !empty, initialText: selectedText, initialUrl: existingHref });
+  };
+  openLinkModalRef.current = openLinkModal;
+
+  const closeLinkModal = () => {
+    setLinkModal(null);
+    setLinkText("");
+    setLinkUrl("");
+  };
+
+  const confirmLink = () => {
+    const url = normalizeUrl(linkUrl);
+    if (!url) return;
+    if (!linkModal) return;
+
+    if (linkModal.hasSelection) {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: url, target: "_blank", rel: "noopener noreferrer" })
+        .run();
+    } else {
+      const text = linkText.trim() || url;
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: "text",
+          text,
+          marks: [{ type: "link", attrs: { href: url, target: "_blank", rel: "noopener noreferrer" } }],
+        })
+        .run();
+    }
+    closeLinkModal();
+  };
+
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+  };
+
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
       <Toolbar
@@ -229,6 +279,8 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         imageUploading={uploading}
         onImagePointerDown={rememberImageInsertPosition}
         onImageFileSelect={insertImageFile}
+        onOpenLink={openLinkModal}
+        onRemoveLink={removeLink}
       />
       {uploadError && !altModal && (
         <div style={{ padding: "8px 12px 0", color: "#b00020", fontSize: 13 }}>
