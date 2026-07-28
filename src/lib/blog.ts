@@ -19,6 +19,7 @@ export type Artigo = {
   artigo_corpo: string | null;
   artigo_capa?: string | null;
   artigo_capa_alt?: string | null;
+  linkedin_post?: string | null;
   status: string;
   criado_em: string;
   publicado_em: string | null;

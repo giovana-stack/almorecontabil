@@ -16,7 +16,7 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
   const res = await fetch(
-    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,publicado_em,status,criado_em&limit=1`,
+    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,linkedin_post,publicado_em,status,criado_em&limit=1`,
     { headers: restHeaders }
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -29,7 +29,10 @@ export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => fetchArtigo(params.slug),
   head: ({ params, loaderData }) => {
     const title = loaderData?.artigo_titulo || "Artigo";
-    const desc = excerpt(loaderData?.artigo_corpo ?? null, 160);
+    const linkedin = (loaderData?.linkedin_post || "").trim();
+    const desc = linkedin
+      ? (linkedin.length > 300 ? linkedin.slice(0, 297).trimEnd() + "…" : linkedin)
+      : excerpt(loaderData?.artigo_corpo ?? null, 200);
     const url = `${SITE_URL}${articlePath({ id: loaderData?.id ?? params.slug.split("-")[0], artigo_titulo: title })}`;
     const image = loaderData?.artigo_capa || DEFAULT_OG_IMAGE;
     return {
@@ -41,7 +44,11 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
         { property: "og:image", content: image },
+        { property: "og:image:alt", content: loaderData?.artigo_capa_alt || title },
+        { property: "og:site_name", content: "Almore Inteligência Contábil" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
         { name: "twitter:image", content: image },
       ],
       links: [{ rel: "canonical", href: url }],
