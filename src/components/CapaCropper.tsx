@@ -79,7 +79,7 @@ export function CapaCropper({ src, alt, value, onChange }: Props) {
         onPointerDown={onPointerDown}
         style={{
           width: "100%",
-          aspectRatio: "16 / 9",
+          aspectRatio: "25 / 8",
           overflow: "hidden",
           borderRadius: 6,
           background: "#F5F3F0",
