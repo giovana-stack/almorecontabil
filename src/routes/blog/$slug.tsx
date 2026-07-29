@@ -104,9 +104,11 @@ function BlogArticle() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                objectPosition: artigo.artigo_capa_pos || "50% 50%",
                 display: "block",
               }}
             />
+
             {/* Overlay preto para legibilidade do texto branco */}
             <div
               aria-hidden
