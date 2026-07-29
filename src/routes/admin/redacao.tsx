@@ -476,10 +476,11 @@ function RedacaoPage() {
             <label style={labelStyle}>Imagem de capa</label>
             <div style={{ marginBottom: 16 }}>
               {capa && (
-                <div style={{ marginBottom: 10, aspectRatio: "16 / 9", width: "100%", overflow: "hidden", borderRadius: 6, background: "#F5F3F0" }}>
-                  <img src={capa} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <div style={{ marginBottom: 10 }}>
+                  <CapaCropper src={capa} alt={capaAlt} value={capaPos} onChange={setCapaPos} />
                 </div>
               )}
+
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button type="button" onClick={() => capaInputRef.current?.click()} disabled={uploadingCapa} style={btnOutline}>
                   {uploadingCapa ? "Enviando…" : capa ? "Trocar capa" : "Enviar capa"}
