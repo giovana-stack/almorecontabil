@@ -16,7 +16,7 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 async function fetchArtigo(slug: string): Promise<Artigo> {
   const id = extractIdFromSlug(slug);
   const res = await fetch(
-    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,linkedin_post,publicado_em,status,criado_em&limit=1`,
+    `${REST_ARTIGOS}?id=eq.${encodeURIComponent(id)}&status=eq.publicado&select=id,artigo_titulo,artigo_corpo,artigo_capa,artigo_capa_alt,artigo_capa_pos,linkedin_post,publicado_em,status,criado_em&limit=1`,
     { headers: restHeaders }
   );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -24,6 +24,7 @@ async function fetchArtigo(slug: string): Promise<Artigo> {
   if (!rows.length) throw notFound();
   return rows[0];
 }
+
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => fetchArtigo(params.slug),
@@ -103,9 +104,11 @@ function BlogArticle() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                objectPosition: artigo.artigo_capa_pos || "50% 50%",
                 display: "block",
               }}
             />
+
             {/* Overlay preto para legibilidade do texto branco */}
             <div
               aria-hidden

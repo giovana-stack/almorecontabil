@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { RichEditor } from "@/components/RichEditor";
+import { CapaCropper, parseCapaPos, formatCapaPos, type CapaPos } from "@/components/CapaCropper";
 import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate, gerarAltComIA } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
+
 
 export const Route = createFileRoute("/admin/redacao")({
   head: () => ({
@@ -38,7 +40,9 @@ type Artigo = {
   artigo_corpo: string | null;
   artigo_capa: string | null;
   artigo_capa_alt: string | null;
+  artigo_capa_pos: string | null;
   capas_sugeridas: string | null;
+
   status: string;
   criado_em: string;
   publicado_em: string | null;
@@ -81,7 +85,9 @@ function RedacaoPage() {
   const [corpo, setCorpo] = useState("");
   const [capa, setCapa] = useState<string>("");
   const [capaAlt, setCapaAlt] = useState<string>("");
+  const [capaPos, setCapaPos] = useState<CapaPos>({ x: 50, y: 50 });
   const [uploadingCapa, setUploadingCapa] = useState(false);
+
   const [saving, setSaving] = useState<string | null>(null);
   const [gerando, setGerando] = useState(false);
   const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
@@ -143,6 +149,7 @@ function RedacaoPage() {
     setCorpo(item.artigo_corpo || "");
     setCapa(item.artigo_capa || "");
     setCapaAlt(item.artigo_capa_alt || "");
+    setCapaPos(parseCapaPos(item.artigo_capa_pos));
   };
 
   const onPickCapa = async (file: File) => {
@@ -150,6 +157,8 @@ function RedacaoPage() {
     try {
       const url = await uploadBlogImage(file);
       setCapa(url);
+      setCapaPos({ x: 50, y: 50 });
+
     } catch (e: any) {
       alert(`Erro no upload: ${e.message}`);
     } finally {
@@ -227,6 +236,8 @@ function RedacaoPage() {
         artigo_corpo: corpo,
         artigo_capa: capa || null,
         artigo_capa_alt: capaAlt || null,
+        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
@@ -246,7 +257,7 @@ function RedacaoPage() {
     selected &&
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null },
+      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, artigo_capa_pos: capa ? formatCapaPos(capaPos) : null },
       "alteracoes",
       false
     );
@@ -465,10 +476,11 @@ function RedacaoPage() {
             <label style={labelStyle}>Imagem de capa</label>
             <div style={{ marginBottom: 16 }}>
               {capa && (
-                <div style={{ marginBottom: 10, aspectRatio: "16 / 9", width: "100%", overflow: "hidden", borderRadius: 6, background: "#F5F3F0" }}>
-                  <img src={capa} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <div style={{ marginBottom: 10 }}>
+                  <CapaCropper src={capa} alt={capaAlt} value={capaPos} onChange={setCapaPos} />
                 </div>
               )}
+
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button type="button" onClick={() => capaInputRef.current?.click()} disabled={uploadingCapa} style={btnOutline}>
                   {uploadingCapa ? "Enviando…" : capa ? "Trocar capa" : "Enviar capa"}
@@ -507,8 +519,10 @@ function RedacaoPage() {
                           type="button"
                           onClick={() => {
                             setCapa(s.url);
+                            setCapaPos({ x: 50, y: 50 });
                             if (s.alt) setCapaAlt(s.alt);
                           }}
+
                           style={{
                             padding: 0,
                             border: active ? "3px solid #7C1638" : "1px solid #ddd",
