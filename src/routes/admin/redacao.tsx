@@ -519,8 +519,10 @@ function RedacaoPage() {
                           type="button"
                           onClick={() => {
                             setCapa(s.url);
+                            setCapaPos({ x: 50, y: 50 });
                             if (s.alt) setCapaAlt(s.alt);
                           }}
+
                           style={{
                             padding: 0,
                             border: active ? "3px solid #7C1638" : "1px solid #ddd",
