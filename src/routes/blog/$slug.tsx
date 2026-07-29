@@ -88,7 +88,8 @@ function BlogArticle() {
         style={{
           position: "relative",
           width: "100%",
-          minHeight: hasCapa ? 420 : 220,
+          aspectRatio: hasCapa ? "16 / 9" : undefined,
+          minHeight: hasCapa ? undefined : 220,
           background: hasCapa ? "#2a0710" : "#7C1638",
           overflow: "hidden",
         }}
@@ -127,7 +128,8 @@ function BlogArticle() {
         <div
 
           style={{
-            position: "relative",
+            position: "absolute",
+            inset: 0,
             maxWidth: 900,
             margin: "0 auto",
             padding: hasCapa ? "80px 20px 56px" : "56px 20px",
@@ -135,7 +137,6 @@ function BlogArticle() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-end",
-            minHeight: "inherit",
           }}
         >
           <h1
