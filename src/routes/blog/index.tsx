@@ -125,9 +125,10 @@ function BlogIndex() {
                     <img
                       src={a.artigo_capa}
                       alt={a.artigo_capa_alt || a.artigo_titulo || ""}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: a.artigo_capa_pos || "50% 50%", display: "block" }}
                       loading="lazy"
                     />
+
                   </div>
                 )}
                 <div style={{ padding: 24, borderLeft: a.artigo_capa ? "none" : "4px solid #7C1638" }}>
