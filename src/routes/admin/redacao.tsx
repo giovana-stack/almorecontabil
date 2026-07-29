@@ -85,7 +85,9 @@ function RedacaoPage() {
   const [corpo, setCorpo] = useState("");
   const [capa, setCapa] = useState<string>("");
   const [capaAlt, setCapaAlt] = useState<string>("");
+  const [capaPos, setCapaPos] = useState<CapaPos>({ x: 50, y: 50 });
   const [uploadingCapa, setUploadingCapa] = useState(false);
+
   const [saving, setSaving] = useState<string | null>(null);
   const [gerando, setGerando] = useState(false);
   const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
