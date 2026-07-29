@@ -88,7 +88,7 @@ function BlogArticle() {
         style={{
           position: "relative",
           width: "100%",
-          aspectRatio: hasCapa ? "16 / 9" : undefined,
+          height: hasCapa ? "clamp(240px, 32vw, 380px)" : undefined,
           minHeight: hasCapa ? undefined : 220,
           background: hasCapa ? "#2a0710" : "#7C1638",
           overflow: "hidden",
