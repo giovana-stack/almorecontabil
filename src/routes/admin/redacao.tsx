@@ -149,6 +149,7 @@ function RedacaoPage() {
     setCorpo(item.artigo_corpo || "");
     setCapa(item.artigo_capa || "");
     setCapaAlt(item.artigo_capa_alt || "");
+    setCapaPos(parseCapaPos(item.artigo_capa_pos));
   };
 
   const onPickCapa = async (file: File) => {
@@ -156,6 +157,8 @@ function RedacaoPage() {
     try {
       const url = await uploadBlogImage(file);
       setCapa(url);
+      setCapaPos({ x: 50, y: 50 });
+
     } catch (e: any) {
       alert(`Erro no upload: ${e.message}`);
     } finally {
