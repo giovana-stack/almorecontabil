@@ -236,6 +236,8 @@ function RedacaoPage() {
         artigo_corpo: corpo,
         artigo_capa: capa || null,
         artigo_capa_alt: capaAlt || null,
+        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+
         status: "publicado",
         publicado_em: new Date().toISOString(),
       },
