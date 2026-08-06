@@ -386,7 +386,10 @@ function RedacaoPage() {
                     </h2>
                     {actions}
                   </div>
-                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10 }}>
+                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ background: "#7C1638", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                      Coletado em {formatDate(item.criado_em)}
+                    </span>
                     <strong>{item.noticia_fonte || "—"}</strong>
                     {item.noticia_link && (
                       <>
@@ -480,8 +483,13 @@ function RedacaoPage() {
               ×
             </button>
 
-            {(selected.noticia_fonte || selected.noticia_link) && (
-              <div style={{ marginBottom: 16, fontSize: 13, color: "#818181" }}>
+            {(selected.noticia_fonte || selected.noticia_link || selected.status === "novo") && (
+              <div style={{ marginBottom: 16, fontSize: 13, color: "#818181", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {selected.status === "novo" && (
+                  <span style={{ background: "#7C1638", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                    Coletado em {formatDate(selected.criado_em)}
+                  </span>
+                )}
                 <strong>{selected.noticia_fonte}</strong>
                 {selected.noticia_link && (
                   <>
