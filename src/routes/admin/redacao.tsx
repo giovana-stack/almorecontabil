@@ -73,7 +73,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "publicado";
+type Tab = "novo" | "pronto" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -264,7 +264,24 @@ function RedacaoPage() {
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
-    patchIt(selected.id, { status: "novo" }, "despublicar", true);
+    patchIt(selected.id, { status: "pronto" }, "despublicar", true);
+  };
+
+  const salvarPronto = () => {
+    if (!selected) return;
+    patchIt(
+      selected.id,
+      {
+        artigo_titulo: titulo,
+        artigo_corpo: corpo,
+        artigo_capa: capa || null,
+        artigo_capa_alt: capaAlt || null,
+        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+        status: "pronto",
+      },
+      "salvar-pronto",
+      tab !== "pronto"
+    );
   };
 
   const tabBtn = (t: Tab, label: string) => (
@@ -334,6 +351,7 @@ function RedacaoPage() {
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
+          {tabBtn("pronto", "Prontos")}
           {tabBtn("publicado", "Publicados")}
         </div>
 
@@ -389,6 +407,23 @@ function RedacaoPage() {
                 </article>
               );
             }
+
+            if (tab === "pronto") {
+              return (
+                <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
+                  <div style={cardHeaderStyle}>
+                    <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
+                      {item.artigo_titulo || "(sem título)"}
+                    </h2>
+                    {actions}
+                  </div>
+                  <div style={{ fontSize: 13, color: "#818181" }}>
+                    Salvo em Prontos
+                  </div>
+                </article>
+              );
+            }
+
             // publicado
             return (
               <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
@@ -597,8 +632,22 @@ function RedacaoPage() {
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
+                    <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
+                      {saving === "salvar-pronto" ? "Salvando…" : "Pronto para publicar"}
+                    </button>
+                  </>
+                )}
+
+                {tab === "pronto" && (
+                  <>
+                    <button onClick={descartar} disabled={!!saving} style={btnOutline}>
+                      {saving === "descartar" ? "Descartar" : "Descartar"}
+                    </button>
+                    <button onClick={salvarPronto} disabled={!!saving} style={btnOutline}>
+                      {saving === "salvar-pronto" ? "Salvando…" : "Salvar alterações"}
+                    </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
-                      {saving === "publicar" ? "Publicando…" : "Publicar"}
+                      {saving === "publicar" ? "Publicando…" : "Publicar agora"}
                     </button>
                   </>
                 )}
@@ -606,7 +655,7 @@ function RedacaoPage() {
                 {tab === "publicado" && (
                   <>
                     <button onClick={despublicar} disabled={!!saving} style={btnOutline}>
-                      {saving === "despublicar" ? "Despublicando…" : "Despublicar"}
+                      {saving === "despublicar" ? "Despublicando…" : "Voltar para Prontos"}
                     </button>
                     <button onClick={salvarAlteracoes} disabled={!!saving} style={btnPrimary}>
                       {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
