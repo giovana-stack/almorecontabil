@@ -632,8 +632,22 @@ function RedacaoPage() {
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
+                    <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
+                      {saving === "salvar-pronto" ? "Salvando…" : "Pronto para publicar"}
+                    </button>
+                  </>
+                )}
+
+                {tab === "pronto" && (
+                  <>
+                    <button onClick={descartar} disabled={!!saving} style={btnOutline}>
+                      {saving === "descartar" ? "Descartar" : "Descartar"}
+                    </button>
+                    <button onClick={salvarPronto} disabled={!!saving} style={btnOutline}>
+                      {saving === "salvar-pronto" ? "Salvando…" : "Salvar alterações"}
+                    </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
-                      {saving === "publicar" ? "Publicando…" : "Publicar"}
+                      {saving === "publicar" ? "Publicando…" : "Publicar agora"}
                     </button>
                   </>
                 )}
@@ -641,7 +655,7 @@ function RedacaoPage() {
                 {tab === "publicado" && (
                   <>
                     <button onClick={despublicar} disabled={!!saving} style={btnOutline}>
-                      {saving === "despublicar" ? "Despublicando…" : "Despublicar"}
+                      {saving === "despublicar" ? "Despublicando…" : "Voltar para Prontos"}
                     </button>
                     <button onClick={salvarAlteracoes} disabled={!!saving} style={btnPrimary}>
                       {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
