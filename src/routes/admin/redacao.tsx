@@ -386,7 +386,10 @@ function RedacaoPage() {
                     </h2>
                     {actions}
                   </div>
-                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10 }}>
+                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ background: "#7C1638", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                      Coletado em {formatDate(item.criado_em)}
+                    </span>
                     <strong>{item.noticia_fonte || "—"}</strong>
                     {item.noticia_link && (
                       <>
