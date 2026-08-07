@@ -46,6 +46,7 @@ type Artigo = {
   status: string;
   criado_em: string;
   publicado_em: string | null;
+  agendado_para: string | null;
 };
 
 type CapaSugerida = { url: string; alt: string };
@@ -89,6 +90,7 @@ function RedacaoPage() {
   const [uploadingCapa, setUploadingCapa] = useState(false);
 
   const [saving, setSaving] = useState<string | null>(null);
+  const [agendadoPara, setAgendadoPara] = useState("");
   const [gerando, setGerando] = useState(false);
   const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
   const [altCapaErro, setAltCapaErro] = useState<string | null>(null);
@@ -113,8 +115,9 @@ function RedacaoPage() {
     setError(null);
     try {
       const orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
+      const statusFilter = tab === "pronto" ? "status=in.(pronto,agendado)" : `status=eq.${tab}`;
       const res = await fetch(
-        `${REST}?status=eq.${tab}&order=${orderBy}&select=*`,
+        `${REST}?${statusFilter}&order=${orderBy}&select=*`,
         { headers: baseHeaders }
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -150,6 +153,7 @@ function RedacaoPage() {
     setCapa(item.artigo_capa || "");
     setCapaAlt(item.artigo_capa_alt || "");
     setCapaPos(parseCapaPos(item.artigo_capa_pos));
+    setAgendadoPara(item.agendado_para ? item.agendado_para.slice(0, 16) : "");
   };
 
   const onPickCapa = async (file: File) => {
@@ -269,19 +273,21 @@ function RedacaoPage() {
 
   const salvarPronto = () => {
     if (!selected) return;
-    patchIt(
-      selected.id,
-      {
-        artigo_titulo: titulo,
-        artigo_corpo: corpo,
-        artigo_capa: capa || null,
-        artigo_capa_alt: capaAlt || null,
-        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
-        status: "pronto",
-      },
-      "salvar-pronto",
-      tab !== "pronto"
-    );
+    const body: any = {
+      artigo_titulo: titulo,
+      artigo_corpo: corpo,
+      artigo_capa: capa || null,
+      artigo_capa_alt: capaAlt || null,
+      artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+    };
+    if (agendadoPara) {
+      body.agendado_para = new Date(agendadoPara).toISOString();
+      body.status = "agendado";
+    } else {
+      body.agendado_para = null;
+      body.status = "pronto";
+    }
+    patchIt(selected.id, body, "salvar-pronto", tab !== "pronto");
   };
 
   const tabBtn = (t: Tab, label: string) => (
@@ -420,8 +426,14 @@ function RedacaoPage() {
                     </h2>
                     {actions}
                   </div>
-                  <div style={{ fontSize: 13, color: "#818181" }}>
-                    Salvo em Prontos
+                  <div style={{ fontSize: 13, color: "#818181", display: "flex", gap: 8, alignItems: "center" }}>
+                    {item.status === "agendado" ? (
+                      <span style={{ background: "#68112F", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                        Agendado para {new Date(item.agendado_para!).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    ) : (
+                      "Salvo em Prontos"
+                    )}
                   </div>
                 </article>
               );
@@ -622,6 +634,14 @@ function RedacaoPage() {
             <div style={{ marginBottom: 16 }}>
               <RichEditor value={corpo} onChange={setCorpo} contextTitle={titulo} />
             </div>
+
+            <label style={labelStyle}>Agendar publicação para (opcional)</label>
+            <input
+              type="datetime-local"
+              value={agendadoPara}
+              onChange={(e) => setAgendadoPara(e.target.value)}
+              style={{ ...inputStyle, maxWidth: 300 }}
+            />
 
             <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
               <button
