@@ -716,7 +716,11 @@ function RedacaoPage() {
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
                     <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
-                      {saving === "salvar-pronto" ? "Salvando…" : "Pronto para publicar"}
+                      {saving === "salvar-pronto"
+                        ? "Salvando…"
+                        : agendadoPara
+                          ? "Agendar publicação"
+                          : "Pronto para publicar"}
                     </button>
                   </>
                 )}
