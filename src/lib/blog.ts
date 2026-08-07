@@ -24,6 +24,7 @@ export type Artigo = {
   status: string;
   criado_em: string;
   publicado_em: string | null;
+  agendado_para?: string | null;
 };
 
 
