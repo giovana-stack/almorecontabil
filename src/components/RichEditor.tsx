@@ -177,13 +177,20 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     setUploading(true);
     try {
       const url = await uploadBlogImage(file);
-      const pos = imageInsertPosRef.current;
-      const imageNode = { type: "image", attrs: { src: url, alt: "" } };
+      
+      // Use setContent/insertContent if possible, or check doc size again
+      if (editor && !editor.isDestroyed) {
+        const pos = imageInsertPosRef.current;
+        const currentSize = editor.state.doc.content.size;
 
-      if (typeof pos === "number" && pos >= 0 && pos <= editor.state.doc.content.size) {
-        editor.chain().focus().insertContentAt(pos, imageNode).setNodeSelection(pos).run();
-      } else {
-        editor.chain().focus().setImage({ src: url, alt: "" }).run();
+        if (typeof pos === "number" && pos >= 0 && pos <= currentSize) {
+          editor.chain().focus().insertContentAt(pos, {
+            type: "image",
+            attrs: { src: url, alt: "" }
+          }).run();
+        } else {
+          editor.chain().focus().setImage({ src: url, alt: "" }).run();
+        }
       }
     } catch (e: any) {
       setUploadError(`Erro no upload: ${e.message}`);
