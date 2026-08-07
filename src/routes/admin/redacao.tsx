@@ -308,6 +308,26 @@ function RedacaoPage() {
     patchIt(selected.id, body, "salvar-pronto", tab !== "pronto");
   };
 
+  const publicarRapido = async (item: Artigo) => {
+    if (!confirm("Publicar este artigo agora?")) return;
+    const ok = await patchIt(
+      item.id,
+      {
+        status: "publicado",
+        publicado_em: new Date().toISOString(),
+        agendado_para: null,
+      },
+      "publicar",
+      true
+    );
+    if (ok) {
+      fetch(
+        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(item.id))}`,
+        { method: "GET", mode: "no-cors" }
+      ).catch(() => {});
+    }
+  };
+
   const tabBtn = (t: Tab, label: string) => (
     <button
       onClick={() => {
@@ -442,7 +462,24 @@ function RedacaoPage() {
                     <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
                       {item.artigo_titulo || "(sem título)"}
                     </h2>
-                    {actions}
+                    <div
+                      style={{ display: "flex", gap: 8, flexShrink: 0 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button 
+                        onClick={() => publicarRapido(item)} 
+                        disabled={!!saving} 
+                        style={btnPrimarySm}
+                      >
+                        {saving === "publicar" ? "..." : "Publicar"}
+                      </button>
+                      <button onClick={() => openEditor(item)} style={btnOutlineSm}>
+                        Editar
+                      </button>
+                      <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
+                        Excluir
+                      </button>
+                    </div>
                   </div>
                   <div style={{ fontSize: 13, color: "#818181", display: "flex", gap: 8, alignItems: "center" }}>
                     {item.status === "agendado" ? (
