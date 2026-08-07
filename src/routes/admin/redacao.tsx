@@ -716,7 +716,11 @@ function RedacaoPage() {
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
                     <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
-                      {saving === "salvar-pronto" ? "Salvando…" : "Pronto para publicar"}
+                      {saving === "salvar-pronto"
+                        ? "Salvando…"
+                        : agendadoPara
+                          ? "Agendar publicação"
+                          : "Pronto para publicar"}
                     </button>
                   </>
                 )}
@@ -727,7 +731,11 @@ function RedacaoPage() {
                       {saving === "descartar" ? "Descartar" : "Descartar"}
                     </button>
                     <button onClick={salvarPronto} disabled={!!saving} style={btnOutline}>
-                      {saving === "salvar-pronto" ? "Salvando…" : "Salvar alterações"}
+                      {saving === "salvar-pronto"
+                        ? "Salvando…"
+                        : agendadoPara
+                          ? "Atualizar agendamento"
+                          : "Salvar alterações"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar agora"}
