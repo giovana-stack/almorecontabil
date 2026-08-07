@@ -308,6 +308,26 @@ function RedacaoPage() {
     patchIt(selected.id, body, "salvar-pronto", tab !== "pronto");
   };
 
+  const publicarRapido = async (item: Artigo) => {
+    if (!confirm("Publicar este artigo agora?")) return;
+    const ok = await patchIt(
+      item.id,
+      {
+        status: "publicado",
+        publicado_em: new Date().toISOString(),
+        agendado_para: null,
+      },
+      "publicar",
+      true
+    );
+    if (ok) {
+      fetch(
+        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(item.id))}`,
+        { method: "GET", mode: "no-cors" }
+      ).catch(() => {});
+    }
+  };
+
   const tabBtn = (t: Tab, label: string) => (
     <button
       onClick={() => {
