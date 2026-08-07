@@ -258,14 +258,31 @@ function RedacaoPage() {
   };
 
   // Publicados
-  const salvarAlteracoes = () =>
-    selected &&
+  const salvarAlteracoes = () => {
+    if (!selected) return;
+    const body: any = {
+      artigo_titulo: titulo,
+      artigo_corpo: corpo,
+      artigo_capa: capa || null,
+      artigo_capa_alt: capaAlt || null,
+      artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+    };
+    if (agendadoPara) {
+      body.agendado_para = new Date(agendadoPara).toISOString();
+      body.status = "agendado";
+    } else {
+      // Se não tem agendamento e já estava publicado, mantemos publicado
+      // Se era agendado e limpou, volta para pronto (isso só aconteceria se tab fosse alterado, mas por segurança:)
+      body.agendado_para = null;
+      if (selected.status === "agendado") body.status = "pronto";
+    }
     patchIt(
       selected.id,
-      { artigo_titulo: titulo, artigo_corpo: corpo, artigo_capa: capa || null, artigo_capa_alt: capaAlt || null, artigo_capa_pos: capa ? formatCapaPos(capaPos) : null },
+      body,
       "alteracoes",
-      false
+      agendadoPara ? true : false
     );
+  };
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
