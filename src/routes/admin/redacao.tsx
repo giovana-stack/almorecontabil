@@ -398,6 +398,7 @@ function RedacaoPage() {
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
           {tabBtn("pronto", "Prontos")}
+          {tabBtn("agendado", "Agendados")}
           {tabBtn("publicado", "Publicados")}
         </div>
 
