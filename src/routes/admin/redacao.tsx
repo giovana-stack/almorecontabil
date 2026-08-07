@@ -115,7 +115,9 @@ function RedacaoPage() {
     setError(null);
     try {
       const orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
-      const statusFilter = tab === "pronto" ? "status=in.(pronto,agendado)" : `status=eq.${tab}`;
+      let statusFilter = `status=eq.${tab}`;
+      if (tab === "pronto") statusFilter = "status=eq.pronto";
+      if (tab === "agendado") statusFilter = "status=eq.agendado";
       const res = await fetch(
         `${REST}?${statusFilter}&order=${orderBy}&select=*`,
         { headers: baseHeaders }
