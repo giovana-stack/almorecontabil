@@ -458,7 +458,7 @@ function RedacaoPage() {
               );
             }
 
-            if (tab === "pronto") {
+            if (tab === "pronto" || tab === "agendado") {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
                   <div style={cardHeaderStyle}>
