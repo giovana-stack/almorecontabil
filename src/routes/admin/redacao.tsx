@@ -307,7 +307,7 @@ function RedacaoPage() {
       body.agendado_para = null;
       body.status = "pronto";
     }
-    patchIt(selected.id, body, "salvar-pronto", tab !== "pronto");
+    patchIt(selected.id, body, "salvar-pronto", true);
   };
 
   const publicarRapido = async (item: Artigo) => {
