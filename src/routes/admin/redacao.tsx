@@ -74,7 +74,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "pronto" | "publicado";
+type Tab = "novo" | "pronto" | "agendado" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
