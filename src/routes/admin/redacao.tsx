@@ -114,7 +114,9 @@ function RedacaoPage() {
     setLoading(true);
     setError(null);
     try {
-      const orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
+      let orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
+      if (tab === "agendado") orderBy = "agendado_para.asc";
+      
       let statusFilter = `status=eq.${tab}`;
       if (tab === "pronto") statusFilter = "status=eq.pronto";
       if (tab === "agendado") statusFilter = "status=eq.agendado";
