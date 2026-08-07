@@ -74,7 +74,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "pronto" | "publicado";
+type Tab = "novo" | "pronto" | "agendado" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -115,7 +115,9 @@ function RedacaoPage() {
     setError(null);
     try {
       const orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
-      const statusFilter = tab === "pronto" ? "status=in.(pronto,agendado)" : `status=eq.${tab}`;
+      let statusFilter = `status=eq.${tab}`;
+      if (tab === "pronto") statusFilter = "status=eq.pronto";
+      if (tab === "agendado") statusFilter = "status=eq.agendado";
       const res = await fetch(
         `${REST}?${statusFilter}&order=${orderBy}&select=*`,
         { headers: baseHeaders }
@@ -305,7 +307,7 @@ function RedacaoPage() {
       body.agendado_para = null;
       body.status = "pronto";
     }
-    patchIt(selected.id, body, "salvar-pronto", tab !== "pronto");
+    patchIt(selected.id, body, "salvar-pronto", true);
   };
 
   const publicarRapido = async (item: Artigo) => {
@@ -396,6 +398,7 @@ function RedacaoPage() {
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
           {tabBtn("pronto", "Prontos")}
+          {tabBtn("agendado", "Agendados")}
           {tabBtn("publicado", "Publicados")}
         </div>
 
@@ -455,7 +458,7 @@ function RedacaoPage() {
               );
             }
 
-            if (tab === "pronto") {
+            if (tab === "pronto" || tab === "agendado") {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
                   <div style={cardHeaderStyle}>
