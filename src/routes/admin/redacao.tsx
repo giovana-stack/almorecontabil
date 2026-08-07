@@ -244,6 +244,7 @@ function RedacaoPage() {
 
         status: "publicado",
         publicado_em: new Date().toISOString(),
+        agendado_para: null,
       },
       "publicar",
       true
