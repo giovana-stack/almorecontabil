@@ -382,7 +382,9 @@ function RedacaoPage() {
                 fetch(
                   "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz",
                   { method: "GET", mode: "no-cors" }
-                ).catch(() => {});
+                ).catch((err: any) => {
+                  alert(`Erro ao gerar artigos: ${err.name || "Erro desconhecido"} - ${err.message || ""}`);
+                });
                 setTimeout(() => {
                   load();
                   setGerando(false);
