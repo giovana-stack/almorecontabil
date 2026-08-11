@@ -578,13 +578,13 @@ function Toolbar({
   onRemoveLink: () => void;
 }) {
   const Btn = ({
-    onClick,
+    onAction,
     active,
     children,
     title,
     disabled,
   }: {
-    onClick: () => void;
+    onAction: () => void;
     active?: boolean;
     children: React.ReactNode;
     title: string;
@@ -593,8 +593,10 @@ function Toolbar({
     <button
       type="button"
       title={title}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        if (!disabled) onAction();
+      }}
       disabled={disabled}
       style={{
         padding: "6px 10px",
