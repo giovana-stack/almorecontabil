@@ -89,7 +89,11 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+        bulletList: {},
+        orderedList: {},
+      }),
       EditableImage.configure({ inline: false, allowBase64: false }),
       Link.configure({
         openOnClick: false,
@@ -650,7 +654,9 @@ function Toolbar({
       <Btn
         title="Lista"
         active={editor.isActive("bulletList")}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        onClick={() => {
+          editor.chain().focus().toggleBulletList().run();
+        }}
       >
         • Lista
       </Btn>
