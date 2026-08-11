@@ -91,8 +91,8 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
-        bulletList: true,
-        orderedList: true,
+        bulletList: {},
+        orderedList: {},
       }),
       EditableImage.configure({ inline: false, allowBase64: false }),
       Link.configure({
