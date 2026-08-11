@@ -578,13 +578,13 @@ function Toolbar({
   onRemoveLink: () => void;
 }) {
   const Btn = ({
-    onClick,
+    onAction,
     active,
     children,
     title,
     disabled,
   }: {
-    onClick: () => void;
+    onAction: () => void;
     active?: boolean;
     children: React.ReactNode;
     title: string;
@@ -593,8 +593,10 @@ function Toolbar({
     <button
       type="button"
       title={title}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        if (!disabled) onAction();
+      }}
       disabled={disabled}
       style={{
         padding: "6px 10px",
@@ -626,35 +628,35 @@ function Toolbar({
       <Btn
         title="Título H2"
         active={editor.isActive("heading", { level: 2 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        onAction={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         H2
       </Btn>
       <Btn
         title="Subtítulo H3"
         active={editor.isActive("heading", { level: 3 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        onAction={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         H3
       </Btn>
       <Btn
         title="Negrito"
         active={editor.isActive("bold")}
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        onAction={() => editor.chain().focus().toggleBold().run()}
       >
         <b>B</b>
       </Btn>
       <Btn
         title="Itálico"
         active={editor.isActive("italic")}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
+        onAction={() => editor.chain().focus().toggleItalic().run()}
       >
         <i>I</i>
       </Btn>
       <Btn
         title="Lista"
         active={editor.isActive("bulletList")}
-        onClick={() => {
+        onAction={() => {
           editor.chain().focus().toggleBulletList().run();
         }}
       >
@@ -663,7 +665,7 @@ function Toolbar({
       <Btn
         title="Parágrafo"
         active={editor.isActive("paragraph")}
-        onClick={() => editor.chain().focus().setParagraph().run()}
+        onAction={() => editor.chain().focus().setParagraph().run()}
       >
         ¶
       </Btn>
