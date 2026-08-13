@@ -347,7 +347,7 @@ function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; 
       editor.chain().focus().updateAttributes("image", { alt }).run();
     } catch (err: any) {
       console.error("[RichEditor] Falha ao gerar alt imagem corpo:", err);
-      setAltErro(err.message || "Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+      setAltErro(err.message || "Erro desconhecido ao gerar alt text.");
     } finally {
       setGerandoAlt(false);
     }

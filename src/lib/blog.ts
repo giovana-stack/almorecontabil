@@ -121,54 +121,35 @@ async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType
 }
 
 export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
-  // 1. Consultar cache na tabela alt_imagens
+  const scriptUrl = `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1&url=${encodeURIComponent(imageUrl)}&contexto=${encodeURIComponent(contexto || "")}`;
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
   try {
-    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/alt_imagens?url=eq.${encodeURIComponent(imageUrl)}&select=alt`, {
-      headers: restHeaders
+    const res = await fetch(scriptUrl, {
+      method: "GET",
+      signal: controller.signal
     });
-    if (checkRes.ok) {
-      const data = await checkRes.json();
-      if (data && data.length > 0 && data[0].alt) {
-        return data[0].alt;
-      }
-    }
-  } catch (err) {
-    console.warn("[gerarAltComIA] Falha ao consultar cache:", err);
-  }
 
-  // 2. Chamar o Apps Script (Novo fluxo: envia apenas a URL)
-  // URL: https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1
-  const scriptUrl = "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1";
-  
-  const res = await fetch(scriptUrl, {
-    method: "POST",
-    // Sem header Content-Type application/json para evitar preflight
-    body: JSON.stringify({ 
-      url: imageUrl, 
-      contexto: contexto || "" 
-    }),
-  });
-  
-  // Não dependemos da resposta (pode ser 302 bloqueado por CORS)
-  // Iniciamos o polling na tabela alt_imagens
-  const maxAttempts = 15; // 15 * 2s = 30s
-  for (let i = 0; i < maxAttempts; i++) {
-    await new Promise(r => setTimeout(r, 2000));
-    
-    try {
-      const pollRes = await fetch(`${SUPABASE_URL}/rest/v1/alt_imagens?url=eq.${encodeURIComponent(imageUrl)}&select=alt`, {
-        headers: restHeaders
-      });
-      if (pollRes.ok) {
-        const json = await pollRes.json();
-        if (json && json.length > 0 && json[0].alt) {
-          return json[0].alt;
-        }
-      }
-    } catch (err) {
-      console.warn(`[gerarAltComIA] Erro no polling (tentativa ${i+1}):`, err);
-    }
-  }
+    clearTimeout(timeoutId);
 
-  throw new Error("Tempo esgotado ao gerar alt text. Tente novamente em instantes.");
+    if (!res.ok) {
+      const text = await res.text().catch(() => "Erro desconhecido");
+      throw new Error(`Serviço indisponível: ${text}`);
+    }
+
+    const data = await res.json();
+    if (data.ok) {
+      return data.alt;
+    } else {
+      throw new Error(data.erro || "Falha na geração do texto alternativo");
+    }
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error("O servidor demorou muito para responder (timeout de 15s). Tente novamente.");
+    }
+    throw err;
+  }
 }
