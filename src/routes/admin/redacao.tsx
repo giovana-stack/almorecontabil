@@ -705,27 +705,61 @@ function RedacaoPage() {
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
-                    <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
-                      {saving === "salvar-pronto"
-                        ? "Salvando…"
+                    <button 
+                      onClick={async () => {
+                        if (agendadoPara) {
+                          const body: any = {
+                            artigo_titulo: titulo,
+                            artigo_corpo: corpo,
+                            artigo_capa: capa || null,
+                            artigo_capa_alt: capaAlt || null,
+                            artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+                            agendado_para: new Date(agendadoPara).toISOString(),
+                            status: "agendado"
+                          };
+                          patchIt(selected.id, body, "agendar", true);
+                        } else {
+                          publicar();
+                        }
+                      }} 
+                      disabled={!!saving} 
+                      style={btnPrimary}
+                    >
+                      {saving === "publicar" || saving === "agendar"
+                        ? "Processando…"
                         : agendadoPara
                           ? "Agendar publicação"
-                          : "Pronto para publicar"}
+                          : "Publicar"}
                     </button>
                   </>
                 )}
 
-                {tab === "pronto" && (
+                {tab === "agendado" && (
                   <>
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
-                      {saving === "descartar" ? "Descartar" : "Descartar"}
+                      Descartar
                     </button>
-                    <button onClick={salvarPronto} disabled={!!saving} style={btnOutline}>
-                      {saving === "salvar-pronto"
-                        ? "Salvando…"
-                        : agendadoPara
-                          ? "Atualizar agendamento"
-                          : "Salvar alterações"}
+                    <button 
+                      onClick={() => {
+                        const body: any = {
+                          artigo_titulo: titulo,
+                          artigo_corpo: corpo,
+                          artigo_capa: capa || null,
+                          artigo_capa_alt: capaAlt || null,
+                          artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+                        };
+                        if (agendadoPara) {
+                          body.agendado_para = new Date(agendadoPara).toISOString();
+                        } else {
+                          body.agendado_para = null;
+                          body.status = "novo";
+                        }
+                        patchIt(selected.id, body, "alterar-agendado", !agendadoPara);
+                      }} 
+                      disabled={!!saving} 
+                      style={btnOutline}
+                    >
+                      {saving === "alterar-agendado" ? "Salvando…" : agendadoPara ? "Atualizar agendamento" : "Remover agendamento"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar agora"}
