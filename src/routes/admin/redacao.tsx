@@ -193,13 +193,19 @@ function RedacaoPage() {
   ): Promise<boolean> => {
     setSaving(kind);
     try {
+      const { data: { session } } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = {
+        ...baseHeaders,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch(`${REST}?id=eq.${id}`, {
         method: "PATCH",
-        headers: {
-          ...baseHeaders,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -224,9 +230,15 @@ function RedacaoPage() {
     if (!confirm("Tem certeza que deseja excluir? Esta ação não pode ser desfeita.")) return;
     setSaving("excluir");
     try {
+      const { data: { session } } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = { ...baseHeaders, Prefer: "return=minimal" };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch(`${REST}?id=eq.${id}`, {
         method: "DELETE",
-        headers: { ...baseHeaders, Prefer: "return=minimal" },
+        headers,
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setItems((prev) => prev.filter((x) => x.id !== id));
