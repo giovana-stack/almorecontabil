@@ -342,6 +342,7 @@ function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; 
     setAltErro(null);
     setGerandoAlt(true);
     try {
+      // Reutiliza a função centralizada que já resolveu os problemas de CORS
       const alt = await gerarAltComIA(src, contextTitle || "");
       editor.chain().focus().updateAttributes("image", { alt }).run();
     } catch (err: any) {

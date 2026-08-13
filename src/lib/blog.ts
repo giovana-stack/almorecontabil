@@ -122,14 +122,17 @@ async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType
 
 export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
   const { base64, mimeType } = await imageUrlToBase64(imageUrl);
+  
+  // CORS simple request: method POST, no custom headers, no Content-Type: application/json
+  // The Google Apps Script receives the raw text and must parse it as JSON.
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alt=1",
     {
       method: "POST",
-      // Sem header Content-Type e sem headers customizados para evitar preflight (CORS simple request)
-      // O Apps Script receberá o body como string e fará JSON.parse
+      // We don't set Content-Type: application/json to avoid preflight (OPTIONS request).
+      // text/plain;charset=utf-8 is a safe content-type that doesn't trigger preflight.
       body: JSON.stringify({ 
-        imagem: base64, // Apps Script espera o base64 puro conforme instrução
+        imagem: base64, 
         mimeType, 
         contexto: contexto || "" 
       }),
@@ -147,6 +150,7 @@ export async function gerarAltComIA(imageUrl: string, contexto: string): Promise
     return alt;
   } catch (err) {
     console.error("[gerarAltComIA] Falha ao parsear resposta como JSON. Resposta bruta:", text);
+    // If the response is HTML (Google redirect error), the user will see a snippet in the UI.
     throw new Error(`Erro na resposta da IA: ${text.slice(0, 100)}...`);
   }
 }
