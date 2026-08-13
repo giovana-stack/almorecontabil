@@ -712,6 +712,12 @@ function RedacaoPage() {
                 {gerandoAltCapa ? "Gerando…" : "Gerar alt com IA"}
               </button>
             </div>
+            {gerandoAltCapa && (
+              <div style={{ color: "#7C1638", fontSize: 13, marginBottom: 8, fontWeight: 500 }}>
+                Gerando alt text com IA... Isso pode levar até 30 segundos.
+              </div>
+            )}
+
             {altCapaErro && (
               <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>
             )}
