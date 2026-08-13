@@ -160,7 +160,6 @@ export async function gerarAltComIA(imageUrl: string, contexto: string): Promise
         headers: restHeaders
       });
       if (pollRes.ok) {
-        const data = await pollRes.pollRes ? pollRes.json() : []; // fetch returns response
         const json = await pollRes.json();
         if (json && json.length > 0 && json[0].alt) {
           return json[0].alt;
