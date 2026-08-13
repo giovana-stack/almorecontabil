@@ -416,6 +416,12 @@ function ImageBubbleMenu({ editor, onEditAlt, contextTitle }: { editor: Editor; 
       >
         {gerandoAlt ? "Gerando…" : "Gerar alt com IA"}
       </button>
+      {gerandoAlt && (
+        <span style={{ color: "#7C1638", fontSize: 11, fontWeight: 600, flexBasis: "100%" }}>
+          Gerando alt text com IA...
+        </span>
+      )}
+
       {altErro && (
         <span style={{ color: "#b00020", fontSize: 11, fontWeight: 600, flexBasis: "100%" }}>{altErro}</span>
       )}
