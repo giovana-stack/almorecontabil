@@ -75,7 +75,7 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
 }
 
 
-type Tab = "novo" | "pronto" | "agendado" | "publicado";
+type Tab = "novo" | "agendado" | "publicado";
 
 function RedacaoPage() {
   const [tab, setTab] = useState<Tab>("novo");
@@ -302,7 +302,7 @@ function RedacaoPage() {
       // Se não tem agendamento e já estava publicado, mantemos publicado
       // Se era agendado e limpou, volta para pronto (isso só aconteceria se tab fosse alterado, mas por segurança:)
       body.agendado_para = null;
-      if (selected.status === "agendado") body.status = "pronto";
+      if (selected.status === "agendado") body.status = "novo";
     }
     patchIt(
       selected.id,
@@ -314,47 +314,10 @@ function RedacaoPage() {
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
-    patchIt(selected.id, { status: "pronto" }, "despublicar", true);
+    patchIt(selected.id, { status: "novo" }, "despublicar", true);
   };
 
-  const salvarPronto = () => {
-    if (!selected) return;
-    const body: any = {
-      artigo_titulo: titulo,
-      artigo_corpo: corpo,
-      artigo_capa: capa || null,
-      artigo_capa_alt: capaAlt || null,
-      artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
-    };
-    if (agendadoPara) {
-      body.agendado_para = new Date(agendadoPara).toISOString();
-      body.status = "agendado";
-    } else {
-      body.agendado_para = null;
-      body.status = "pronto";
-    }
-    patchIt(selected.id, body, "salvar-pronto", true);
-  };
 
-  const publicarRapido = async (item: Artigo) => {
-    if (!confirm("Publicar este artigo agora?")) return;
-    const ok = await patchIt(
-      item.id,
-      {
-        status: "publicado",
-        publicado_em: new Date().toISOString(),
-        agendado_para: null,
-      },
-      "publicar",
-      true
-    );
-    if (ok) {
-      fetch(
-        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(item.id))}`,
-        { method: "GET", mode: "no-cors" }
-      ).catch(() => {});
-    }
-  };
 
   const tabBtn = (t: Tab, label: string) => (
     <button
@@ -425,7 +388,6 @@ function RedacaoPage() {
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {tabBtn("novo", "Novos")}
-          {tabBtn("pronto", "Prontos")}
           {tabBtn("agendado", "Agendados")}
           {tabBtn("publicado", "Publicados")}
         </div>
@@ -486,7 +448,7 @@ function RedacaoPage() {
               );
             }
 
-            if (tab === "pronto" || tab === "agendado") {
+            if (tab === "agendado") {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
                   <div style={cardHeaderStyle}>
@@ -497,13 +459,6 @@ function RedacaoPage() {
                       style={{ display: "flex", gap: 8, flexShrink: 0 }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <button 
-                        onClick={() => publicarRapido(item)} 
-                        disabled={!!saving} 
-                        style={btnPrimarySm}
-                      >
-                        {saving === "publicar" ? "..." : "Publicar"}
-                      </button>
                       <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                         Editar
                       </button>
@@ -517,9 +472,7 @@ function RedacaoPage() {
                       <span style={{ background: "#68112F", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
                         Agendado para {new Date(item.agendado_para!).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
-                    ) : (
-                      "Salvo em Prontos"
-                    )}
+                    ) : null}
                   </div>
                 </article>
               );
@@ -752,27 +705,61 @@ function RedacaoPage() {
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
-                    <button onClick={salvarPronto} disabled={!!saving} style={btnPrimary}>
-                      {saving === "salvar-pronto"
-                        ? "Salvando…"
+                    <button 
+                      onClick={async () => {
+                        if (agendadoPara) {
+                          const body: any = {
+                            artigo_titulo: titulo,
+                            artigo_corpo: corpo,
+                            artigo_capa: capa || null,
+                            artigo_capa_alt: capaAlt || null,
+                            artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+                            agendado_para: new Date(agendadoPara).toISOString(),
+                            status: "agendado"
+                          };
+                          patchIt(selected.id, body, "agendar", true);
+                        } else {
+                          publicar();
+                        }
+                      }} 
+                      disabled={!!saving} 
+                      style={btnPrimary}
+                    >
+                      {saving === "publicar" || saving === "agendar"
+                        ? "Processando…"
                         : agendadoPara
                           ? "Agendar publicação"
-                          : "Pronto para publicar"}
+                          : "Publicar"}
                     </button>
                   </>
                 )}
 
-                {tab === "pronto" && (
+                {tab === "agendado" && (
                   <>
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
-                      {saving === "descartar" ? "Descartar" : "Descartar"}
+                      Descartar
                     </button>
-                    <button onClick={salvarPronto} disabled={!!saving} style={btnOutline}>
-                      {saving === "salvar-pronto"
-                        ? "Salvando…"
-                        : agendadoPara
-                          ? "Atualizar agendamento"
-                          : "Salvar alterações"}
+                    <button 
+                      onClick={() => {
+                        const body: any = {
+                          artigo_titulo: titulo,
+                          artigo_corpo: corpo,
+                          artigo_capa: capa || null,
+                          artigo_capa_alt: capaAlt || null,
+                          artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+                        };
+                        if (agendadoPara) {
+                          body.agendado_para = new Date(agendadoPara).toISOString();
+                        } else {
+                          body.agendado_para = null;
+                          body.status = "novo";
+                        }
+                        patchIt(selected.id, body, "alterar-agendado", !agendadoPara);
+                      }} 
+                      disabled={!!saving} 
+                      style={btnOutline}
+                    >
+                      {saving === "alterar-agendado" ? "Salvando…" : agendadoPara ? "Atualizar agendamento" : "Remover agendamento"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar agora"}
@@ -783,7 +770,7 @@ function RedacaoPage() {
                 {tab === "publicado" && (
                   <>
                     <button onClick={despublicar} disabled={!!saving} style={btnOutline}>
-                      {saving === "despublicar" ? "Despublicando…" : "Voltar para Prontos"}
+                      {saving === "despublicar" ? "Despublicando…" : "Voltar para Novos"}
                     </button>
                     <button onClick={salvarAlteracoes} disabled={!!saving} style={btnPrimary}>
                       {saving === "alteracoes" ? "Salvando…" : "Salvar alterações"}
