@@ -106,7 +106,7 @@ function RedacaoPage() {
       setCapaAlt(alt);
     } catch (err: any) {
       console.error("[redacao] Falha ao gerar alt capa:", err);
-      setAltCapaErro(err.message || "Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+      setAltCapaErro(err.message || "Erro desconhecido ao gerar alt text.");
     } finally {
       setGerandoAltCapa(false);
     }
