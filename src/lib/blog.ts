@@ -121,36 +121,55 @@ async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType
 }
 
 export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
-  const { base64, mimeType } = await imageUrlToBase64(imageUrl);
-  
-  // CORS simple request: method POST, no custom headers, no Content-Type: application/json
-  // The Google Apps Script receives the raw text and must parse it as JSON.
-  const res = await fetch(
-    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alt=1",
-    {
-      method: "POST",
-      // We don't set Content-Type: application/json to avoid preflight (OPTIONS request).
-      // text/plain;charset=utf-8 is a safe content-type that doesn't trigger preflight.
-      body: JSON.stringify({ 
-        imagem: base64, 
-        mimeType, 
-        contexto: contexto || "" 
-      }),
-    }
-  );
-  
-  const text = await res.text();
+  // 1. Consultar cache na tabela alt_imagens
   try {
-    const data = JSON.parse(text);
-    const alt = data && typeof data.alt === "string" ? data.alt.trim() : "";
-    if (!alt) {
-      console.warn("[gerarAltComIA] Resposta JSON sem campo 'alt':", text);
-      throw new Error("Resposta sem alt");
+    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/alt_imagens?url=eq.${encodeURIComponent(imageUrl)}&select=alt`, {
+      headers: restHeaders
+    });
+    if (checkRes.ok) {
+      const data = await checkRes.json();
+      if (data && data.length > 0 && data[0].alt) {
+        return data[0].alt;
+      }
     }
-    return alt;
   } catch (err) {
-    console.error("[gerarAltComIA] Falha ao parsear resposta como JSON. Resposta bruta:", text);
-    // If the response is HTML (Google redirect error), the user will see a snippet in the UI.
-    throw new Error(`Erro na resposta da IA: ${text.slice(0, 100)}...`);
+    console.warn("[gerarAltComIA] Falha ao consultar cache:", err);
   }
+
+  // 2. Chamar o Apps Script (Novo fluxo: envia apenas a URL)
+  // URL: https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1";
+  
+  const res = await fetch(scriptUrl, {
+    method: "POST",
+    // Sem header Content-Type application/json para evitar preflight
+    body: JSON.stringify({ 
+      url: imageUrl, 
+      contexto: contexto || "" 
+    }),
+  });
+  
+  // Não dependemos da resposta (pode ser 302 bloqueado por CORS)
+  // Iniciamos o polling na tabela alt_imagens
+  const maxAttempts = 15; // 15 * 2s = 30s
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    
+    try {
+      const pollRes = await fetch(`${SUPABASE_URL}/rest/v1/alt_imagens?url=eq.${encodeURIComponent(imageUrl)}&select=alt`, {
+        headers: restHeaders
+      });
+      if (pollRes.ok) {
+        const data = await pollRes.pollRes ? pollRes.json() : []; // fetch returns response
+        const json = await pollRes.json();
+        if (json && json.length > 0 && json[0].alt) {
+          return json[0].alt;
+        }
+      }
+    } catch (err) {
+      console.warn(`[gerarAltComIA] Erro no polling (tentativa ${i+1}):`, err);
+    }
+  }
+
+  throw new Error("Tempo esgotado ao gerar alt text. Tente novamente em instantes.");
 }
