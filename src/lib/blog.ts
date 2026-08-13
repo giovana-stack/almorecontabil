@@ -122,18 +122,31 @@ async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType
 
 export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
   const { base64, mimeType } = await imageUrlToBase64(imageUrl);
-  // Use text/plain para evitar preflight CORS no Apps Script
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alt=1",
     {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ imagem: base64, mimeType, contexto: contexto || "" }),
+      // Sem header Content-Type e sem headers customizados para evitar preflight (CORS simple request)
+      // O Apps Script receberá o body como string e fará JSON.parse
+      body: JSON.stringify({ 
+        imagem: base64, // Apps Script espera o base64 puro conforme instrução
+        mimeType, 
+        contexto: contexto || "" 
+      }),
     }
   );
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json().catch(() => null as any);
-  const alt = data && typeof data.alt === "string" ? data.alt.trim() : "";
-  if (!alt) throw new Error("Resposta sem alt");
-  return alt;
+  
+  const text = await res.text();
+  try {
+    const data = JSON.parse(text);
+    const alt = data && typeof data.alt === "string" ? data.alt.trim() : "";
+    if (!alt) {
+      console.warn("[gerarAltComIA] Resposta JSON sem campo 'alt':", text);
+      throw new Error("Resposta sem alt");
+    }
+    return alt;
+  } catch (err) {
+    console.error("[gerarAltComIA] Falha ao parsear resposta como JSON. Resposta bruta:", text);
+    throw new Error(`Erro na resposta da IA: ${text.slice(0, 100)}...`);
+  }
 }
