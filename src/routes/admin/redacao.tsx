@@ -104,8 +104,9 @@ function RedacaoPage() {
     try {
       const alt = await gerarAltComIA(capa, titulo || "");
       setCapaAlt(alt);
-    } catch {
-      setAltCapaErro("Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
+    } catch (err: any) {
+      console.error("[redacao] Falha ao gerar alt capa:", err);
+      setAltCapaErro(err.message || "Não foi possível gerar o alt, tente novamente ou escreva manualmente.");
     } finally {
       setGerandoAltCapa(false);
     }
