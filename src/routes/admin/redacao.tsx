@@ -4,6 +4,7 @@ import { RichEditor } from "@/components/RichEditor";
 import { CapaCropper, parseCapaPos, formatCapaPos, type CapaPos } from "@/components/CapaCropper";
 import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate, gerarAltComIA } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
+import { supabaseExt } from "@/lib/auth-supabase";
 
 
 export const Route = createFileRoute("/admin/redacao")({
@@ -114,19 +115,29 @@ function RedacaoPage() {
     setLoading(true);
     setError(null);
     try {
+      const { data: { session } } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = { ...baseHeaders };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       let orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
       if (tab === "agendado") orderBy = "agendado_para.asc";
       
       let statusFilter = `status=eq.${tab}`;
-      if (tab === "pronto") statusFilter = "status=eq.pronto";
-      if (tab === "agendado") statusFilter = "status=eq.agendado";
-      const res = await fetch(
-        `${REST}?${statusFilter}&order=${orderBy}&select=*`,
-        { headers: baseHeaders }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setItems(await res.json());
+      const url = `${REST}?${statusFilter}&order=${orderBy}&select=*`;
+      
+      const res = await fetch(url, { headers });
+      const rawData = await res.json();
+      
+      console.log(`[redacao] tab=${tab} url=${url} status=${res.status} count=${rawData?.length}`);
+      if (!res.ok) {
+        console.error("[redacao] erro na query:", rawData);
+        throw new Error(`HTTP ${res.status}: ${rawData?.message || "Erro desconhecido"}`);
+      }
+      setItems(rawData || []);
     } catch (e: any) {
+      console.error("[redacao] exception ao carregar:", e);
       setError(e.message || "Erro ao carregar");
     } finally {
       setLoading(false);
@@ -182,13 +193,19 @@ function RedacaoPage() {
   ): Promise<boolean> => {
     setSaving(kind);
     try {
+      const { data: { session } } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = {
+        ...baseHeaders,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch(`${REST}?id=eq.${id}`, {
         method: "PATCH",
-        headers: {
-          ...baseHeaders,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -213,9 +230,15 @@ function RedacaoPage() {
     if (!confirm("Tem certeza que deseja excluir? Esta ação não pode ser desfeita.")) return;
     setSaving("excluir");
     try {
+      const { data: { session } } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = { ...baseHeaders, Prefer: "return=minimal" };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch(`${REST}?id=eq.${id}`, {
         method: "DELETE",
-        headers: { ...baseHeaders, Prefer: "return=minimal" },
+        headers,
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setItems((prev) => prev.filter((x) => x.id !== id));
