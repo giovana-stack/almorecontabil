@@ -363,15 +363,39 @@ function RedacaoPage() {
               </span>
             )}
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (gerando) return;
                 setGerando(true);
-                fetch(
-                  "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
-                  { method: "GET", mode: "no-cors" }
-                ).catch((err: any) => {
-                  alert(`Erro ao gerar artigos: ${err.name || "Erro desconhecido"} - ${err.message || ""}`);
-                });
+                try {
+                  const res = await fetch(
+                    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
+                    { method: "GET" }
+                  );
+                  // Apps Script em redirect com GET geralmente funciona no navegador mesmo sem no-cors
+                  // Mas se der erro de CORS, o fallback no-cors não permite ler o erro.
+                  // Vamos tentar GET padrão primeiro para poder ler corpo se possível.
+                  if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Servidor retornou ${res.status}: ${text}`);
+                  }
+                } catch (err: any) {
+                  // Se falhar por CORS, tentamos o disparo cego (no-cors) mas avisamos
+                  console.warn("[redacao] Falha na chamada padrão, tentando no-cors:", err);
+                  try {
+                    await fetch(
+                      "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
+                      { method: "GET", mode: "no-cors" }
+                    );
+                  } catch (err2: any) {
+                    alert(`Erro crítico ao disparar geração: ${err2.message || err2}`);
+                  }
+                  
+                  // Se o erro original for útil (não for apenas CORS policy), mostramos
+                  if (!err.message?.includes("CORS") && !err.message?.includes("fetch")) {
+                    alert(`Erro na geração: ${err.message}`);
+                  }
+                }
+
                 setTimeout(() => {
                   load();
                   setGerando(false);
