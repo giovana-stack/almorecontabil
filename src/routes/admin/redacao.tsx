@@ -367,7 +367,7 @@ function RedacaoPage() {
                 if (gerando) return;
                 setGerando(true);
                 fetch(
-                  "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz",
+                  "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
                   { method: "GET", mode: "no-cors" }
                 ).catch((err: any) => {
                   alert(`Erro ao gerar artigos: ${err.name || "Erro desconhecido"} - ${err.message || ""}`);
