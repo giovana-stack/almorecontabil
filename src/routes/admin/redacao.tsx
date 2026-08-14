@@ -432,9 +432,19 @@ function RedacaoPage() {
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
-                <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
-                  Excluir
-                </button>
+                {tab === "novo" ? (
+                  <button 
+                    onClick={() => patchIt(item.id, { status: "descartado" }, "descartar", true)} 
+                    disabled={!!saving} 
+                    style={btnDangerSm}
+                  >
+                    Descartar
+                  </button>
+                ) : (
+                  <button onClick={() => deleteIt(item.id)} disabled={!!saving} style={btnDangerSm}>
+                    Excluir
+                  </button>
+                )}
               </div>
             );
 
