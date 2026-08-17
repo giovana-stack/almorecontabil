@@ -397,11 +397,9 @@ function RedacaoPage() {
                   }
                 }
 
-                // O Apps Script leva tempo para processar. Recarregamos após 90s.
                 setTimeout(() => {
                   load();
                   setGerando(false);
-                  console.log("[redacao] Recarregando lista após 90s.");
                 }, 90000);
               }}
               disabled={gerando}
