@@ -370,26 +370,36 @@ function RedacaoPage() {
                   console.log("[redacao] Disparando geração de artigos...");
                   const url = "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1";
                   
-                  // Apps Script requer mode: 'no-cors' para funcionar com redirects em cross-origin sem preflight OPTIONS.
-                  // Se usarmos mode: 'cors' (padrão), ele falha antes de chegar no Apps Script se não houver headers CORS.
-                  // O disparo via no-cors garante que o sinal chegue, embora não possamos ler a resposta.
-                  await fetch(url, { 
-                    method: "GET", 
-                    mode: "no-cors",
-                    cache: "no-store" 
-                  });
+                  const res = await fetch(url, { method: "GET" });
                   
-                  console.log("[redacao] Sinal enviado via no-cors. Iniciando aguardo de 90s.");
+                  // Apps Script em redirect com GET geralmente funciona no navegador mesmo sem no-cors
+                  // Mas se der erro de CORS, o fallback no-cors não permite ler o erro.
+                  // Vamos tentar GET padrão primeiro para poder ler corpo se possível.
+                  if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Servidor retornou ${res.status}: ${text}`);
+                  }
                 } catch (err: any) {
-                  console.error("[redacao] Erro ao disparar geração:", err);
-                  alert(`Erro crítico ao disparar geração: ${err.message || err}`);
+                  // Se falhar por CORS, tentamos o disparo cego (no-cors) mas avisamos
+                  console.warn("[redacao] Falha na chamada padrão, tentando no-cors:", err);
+                  try {
+                    await fetch(
+                      "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
+                      { method: "GET", mode: "no-cors" }
+                    );
+                  } catch (err2: any) {
+                    alert(`Erro crítico ao disparar geração: ${err2.message || err2}`);
+                  }
+                  
+                  // Se o erro original for útil (não for apenas CORS policy), mostramos
+                  if (!err.message?.includes("CORS") && !err.message?.includes("fetch")) {
+                    alert(`Erro na geração: ${err.message}`);
+                  }
                 }
 
-                // O Apps Script leva tempo para processar. Recarregamos após 90s.
                 setTimeout(() => {
                   load();
                   setGerando(false);
-                  console.log("[redacao] Recarregando lista após 90s.");
                 }, 90000);
               }}
               disabled={gerando}
