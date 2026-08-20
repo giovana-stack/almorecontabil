@@ -181,18 +181,18 @@ function Hero() {
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
       style={{ backgroundColor: "#7C1638" }}
     >
-      {/* Background Image - Absolute like before, but using new image */}
-      <div aria-hidden className="absolute right-0 top-0 w-full md:w-[75%] h-full pointer-events-none">
+      {/* Background Image - Absolute, now positioned to the LEFT */}
+      <div aria-hidden className="absolute left-0 top-0 w-full md:w-[75%] h-full pointer-events-none">
         <img
           src={heroNew.url}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-right md:object-center"
+          className="absolute inset-0 w-full h-full object-cover object-left md:object-center"
           style={{
             filter: "grayscale(100%) brightness(0.6)",
             WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
+              "linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
             maskImage:
-              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
+              "linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
           }}
         />
         {/* Bordeaux tone match overlay */}
@@ -200,12 +200,12 @@ function Hero() {
           className="absolute inset-0"
           style={{ background: "#7C1638", opacity: 0.6, mixBlendMode: "multiply" }}
         />
-        {/* Horizontal fade from bordeaux into photo (Text area) */}
+        {/* Horizontal fade from bordeaux into photo (Text area is now on the right) */}
         <div
-          className="absolute left-0 top-0 h-full w-[60%]"
+          className="absolute right-0 top-0 h-full w-[60%]"
           style={{
             background:
-              "linear-gradient(to right, #7C1638 0%, rgba(124,22,56,0.95) 40%, rgba(124,22,56,0) 100%)",
+              "linear-gradient(to left, #7C1638 0%, rgba(124,22,56,0.95) 40%, rgba(124,22,56,0) 100%)",
           }}
         />
         {/* Bottom fade for transition to next section */}
@@ -217,7 +217,7 @@ function Hero() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl w-full">
+      <div className="relative mx-auto max-w-7xl w-full flex justify-end">
         <div className="max-w-[650px] text-white reveal text-left">
           <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
           <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
