@@ -218,7 +218,7 @@ function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-7xl w-full flex justify-end">
-        <div className="max-w-[650px] text-white reveal text-left">
+        <div className="max-w-[650px] text-white reveal text-right flex flex-col items-end">
           <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
           <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
             Rápido.
