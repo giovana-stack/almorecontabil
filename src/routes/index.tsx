@@ -181,59 +181,11 @@ function Hero() {
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
       style={{ backgroundColor: "#7C1638" }}
     >
-      {/* Office photo — bordeaux monochrome, seamless blend */}
-      <div aria-hidden className="hidden md:block absolute right-0 top-0 w-[68%] h-full pointer-events-none">
-        <img
-          src={businessmanOffice.url}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            filter: "grayscale(100%) brightness(0.45)",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 90% 80% at 85% 35%, black 35%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0.35) 75%, transparent 100%)",
-            maskImage:
-              "radial-gradient(ellipse 90% 80% at 85% 35%, black 35%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0.35) 75%, transparent 100%)",
-          }}
-        />
-        {/* Bordeaux tone match overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: "#7C1638", opacity: 0.7, mixBlendMode: "multiply" }}
-        />
-        {/* Horizontal fade from bordeaux into photo */}
-        <div
-          className="absolute left-0 top-0 h-full w-[65%]"
-          style={{
-            background:
-              "linear-gradient(to right, #7C1638 0%, rgba(124,22,56,0.95) 30%, rgba(124,22,56,0.65) 65%, rgba(124,22,56,0) 100%)",
-          }}
-        />
-        {/* Vertical vignette to dissolve top and bottom edges */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(124,22,56,0.55) 0%, rgba(124,22,56,0) 22%, rgba(124,22,56,0) 70%, rgba(124,22,56,0.75) 100%)",
-          }}
-        />
-        {/* Bottom fade from photo into bordeaux */}
-        <div
-          className="absolute bottom-0 left-0 h-[180px] w-full"
-          style={{
-            background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
-          }}
-        />
-        {/* Radial bordeaux glow specifically over bottom-left corner */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 70% at 0% 100%, #7C1638 0%, rgba(124,22,56,0.85) 25%, rgba(124,22,56,0.35) 55%, rgba(124,22,56,0) 80%)",
-          }}
-        />
-      </div>
-      <div className="relative mx-auto max-w-7xl w-full">
-        <div className="max-w-[600px] text-white reveal">
+      {/* Background/Layout Wrapper */}
+      <div className="relative mx-auto max-w-7xl w-full flex flex-col md:flex-row items-center gap-12">
+        
+        {/* TEXT CONTENT (LEFT) */}
+        <div className="flex-1 text-white reveal text-left">
           <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
           <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
             Rápido.
@@ -256,6 +208,41 @@ function Hero() {
             Quero conhecer a Almore
           </button>
         </div>
+
+        {/* IMAGE CONTENT (RIGHT) */}
+        <div className="flex-1 w-full relative reveal">
+          <div className="relative w-full aspect-[4/5] md:aspect-square overflow-hidden rounded-2xl shadow-2xl">
+             <img
+              src={heroNew.url}
+              alt="Almore Inteligência Contábil"
+              className="w-full h-full object-cover"
+              style={{
+                filter: "grayscale(100%) brightness(0.7)",
+                mixBlendMode: "multiply",
+              }}
+            />
+            {/* Overlay to ensure bordeaux tint */}
+            <div 
+              className="absolute inset-0 pointer-events-none" 
+              style={{ background: "#7C1638", opacity: 0.4, mixBlendMode: "multiply" }}
+            />
+            {/* Gradient transition as requested in previous turn (bottom fade) */}
+            <div
+              className="absolute bottom-0 left-0 w-full h-1/3 pointer-events-none"
+              style={{
+                background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
+              }}
+            />
+          </div>
+          
+          {/* Decorative element - Isotipo overlay */}
+          <img 
+            src={isotipo.url} 
+            alt="" 
+            className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 pointer-events-none hidden md:block" 
+          />
+        </div>
+
       </div>
     </section>
   );
