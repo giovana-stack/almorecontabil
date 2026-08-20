@@ -181,11 +181,44 @@ function Hero() {
       className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
       style={{ backgroundColor: "#7C1638" }}
     >
-      {/* Background/Layout Wrapper */}
-      <div className="relative mx-auto max-w-7xl w-full flex flex-col md:flex-row items-center gap-12">
-        
-        {/* TEXT CONTENT (LEFT) */}
-        <div className="flex-1 text-white reveal text-left">
+      {/* Background Image - Absolute like before, but using new image */}
+      <div aria-hidden className="absolute right-0 top-0 w-full md:w-[75%] h-full pointer-events-none">
+        <img
+          src={heroNew.url}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-right md:object-center"
+          style={{
+            filter: "grayscale(100%) brightness(0.6)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
+          }}
+        />
+        {/* Bordeaux tone match overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "#7C1638", opacity: 0.6, mixBlendMode: "multiply" }}
+        />
+        {/* Horizontal fade from bordeaux into photo (Text area) */}
+        <div
+          className="absolute left-0 top-0 h-full w-[60%]"
+          style={{
+            background:
+              "linear-gradient(to right, #7C1638 0%, rgba(124,22,56,0.95) 40%, rgba(124,22,56,0) 100%)",
+          }}
+        />
+        {/* Bottom fade for transition to next section */}
+        <div
+          className="absolute bottom-0 left-0 h-[180px] w-full"
+          style={{
+            background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl w-full">
+        <div className="max-w-[650px] text-white reveal text-left">
           <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
           <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
             Rápido.
@@ -208,41 +241,6 @@ function Hero() {
             Quero conhecer a Almore
           </button>
         </div>
-
-        {/* IMAGE CONTENT (RIGHT) */}
-        <div className="flex-1 w-full relative reveal">
-          <div className="relative w-full aspect-[4/5] md:aspect-square overflow-hidden rounded-2xl shadow-2xl">
-             <img
-              src={heroNew.url}
-              alt="Almore Inteligência Contábil"
-              className="w-full h-full object-cover"
-              style={{
-                filter: "grayscale(100%) brightness(0.7)",
-                mixBlendMode: "multiply",
-              }}
-            />
-            {/* Overlay to ensure bordeaux tint */}
-            <div 
-              className="absolute inset-0 pointer-events-none" 
-              style={{ background: "#7C1638", opacity: 0.4, mixBlendMode: "multiply" }}
-            />
-            {/* Gradient transition as requested in previous turn (bottom fade) */}
-            <div
-              className="absolute bottom-0 left-0 w-full h-1/3 pointer-events-none"
-              style={{
-                background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
-              }}
-            />
-          </div>
-          
-          {/* Decorative element - Isotipo overlay */}
-          <img 
-            src={isotipo.url} 
-            alt="" 
-            className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 pointer-events-none hidden md:block" 
-          />
-        </div>
-
       </div>
     </section>
   );
