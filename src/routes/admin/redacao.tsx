@@ -430,10 +430,26 @@ function RedacaoPage() {
                   }
                 }
 
-                setTimeout(() => {
-                  load();
-                  setGerando(false);
-                }, 90000);
+                const antes = await contarNovos();
+                const limite = Date.now() + 180000;
+
+                const verificar = async () => {
+                  if (Date.now() > limite) {
+                    setGerando(false);
+                    load();
+                    alert("A geração demorou mais que o esperado. Clique em Recarregar em alguns minutos.");
+                    return;
+                  }
+                  const agora = await contarNovos();
+                  if (agora > antes) {
+                    setGerando(false);
+                    load();
+                    return;
+                  }
+                  setTimeout(verificar, 15000);
+                };
+
+                setTimeout(verificar, 15000);
               }}
               disabled={gerando}
               style={{ ...btnOutline, opacity: gerando ? 0.6 : 1, cursor: gerando ? "not-allowed" : "pointer" }}
