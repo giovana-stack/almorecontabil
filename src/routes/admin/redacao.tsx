@@ -2,17 +2,20 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { RichEditor } from "@/components/RichEditor";
 import { CapaCropper, parseCapaPos, formatCapaPos, type CapaPos } from "@/components/CapaCropper";
-import { restHeaders as baseHeaders, REST_ARTIGOS as REST, uploadBlogImage, htmlToText, formatDate, gerarAltComIA } from "@/lib/blog";
+import {
+  restHeaders as baseHeaders,
+  REST_ARTIGOS as REST,
+  uploadBlogImage,
+  htmlToText,
+  formatDate,
+  gerarAltComIA,
+} from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
 import { supabaseExt } from "@/lib/auth-supabase";
 
-
 export const Route = createFileRoute("/admin/redacao")({
   head: () => ({
-    meta: [
-      { title: "Redação — Admin" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Redação — Admin" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: RedacaoGate,
 });
@@ -25,7 +28,20 @@ function RedacaoGate() {
     if (!user || !isAdmin) navigate({ to: "/", replace: true });
   }, [loading, user, isAdmin, navigate]);
   if (loading) {
-    return <div style={{ minHeight: "100vh", background: "#F5F3F0", display: "flex", alignItems: "center", justifyContent: "center", color: "#595959" }}>Carregando…</div>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#F5F3F0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#595959",
+        }}
+      >
+        Carregando…
+      </div>
+    );
   }
   if (!user || !isAdmin) return null;
   return <RedacaoPage />;
@@ -74,7 +90,6 @@ function parseCapasSugeridas(raw: unknown): CapaSugerida[] {
   return [];
 }
 
-
 type Tab = "novo" | "agendado" | "publicado";
 
 function RedacaoPage() {
@@ -112,11 +127,26 @@ function RedacaoPage() {
     }
   };
 
+  const contarNovos = async (): Promise<number> => {
+    const {
+      data: { session },
+    } = await supabaseExt.auth.getSession();
+    const headers: Record<string, string> = { ...baseHeaders };
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+    const res = await fetch(`${REST}?status=eq.novo&select=id`, { headers });
+    const data = await res.json();
+    return Array.isArray(data) ? data.length : 0;
+  };
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data: { session } } = await supabaseExt.auth.getSession();
+      const {
+        data: { session },
+      } = await supabaseExt.auth.getSession();
       const headers: Record<string, string> = { ...baseHeaders };
       if (session?.access_token) {
         headers["Authorization"] = `Bearer ${session.access_token}`;
@@ -124,13 +154,13 @@ function RedacaoPage() {
 
       let orderBy = tab === "publicado" ? "publicado_em.desc" : "criado_em.desc";
       if (tab === "agendado") orderBy = "agendado_para.asc";
-      
+
       let statusFilter = `status=eq.${tab}`;
       const url = `${REST}?${statusFilter}&order=${orderBy}&select=*`;
-      
+
       const res = await fetch(url, { headers });
       const rawData = await res.json();
-      
+
       console.log(`[redacao] tab=${tab} url=${url} status=${res.status} count=${rawData?.length}`);
       if (!res.ok) {
         console.error("[redacao] erro na query:", rawData);
@@ -161,7 +191,6 @@ function RedacaoPage() {
     return () => window.removeEventListener("keydown", onKey, true);
   }, [selected]);
 
-
   const openEditor = (item: Artigo) => {
     setSelected(item);
     setTitulo(item.artigo_titulo || "");
@@ -178,7 +207,6 @@ function RedacaoPage() {
       const url = await uploadBlogImage(file);
       setCapa(url);
       setCapaPos({ x: 50, y: 50 });
-
     } catch (e: any) {
       alert(`Erro no upload: ${e.message}`);
     } finally {
@@ -190,11 +218,13 @@ function RedacaoPage() {
     id: Artigo["id"],
     body: Record<string, unknown>,
     kind: string,
-    removeFromList: boolean
+    removeFromList: boolean,
   ): Promise<boolean> => {
     setSaving(kind);
     try {
-      const { data: { session } } = await supabaseExt.auth.getSession();
+      const {
+        data: { session },
+      } = await supabaseExt.auth.getSession();
       const headers: Record<string, string> = {
         ...baseHeaders,
         "Content-Type": "application/json",
@@ -213,9 +243,7 @@ function RedacaoPage() {
       if (removeFromList) {
         setItems((prev) => prev.filter((x) => x.id !== id));
       } else {
-        setItems((prev) =>
-          prev.map((x) => (x.id === id ? ({ ...x, ...body } as Artigo) : x))
-        );
+        setItems((prev) => prev.map((x) => (x.id === id ? ({ ...x, ...body } as Artigo) : x)));
       }
       setSelected(null);
       return true;
@@ -231,7 +259,9 @@ function RedacaoPage() {
     if (!confirm("Tem certeza que deseja excluir? Esta ação não pode ser desfeita.")) return;
     setSaving("excluir");
     try {
-      const { data: { session } } = await supabaseExt.auth.getSession();
+      const {
+        data: { session },
+      } = await supabaseExt.auth.getSession();
       const headers: Record<string, string> = { ...baseHeaders, Prefer: "return=minimal" };
       if (session?.access_token) {
         headers["Authorization"] = `Bearer ${session.access_token}`;
@@ -275,12 +305,12 @@ function RedacaoPage() {
         agendado_para: null,
       },
       "publicar",
-      true
+      true,
     );
     if (ok) {
       fetch(
         `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(id))}`,
-        { method: "GET", mode: "no-cors" }
+        { method: "GET", mode: "no-cors" },
       ).catch(() => {});
     }
   };
@@ -304,20 +334,13 @@ function RedacaoPage() {
       body.agendado_para = null;
       if (selected.status === "agendado") body.status = "novo";
     }
-    patchIt(
-      selected.id,
-      body,
-      "alteracoes",
-      agendadoPara ? true : false
-    );
+    patchIt(selected.id, body, "alteracoes", agendadoPara ? true : false);
   };
   const despublicar = () => {
     if (!selected) return;
     if (!confirm("Despublicar este artigo?")) return;
     patchIt(selected.id, { status: "novo" }, "despublicar", true);
   };
-
-
 
   const tabBtn = (t: Tab, label: string) => (
     <button
@@ -343,7 +366,16 @@ function RedacaoPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3F0", padding: "32px 20px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <header style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <header
+          style={{
+            marginBottom: 20,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
           <h1 style={{ fontSize: 28, fontWeight: 700, color: "#7C1638", margin: 0 }}>Redação</h1>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             {gerando && (
@@ -368,10 +400,11 @@ function RedacaoPage() {
                 setGerando(true);
                 try {
                   console.log("[redacao] Disparando geração de artigos...");
-                  const url = "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1";
-                  
+                  const url =
+                    "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1";
+
                   const res = await fetch(url, { method: "GET" });
-                  
+
                   // Apps Script em redirect com GET geralmente funciona no navegador mesmo sem no-cors
                   // Mas se der erro de CORS, o fallback no-cors não permite ler o erro.
                   // Vamos tentar GET padrão primeiro para poder ler corpo se possível.
@@ -385,12 +418,12 @@ function RedacaoPage() {
                   try {
                     await fetch(
                       "https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&gerar=1",
-                      { method: "GET", mode: "no-cors" }
+                      { method: "GET", mode: "no-cors" },
                     );
                   } catch (err2: any) {
                     alert(`Erro crítico ao disparar geração: ${err2.message || err2}`);
                   }
-                  
+
                   // Se o erro original for útil (não for apenas CORS policy), mostramos
                   if (!err.message?.includes("CORS") && !err.message?.includes("fetch")) {
                     alert(`Erro na geração: ${err.message}`);
@@ -407,7 +440,9 @@ function RedacaoPage() {
             >
               {gerando ? "Gerando…" : "Gerar artigos agora"}
             </button>
-            <button onClick={load} style={btnPrimary}>Recarregar</button>
+            <button onClick={load} style={btnPrimary}>
+              Recarregar
+            </button>
           </div>
         </header>
 
@@ -419,24 +454,19 @@ function RedacaoPage() {
 
         {loading && <p>Carregando…</p>}
         {error && <p style={{ color: "#b00" }}>Erro: {error}</p>}
-        {!loading && !error && items.length === 0 && (
-          <p style={{ color: "#595959" }}>Nenhum artigo.</p>
-        )}
+        {!loading && !error && items.length === 0 && <p style={{ color: "#595959" }}>Nenhum artigo.</p>}
 
         <div style={{ display: "grid", gap: 16 }}>
           {items.map((item) => {
             const actions = (
-              <div
-                style={{ display: "flex", gap: 8, flexShrink: 0 }}
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                   Editar
                 </button>
                 {tab === "novo" ? (
-                  <button 
-                    onClick={() => patchIt(item.id, { status: "descartado" }, "descartar", true)} 
-                    disabled={!!saving} 
+                  <button
+                    onClick={() => patchIt(item.id, { status: "descartado" }, "descartar", true)}
+                    disabled={!!saving}
                     style={btnDangerSm}
                   >
                     Descartar
@@ -458,8 +488,27 @@ function RedacaoPage() {
                     </h2>
                     {actions}
                   </div>
-                  <div style={{ fontSize: 13, color: "#818181", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ background: "#7C1638", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#818181",
+                      marginBottom: 10,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#7C1638",
+                        color: "#fff",
+                        padding: "2px 6px",
+                        borderRadius: 4,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    >
                       Coletado em {formatDate(item.criado_em)}
                     </span>
                     <strong>{item.noticia_fonte || "—"}</strong>
@@ -490,10 +539,7 @@ function RedacaoPage() {
                     <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
                       {item.artigo_titulo || "(sem título)"}
                     </h2>
-                    <div
-                      style={{ display: "flex", gap: 8, flexShrink: 0 }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => openEditor(item)} style={btnOutlineSm}>
                         Editar
                       </button>
@@ -504,8 +550,24 @@ function RedacaoPage() {
                   </div>
                   <div style={{ fontSize: 13, color: "#818181", display: "flex", gap: 8, alignItems: "center" }}>
                     {item.status === "agendado" ? (
-                      <span style={{ background: "#68112F", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
-                        Agendado para {new Date(item.agendado_para!).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      <span
+                        style={{
+                          background: "#68112F",
+                          color: "#fff",
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          fontSize: 11,
+                          fontWeight: 600,
+                        }}
+                      >
+                        Agendado para{" "}
+                        {new Date(item.agendado_para!).toLocaleString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                     ) : null}
                   </div>
@@ -522,9 +584,7 @@ function RedacaoPage() {
                   </h2>
                   {actions}
                 </div>
-                <div style={{ fontSize: 13, color: "#818181" }}>
-                  Publicado em {formatDate(item.publicado_em)}
-                </div>
+                <div style={{ fontSize: 13, color: "#818181" }}>Publicado em {formatDate(item.publicado_em)}</div>
               </article>
             );
           })}
@@ -546,7 +606,15 @@ function RedacaoPage() {
           }}
         >
           <div
-            style={{ background: "#fff", maxWidth: 900, width: "100%", borderRadius: 8, padding: 28, marginTop: 20, position: "relative" }}
+            style={{
+              background: "#fff",
+              maxWidth: 900,
+              width: "100%",
+              borderRadius: 8,
+              padding: 28,
+              marginTop: 20,
+              position: "relative",
+            }}
           >
             <button
               type="button"
@@ -570,9 +638,28 @@ function RedacaoPage() {
             </button>
 
             {(selected.noticia_fonte || selected.noticia_link || selected.status === "novo") && (
-              <div style={{ marginBottom: 16, fontSize: 13, color: "#818181", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div
+                style={{
+                  marginBottom: 16,
+                  fontSize: 13,
+                  color: "#818181",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
                 {selected.status === "novo" && (
-                  <span style={{ background: "#7C1638", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                  <span
+                    style={{
+                      background: "#7C1638",
+                      color: "#fff",
+                      padding: "2px 6px",
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
+                  >
                     Coletado em {formatDate(selected.criado_em)}
                   </span>
                 )}
@@ -590,9 +677,7 @@ function RedacaoPage() {
 
             {selected.angulos && (
               <details style={{ marginBottom: 20 }}>
-                <summary style={{ cursor: "pointer", color: "#595959", fontSize: 14 }}>
-                  Ver ângulos sugeridos
-                </summary>
+                <summary style={{ cursor: "pointer", color: "#595959", fontSize: 14 }}>Ver ângulos sugeridos</summary>
                 <pre style={{ ...preStyle, background: "#F5F3F0", padding: 12, borderRadius: 4, marginTop: 8 }}>
                   {selected.angulos}
                 </pre>
@@ -611,7 +696,12 @@ function RedacaoPage() {
               )}
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button type="button" onClick={() => capaInputRef.current?.click()} disabled={uploadingCapa} style={btnOutline}>
+                <button
+                  type="button"
+                  onClick={() => capaInputRef.current?.click()}
+                  disabled={uploadingCapa}
+                  style={btnOutline}
+                >
                   {uploadingCapa ? "Enviando…" : capa ? "Trocar capa" : "Enviar capa"}
                 </button>
                 {capa && (
@@ -639,7 +729,9 @@ function RedacaoPage() {
               return (
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Capas sugeridas</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+                  <div
+                    style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}
+                  >
                     {sugeridas.map((s) => {
                       const active = capa === s.url;
                       return (
@@ -651,7 +743,6 @@ function RedacaoPage() {
                             setCapaPos({ x: 50, y: 50 });
                             if (s.alt) setCapaAlt(s.alt);
                           }}
-
                           style={{
                             padding: 0,
                             border: active ? "3px solid #7C1638" : "1px solid #ddd",
@@ -671,7 +762,6 @@ function RedacaoPage() {
                         </button>
                       );
                     })}
-
                   </div>
                 </div>
               );
@@ -706,9 +796,7 @@ function RedacaoPage() {
               </div>
             )}
 
-            {altCapaErro && (
-              <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>
-            )}
+            {altCapaErro && <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>}
 
             <label style={labelStyle}>Corpo do artigo</label>
             <div style={{ marginBottom: 16 }}>
@@ -723,24 +811,31 @@ function RedacaoPage() {
               style={{ ...inputStyle, maxWidth: 300 }}
             />
 
-            <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
-              <button
-                onClick={() => deleteIt(selected.id)}
-                disabled={!!saving}
-                style={btnDanger}
-              >
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                marginTop: 20,
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <button onClick={() => deleteIt(selected.id)} disabled={!!saving} style={btnDanger}>
                 {saving === "excluir" ? "Excluindo…" : "Excluir"}
               </button>
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button onClick={() => setSelected(null)} style={btnGhost}>Cancelar</button>
+                <button onClick={() => setSelected(null)} style={btnGhost}>
+                  Cancelar
+                </button>
 
                 {tab === "novo" && (
                   <>
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       {saving === "descartar" ? "Descartando…" : "Descartar"}
                     </button>
-                    <button 
+                    <button
                       onClick={async () => {
                         if (agendadoPara) {
                           const body: any = {
@@ -750,14 +845,14 @@ function RedacaoPage() {
                             artigo_capa_alt: capaAlt || null,
                             artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
                             agendado_para: new Date(agendadoPara).toISOString(),
-                            status: "agendado"
+                            status: "agendado",
                           };
                           patchIt(selected.id, body, "agendar", true);
                         } else {
                           publicar();
                         }
-                      }} 
-                      disabled={!!saving} 
+                      }}
+                      disabled={!!saving}
                       style={btnPrimary}
                     >
                       {saving === "publicar" || saving === "agendar"
@@ -774,7 +869,7 @@ function RedacaoPage() {
                     <button onClick={descartar} disabled={!!saving} style={btnOutline}>
                       Descartar
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         const body: any = {
                           artigo_titulo: titulo,
@@ -790,11 +885,15 @@ function RedacaoPage() {
                           body.status = "novo";
                         }
                         patchIt(selected.id, body, "alterar-agendado", !agendadoPara);
-                      }} 
-                      disabled={!!saving} 
+                      }}
+                      disabled={!!saving}
                       style={btnOutline}
                     >
-                      {saving === "alterar-agendado" ? "Salvando…" : agendadoPara ? "Atualizar agendamento" : "Remover agendamento"}
+                      {saving === "alterar-agendado"
+                        ? "Salvando…"
+                        : agendadoPara
+                          ? "Atualizar agendamento"
+                          : "Remover agendamento"}
                     </button>
                     <button onClick={publicar} disabled={!!saving} style={btnPrimary}>
                       {saving === "publicar" ? "Publicando…" : "Publicar agora"}
