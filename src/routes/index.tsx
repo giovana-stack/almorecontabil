@@ -9,6 +9,7 @@ import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
 import businessmanOffice from "@/assets/businessman-office.jpg.asset.json";
+import heroNew from "@/assets/hero-new.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
