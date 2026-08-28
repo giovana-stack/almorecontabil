@@ -9,6 +9,7 @@ import {
   htmlToText,
   formatDate,
   gerarAltComIA,
+  regerarArtigoComIA,
 } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
 import { supabaseExt } from "@/lib/auth-supabase";
@@ -110,6 +111,8 @@ function RedacaoPage() {
   const [gerando, setGerando] = useState(false);
   const [gerandoAltCapa, setGerandoAltCapa] = useState(false);
   const [altCapaErro, setAltCapaErro] = useState<string | null>(null);
+  const [regerando, setRegerando] = useState(false);
+  const [regerarErro, setRegerarErro] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
 
   const handleGerarAltCapa = async () => {
@@ -124,6 +127,40 @@ function RedacaoPage() {
       setAltCapaErro(err.message || "Erro desconhecido ao gerar alt text.");
     } finally {
       setGerandoAltCapa(false);
+    }
+  };
+
+  const handleRegerarArtigo = async () => {
+    if (!selected || regerando) return;
+    if (!selected.angulos) {
+      setRegerarErro("Esse artigo não tem ângulo gravado — foi gerado antes da versão nova. Não dá pra regerar.");
+      return;
+    }
+    if (!confirm("Reescrever o texto deste artigo? O texto atual será substituído.")) return;
+
+    setRegerando(true);
+    setRegerarErro(null);
+    try {
+      const novo = await regerarArtigoComIA(selected.id);
+      setTitulo(novo.artigo_titulo);
+      setCorpo(novo.artigo_corpo);
+      setSelected({
+        ...selected,
+        artigo_titulo: novo.artigo_titulo,
+        artigo_corpo: novo.artigo_corpo,
+      } as Artigo);
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === selected.id
+            ? ({ ...it, artigo_titulo: novo.artigo_titulo, artigo_corpo: novo.artigo_corpo } as Artigo)
+            : it,
+        ),
+      );
+    } catch (err: any) {
+      console.error("[redacao] Falha ao regerar artigo:", err);
+      setRegerarErro(err.message || "Erro desconhecido ao regerar o artigo.");
+    } finally {
+      setRegerando(false);
     }
   };
 
@@ -814,7 +851,38 @@ function RedacaoPage() {
 
             {altCapaErro && <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{altCapaErro}</div>}
 
-            <label style={labelStyle}>Corpo do artigo</label>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <label style={labelStyle}>Corpo do artigo</label>
+              <button
+                type="button"
+                onClick={handleRegerarArtigo}
+                disabled={regerando || !selected.angulos}
+                title={
+                  selected.angulos
+                    ? "Reescreve o texto do zero a partir do mesmo ângulo e dos mesmos fatos"
+                    : "Artigo sem ângulo gravado — não dá pra regerar"
+                }
+                style={{ ...btnOutline, opacity: regerando || !selected.angulos ? 0.5 : 1 }}
+              >
+                {regerando ? "Reescrevendo…" : "Regerar artigo"}
+              </button>
+            </div>
+            {regerando && (
+              <div style={{ color: "#7C1638", fontSize: 13, marginBottom: 8, fontWeight: 500 }}>
+                Reescrevendo o artigo com IA... Pode levar até 90 segundos.
+              </div>
+            )}
+            {regerarErro && (
+              <div style={{ color: "#b00020", fontSize: 13, marginBottom: 8 }}>{regerarErro}</div>
+            )}
             <div style={{ marginBottom: 16 }}>
               <RichEditor value={corpo} onChange={setCorpo} contextTitle={titulo} />
             </div>
