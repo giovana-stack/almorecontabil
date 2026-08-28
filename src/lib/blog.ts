@@ -153,3 +153,39 @@ export async function gerarAltComIA(imageUrl: string, contexto: string): Promise
     throw err;
   }
 }
+
+export async function regerarArtigoComIA(
+  artigoId: string | number,
+): Promise<{ artigo_titulo: string; artigo_corpo: string; linkedin_post: string }> {
+  const scriptUrl = `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&regerar=${encodeURIComponent(String(artigoId))}`;
+
+  const controller = new AbortController();
+  // A redação leva ~10s no caso normal, mas o Gemini às vezes devolve 503 e
+  // o Apps Script tenta de novo com backoff. 90s cobre o pior caso.
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+  try {
+    const res = await fetch(scriptUrl, { method: "GET", signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "Erro desconhecido");
+      throw new Error(`Serviço indisponível: ${text}`);
+    }
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.erro || "Falha ao regerar o artigo");
+
+    return {
+      artigo_titulo: data.artigo_titulo || "",
+      artigo_corpo: data.artigo_corpo || "",
+      linkedin_post: data.linkedin_post || "",
+    };
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === "AbortError") {
+      throw new Error("O servidor demorou mais de 90s. O artigo pode ter sido regerado mesmo assim — recarregue a página para conferir.");
+    }
+    throw err;
+  }
+}
