@@ -299,20 +299,6 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         }}
       >
         <div style={{ position: "sticky", top: 14, pointerEvents: "auto" }}>
-      {/* Container de altura total + sticky interno: a barra desliza junto
-          com o scroll do modal, mas nunca sai da área do editor. */}
-      <div
-        style={{
-          position: "absolute",
-          left: 10,
-          top: 0,
-          height: "100%",
-          width: 46,
-          zIndex: 10,
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ position: "sticky", top: 14, pointerEvents: "auto" }}>
           <Toolbar
             editor={editor}
             imageUploading={uploading}
