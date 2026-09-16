@@ -107,7 +107,7 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
       attributes: {
         class: "tiptap-content",
         style:
-          "min-height: 360px; padding: 16px; outline: none; font-size: 16px; line-height: 1.7; color: #2b2b2b;",
+          "min-height: 360px; padding: 16px 16px 16px 68px; outline: none; font-size: 16px; line-height: 1.7; color: #2b2b2b;",
       },
       handleKeyDown: (_view, event) => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
@@ -285,16 +285,32 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
 
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 4, background: "#fff", position: "relative" }}>
-      <Toolbar
-        editor={editor}
-        imageUploading={uploading}
-        onImagePointerDown={rememberImageInsertPosition}
-        onImageFileSelect={insertImageFile}
-        onOpenLink={openLinkModal}
-        onRemoveLink={removeLink}
-      />
+      {/* Container de altura total + sticky interno: a barra desliza junto
+          com o scroll do modal, mas nunca sai da área do editor. */}
+      <div
+        style={{
+          position: "absolute",
+          left: 10,
+          top: 0,
+          height: "100%",
+          width: 46,
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ position: "sticky", top: 14, pointerEvents: "auto" }}>
+          <Toolbar
+            editor={editor}
+            imageUploading={uploading}
+            onImagePointerDown={rememberImageInsertPosition}
+            onImageFileSelect={insertImageFile}
+            onOpenLink={openLinkModal}
+            onRemoveLink={removeLink}
+          />
+        </div>
+      </div>
       {uploadError && !altModal && (
-        <div style={{ padding: "8px 12px 0", color: "#b00020", fontSize: 13 }}>
+        <div style={{ padding: "8px 12px 0 68px", color: "#b00020", fontSize: 13 }}>
           {uploadError}
         </div>
       )}
