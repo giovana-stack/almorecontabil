@@ -188,6 +188,8 @@ export async function regerarArtigoComIA(
     }
     throw err;
   }
+}
+
 export async function regerarTituloComIA(artigoId: string | number): Promise<string> {
   const scriptUrl = `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&regerartitulo=${encodeURIComponent(String(artigoId))}`;
 
