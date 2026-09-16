@@ -299,6 +299,20 @@ export function RichEditor({ value, onChange, contextTitle }: Props) {
         }}
       >
         <div style={{ position: "sticky", top: 14, pointerEvents: "auto" }}>
+      {/* Container de altura total + sticky interno: a barra desliza junto
+          com o scroll do modal, mas nunca sai da área do editor. */}
+      <div
+        style={{
+          position: "absolute",
+          left: 10,
+          top: 0,
+          height: "100%",
+          width: 46,
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ position: "sticky", top: 14, pointerEvents: "auto" }}>
           <Toolbar
             editor={editor}
             imageUploading={uploading}
@@ -601,6 +615,20 @@ function Toolbar({
   onOpenLink: () => void;
   onRemoveLink: () => void;
 }) {
+  const btnBase: CSSProperties = {
+    width: 34,
+    height: 30,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #ddd",
+    borderRadius: 4,
+    fontSize: 13,
+    fontWeight: 600,
+    padding: 0,
+    lineHeight: 1,
+  };
+
   const Btn = ({
     onAction,
     active,
@@ -623,15 +651,12 @@ function Toolbar({
       }}
       disabled={disabled}
       style={{
-        padding: "6px 10px",
+        ...btnBase,
         background: active ? "#7C1638" : "#fff",
         color: active ? "#fff" : "#333",
-        border: "1px solid #ddd",
-        borderRadius: 4,
+        borderColor: active ? "#7C1638" : "#ddd",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
-        fontSize: 13,
-        fontWeight: 600,
       }}
     >
       {children}
@@ -642,11 +667,13 @@ function Toolbar({
     <div
       style={{
         display: "flex",
-        gap: 6,
-        flexWrap: "wrap",
-        padding: 10,
-        borderBottom: "1px solid #eee",
-        background: "#fafafa",
+        flexDirection: "column",
+        gap: 5,
+        padding: 6,
+        background: "#fff",
+        border: "1px solid #e6ddd8",
+        borderRadius: 8,
+        boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
       }}
     >
       <Btn
@@ -680,11 +707,9 @@ function Toolbar({
       <Btn
         title="Lista"
         active={editor.isActive("bulletList")}
-        onAction={() => {
-          editor.chain().focus().toggleBulletList().run();
-        }}
+        onAction={() => editor.chain().focus().toggleBulletList().run()}
       >
-        • Lista
+        •
       </Btn>
       <Btn
         title="Parágrafo"
@@ -693,6 +718,9 @@ function Toolbar({
       >
         ¶
       </Btn>
+
+      <div style={{ height: 1, background: "#eee", margin: "1px 2px" }} />
+
       <button
         type="button"
         title="Inserir/editar link (Ctrl+K)"
@@ -701,17 +729,14 @@ function Toolbar({
           onOpenLink();
         }}
         style={{
-          padding: "6px 10px",
+          ...btnBase,
           background: editor.isActive("link") ? "#7C1638" : "#fff",
           color: editor.isActive("link") ? "#fff" : "#333",
-          border: "1px solid #ddd",
-          borderRadius: 4,
+          borderColor: editor.isActive("link") ? "#7C1638" : "#ddd",
           cursor: "pointer",
-          fontSize: 13,
-          fontWeight: 600,
         }}
       >
-        🔗 Link
+        🔗
       </button>
       {editor.isActive("link") && (
         <button
@@ -722,38 +747,29 @@ function Toolbar({
             onRemoveLink();
           }}
           style={{
-            padding: "6px 10px",
+            ...btnBase,
             background: "#fff",
-            color: "#333",
-            border: "1px solid #ddd",
-            borderRadius: 4,
+            color: "#8f132d",
+            borderColor: "#f0c7d0",
             cursor: "pointer",
-            fontSize: 13,
-            fontWeight: 600,
           }}
         >
-          Remover link
+          ⛓
         </button>
       )}
       <label
-        title="Inserir imagem"
+        title={imageUploading ? "Enviando imagem…" : "Inserir imagem"}
         onMouseDown={onImagePointerDown}
         style={{
-          padding: "6px 10px",
+          ...btnBase,
           background: "#fff",
           color: "#333",
-          border: "1px solid #ddd",
-          borderRadius: 4,
           cursor: imageUploading ? "not-allowed" : "pointer",
           opacity: imageUploading ? 0.5 : 1,
-          fontSize: 13,
-          fontWeight: 600,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 4,
+          position: "relative",
         }}
       >
-        {imageUploading ? "Enviando…" : "🖼 Imagem"}
+        {imageUploading ? "…" : "🖼"}
         <input
           type="file"
           accept="image/*"
@@ -769,7 +785,7 @@ function Toolbar({
     </div>
   );
 }
-
+        
 function LinkModal({
   hasSelection,
   text,
