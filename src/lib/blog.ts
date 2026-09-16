@@ -188,4 +188,33 @@ export async function regerarArtigoComIA(
     }
     throw err;
   }
+export async function regerarTituloComIA(artigoId: string | number): Promise<string> {
+  const scriptUrl = `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&regerartitulo=${encodeURIComponent(String(artigoId))}`;
+
+  const controller = new AbortController();
+  // Só o título: ~3s no caso normal. 30s cobre o retry do Gemini em 503.
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch(scriptUrl, { method: "GET", signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "Erro desconhecido");
+      throw new Error(`Serviço indisponível: ${text}`);
+    }
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.erro || "Falha ao regerar o título");
+    if (!data.artigo_titulo) throw new Error("O servidor não devolveu um título.");
+
+    return data.artigo_titulo as string;
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === "AbortError") {
+      throw new Error("O servidor demorou mais de 30s. O título pode ter sido regerado mesmo assim — recarregue a página para conferir.");
+    }
+    throw err;
+  }
+}
 }
