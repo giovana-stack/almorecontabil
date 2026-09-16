@@ -219,4 +219,3 @@ export async function regerarTituloComIA(artigoId: string | number): Promise<str
     throw err;
   }
 }
-}
