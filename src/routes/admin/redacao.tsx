@@ -10,6 +10,7 @@ import {
   formatDate,
   gerarAltComIA,
   regerarArtigoComIA,
+  regerarTituloComIA,
 } from "@/lib/blog";
 import { useAuth } from "@/lib/auth-context";
 import { supabaseExt } from "@/lib/auth-supabase";
@@ -113,6 +114,8 @@ function RedacaoPage() {
   const [altCapaErro, setAltCapaErro] = useState<string | null>(null);
   const [regerando, setRegerando] = useState(false);
   const [regerarErro, setRegerarErro] = useState<string | null>(null);
+  const [regerandoTitulo, setRegerandoTitulo] = useState(false);
+  const [tituloErro, setTituloErro] = useState<string | null>(null);
   const capaInputRef = useRef<HTMLInputElement>(null);
 
   const handleGerarAltCapa = async () => {
@@ -164,6 +167,30 @@ function RedacaoPage() {
     }
   };
 
+  const handleRegerarTitulo = async () => {
+    if (!selected || regerandoTitulo) return;
+    if (!selected.angulos) {
+      setTituloErro("Esse artigo não tem ângulo gravado — foi gerado antes da versão nova. Não dá pra regerar o título.");
+      return;
+    }
+
+    setRegerandoTitulo(true);
+    setTituloErro(null);
+    try {
+      const novoTitulo = await regerarTituloComIA(selected.id);
+      setTitulo(novoTitulo);
+      setSelected({ ...selected, artigo_titulo: novoTitulo } as Artigo);
+      setItems((prev) =>
+        prev.map((it) => (it.id === selected.id ? ({ ...it, artigo_titulo: novoTitulo } as Artigo) : it)),
+      );
+    } catch (err: any) {
+      console.error("[redacao] Falha ao regerar título:", err);
+      setTituloErro(err.message || "Erro desconhecido ao regerar o título.");
+    } finally {
+      setRegerandoTitulo(false);
+    }
+  };
+  
   const contarNovos = async (): Promise<number> => {
     const {
       data: { session },
@@ -738,7 +765,32 @@ function RedacaoPage() {
             )}
 
             <label style={labelStyle}>Título do artigo</label>
-            <input value={titulo} onChange={(e) => setTitulo(e.target.value)} style={inputStyle} />
+            <div style={{ display: "flex", gap: 8, alignItems: "stretch", marginBottom: tituloErro ? 6 : 16 }}>
+              <input
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={handleRegerarTitulo}
+                disabled={regerandoTitulo || !selected.angulos}
+                title={
+                  selected.angulos
+                    ? "Gera um título novo a partir da palavra-chave e dos fatos, sem mexer no texto"
+                    : "Artigo sem ângulo gravado — não dá pra regerar o título"
+                }
+                style={{
+                  ...btnOutline,
+                  whiteSpace: "nowrap",
+                  opacity: regerandoTitulo || !selected.angulos ? 0.5 : 1,
+                  cursor: regerandoTitulo || !selected.angulos ? "not-allowed" : "pointer",
+                }}
+              >
+                {regerandoTitulo ? "Gerando…" : "Regerar título"}
+              </button>
+            </div>
+            {tituloErro && <div style={{ color: "#b00020", fontSize: 13, marginBottom: 16 }}>{tituloErro}</div>}
 
             <label style={labelStyle}>Imagem de capa</label>
             <div style={{ marginBottom: 16 }}>
