@@ -359,11 +359,23 @@ function Numeros() {
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {numeros.map((n) => (
-            <div key={n.valor} className="rounded-xl p-8 bg-surface shadow-card card-hover reveal">
-              <div className="font-display font-extrabold text-[#7C1638] text-[44px] sm:text-[52px] leading-none tracking-tight">
-                {n.valor}
+            <div
+              key={n.valor}
+              className="flex flex-col rounded-xl p-8 bg-surface shadow-card card-hover reveal"
+            >
+              {/* "R$ 25 milhões" ocupa duas linhas e os outros dois números uma
+                  só. Sem reservar a mesma altura para os três, cada legenda
+                  começa numa altura diferente e a faixa perde a linha de base
+                  comum. O flex-end encosta o número no fim do bloco, então
+                  todos apoiam na mesma linha independente de quantas linhas
+                  ocupem. No celular a faixa vira uma coluna só e a reserva
+                  não faz falta, por isso só vale a partir de md. */}
+              <div className="flex md:min-h-[112px] items-end">
+                <span className="font-display font-extrabold text-[#7C1638] text-[40px] sm:text-[48px] leading-[1.05] tracking-tight text-balance">
+                  {n.valor}
+                </span>
               </div>
-              <p className="mt-4 text-gray-deep text-base leading-relaxed">{n.legenda}</p>
+              <p className="mt-5 text-gray-deep text-base leading-relaxed">{n.legenda}</p>
             </div>
           ))}
         </div>
@@ -472,6 +484,17 @@ function Entregamos() {
   );
 }
 
+/**
+ * Cor do metal de cada plano, usada na faixa do topo do card.
+ * Escolhidas dessaturadas de propósito: metal vivo brigaria com o bordô
+ * da marca, que continua sendo a cor dos ✓ e do botão.
+ */
+const coresPlano: Record<string, string> = {
+  Bronze: "#A9673B",
+  Prata: "#9AA3A9",
+  Ouro: "#C4A02C",
+};
+
 function PlanCard({
   name,
   subtitle,
@@ -481,9 +504,20 @@ function PlanCard({
   subtitle: string;
   items: string[];
 }) {
+  const cor = coresPlano[name] ?? "#7C1638";
   return (
-    <div className="plan-card rounded-xl p-8 bg-white flex flex-col reveal shadow-card border-t-[3px] border-transparent transition-all duration-200 ease-out hover:border-[#7C1638] hover:shadow-[0_8px_32px_rgba(0,0,0,0.13)]">
-      <h3 className="font-display font-bold text-ink text-[28px]">{name}</h3>
+    <div
+      className="plan-card rounded-xl p-8 bg-white flex flex-col reveal shadow-card border-t-[4px] transition-all duration-200 ease-out hover:shadow-[0_8px_32px_rgba(0,0,0,0.13)]"
+      style={{ borderTopColor: cor }}
+    >
+      <h3 className="flex items-center gap-3 font-display font-bold text-ink text-[28px]">
+        <span
+          aria-hidden
+          className="h-3 w-3 rounded-full shrink-0"
+          style={{ backgroundColor: cor }}
+        />
+        {name}
+      </h3>
       <p className="mt-2 italic text-gray-mid text-[19px]">{subtitle}</p>
       <ul className="mt-6 space-y-3 flex-1">
         {items.map((it) => (
@@ -598,20 +632,25 @@ function MudaParaVoce() {
 function Reforma() {
   return (
     <section className="bg-surface px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-[720px] reveal">
-        <div className="eyebrow text-gray-deep mb-6">À FRENTE</div>
-        <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-          A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
-        </h2>
-        <p className="mt-8 text-[19px] leading-[1.7] text-gray-deep">
-          Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
-        </p>
-        <p className="mt-5 text-[19px] leading-[1.7] text-gray-deep">
-          Nós acompanhamos cada mudança e orientamos a sua empresa antes do prazo apertar.
-        </p>
-        <p className="mt-8 font-display font-semibold text-[#7C1638] text-xl leading-snug">
-          Com a Almore, você não descobre de última hora.
-        </p>
+      {/* O container externo usa a mesma régua das outras seções (max-w-6xl)
+          para a margem esquerda bater com elas; o texto segue limitado a 720px
+          por dentro, para a linha não ficar longa demais de ler. */}
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-[720px] reveal">
+          <div className="eyebrow text-gray-deep mb-6">À FRENTE</div>
+          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+            A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
+          </h2>
+          <p className="mt-8 text-[19px] leading-[1.7] text-gray-deep">
+            Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
+          </p>
+          <p className="mt-5 text-[19px] leading-[1.7] text-gray-deep">
+            Nós acompanhamos cada mudança e orientamos a sua empresa antes do prazo apertar.
+          </p>
+          <p className="mt-8 font-display font-semibold text-[#7C1638] text-xl leading-snug">
+            Com a Almore, você não descobre de última hora.
+          </p>
+        </div>
       </div>
     </section>
   );
