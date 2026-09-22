@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { salvarSiteLead } from "@/lib/site-leads";
 import { useAuth } from "@/lib/auth-context";
 import { SiteNavbar } from "@/components/SiteNavbar";
 
@@ -654,24 +654,17 @@ function Formulario() {
     if (Object.keys(errs).length > 0) return;
 
     setSubmitting(true);
-    const { error } = await supabase.from("leads").insert({
+    const erro = await salvarSiteLead({
       nome: String(data.get("nome") || "").trim(),
+      empresa: String(data.get("empresa") || "").trim(),
       email: String(data.get("email") || "").trim(),
       telefone: String(data.get("telefone") || "").trim(),
-      empresa: String(data.get("empresa") || "").trim(),
       expectativas: checks,
-      // Estes três campos saíram do formulário, mas as colunas ainda são
-      // NOT NULL no banco e não temos acesso para rodar a migration
-      // (supabase/migrations/20260922120000_leads_campos_opcionais.sql).
-      // Mandamos string vazia para o insert não ser recusado. Quando a
-      // migration for aplicada, é só apagar estas três linhas.
-      regime_tributario: "",
-      tipo_servico: "",
-      mensagem: "",
     });
     setSubmitting(false);
 
-    if (error) {
+    if (erro) {
+      console.error("[site_leads] falha ao gravar lead:", erro);
       toast.error("Não foi possível enviar sua mensagem. Tente novamente.");
       return;
     }
