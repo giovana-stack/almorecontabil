@@ -660,6 +660,14 @@ function Formulario() {
       telefone: String(data.get("telefone") || "").trim(),
       empresa: String(data.get("empresa") || "").trim(),
       expectativas: checks,
+      // Estes três campos saíram do formulário, mas as colunas ainda são
+      // NOT NULL no banco e não temos acesso para rodar a migration
+      // (supabase/migrations/20260922120000_leads_campos_opcionais.sql).
+      // Mandamos string vazia para o insert não ser recusado. Quando a
+      // migration for aplicada, é só apagar estas três linhas.
+      regime_tributario: "",
+      tipo_servico: "",
+      mensagem: "",
     });
     setSubmitting(false);
 
