@@ -1,6 +1,6 @@
-export const SUPABASE_URL = "https://adgcnounhstuqwpvfpgp.supabase.co";
+export const SUPABASE_URL = "https://ffdbojtidzmoklcpvnsz.supabase.co";
 export const SUPABASE_ANON =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZ2Nub3VuaHN0dXF3cHZmcGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NjEzMDksImV4cCI6MjEwMDEzNzMwOX0.SPPob6NXrKVimnaTqy_HLEn8l1LZla2gUjfF2y_jrA8";
+  "sb_publishable__LklhoT23NAzaPHjb5mZWQ_aE3DHG7F";
 export const REST_ARTIGOS = `${SUPABASE_URL}/rest/v1/blog_artigos`;
 export const STORAGE_BUCKET = "blog-imagens";
 export const STORAGE_UPLOAD_URL = `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}`;
