@@ -49,8 +49,8 @@ const numeros = [
   { valor: "R$ 25 milhões", legenda: "restituídos aos nossos clientes" },
 ];
 
-// Substitua pelo número real (formato internacional, só dígitos): ex. 5511999999999
-const WHATSAPP_NUMERO = "SEU_NUMERO_AQUI";
+// Formato internacional, só dígitos: 55 (Brasil) + 19 (DDD) + 991368837
+const WHATSAPP_NUMERO = "5519991368837";
 
 const pains = [
   "Mandou mensagem para o contador e esperou dias para ter uma resposta.",
