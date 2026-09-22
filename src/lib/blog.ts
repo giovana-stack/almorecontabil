@@ -85,13 +85,38 @@ export function formatDate(iso: string | null): string {
   }
 }
 
+/**
+ * Token do usuário logado, para as chamadas que escrevem.
+ *
+ * O import é dinâmico de propósito: `auth-supabase.ts` importa as constantes
+ * daqui, e um import estático de volta fecharia um ciclo entre os dois
+ * módulos. Resolvido na hora da chamada, os dois já estão carregados.
+ */
+async function tokenDoUsuario(): Promise<string | null> {
+  try {
+    const { supabaseExt } = await import("./auth-supabase");
+    const { data } = await supabaseExt.auth.getSession();
+    return data.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function uploadBlogImage(file: File): Promise<string> {
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+  // Sem o token, o Storage vê a requisição como anônima e a policy do bucket
+  // recusa (só admin envia). A chave publishable sozinha não identifica
+  // ninguém — é isso que diferencia este caminho dos PATCH da redação, que
+  // sempre mandaram o token e por isso nunca falharam.
+  const token = await tokenDoUsuario();
+
   const res = await fetch(`${STORAGE_UPLOAD_URL}/${path}`, {
     method: "POST",
     headers: {
       ...restHeaders,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": file.type || "application/octet-stream",
       "x-upsert": "true",
       "Cache-Control": "3600",
