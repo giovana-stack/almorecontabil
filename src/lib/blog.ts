@@ -148,8 +148,13 @@ async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType
 export async function gerarAltComIA(imageUrl: string, contexto: string): Promise<string> {
   const scriptUrl = `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&alturl=1&url=${encodeURIComponent(imageUrl)}&contexto=${encodeURIComponent(contexto || "")}`;
   
+  // 60s, e não 15s: o Apps Script repete a chamada ao Gemini quando ele
+  // devolve 503, dormindo 2s + 4s + 8s entre as tentativas, e ainda faz até
+  // 4 chamadas. Um único soluço do Gemini passava dos 15s e o navegador
+  // abortava — mas o script seguia rodando e gravava o alt do mesmo jeito,
+  // então o erro na tela era quase sempre mentira.
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
     const res = await fetch(scriptUrl, {

@@ -194,7 +194,12 @@ function Hero() {
         <img
           src={heroNew.url}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-left md:object-center"
+          /* A foto é retrato (720x1280) num container largo, então o cover
+             precisa ampliá-la muito e só cabe uma faixa horizontal dela. Com
+             o padrão vertical de 50% essa faixa caía no meio da imagem — ou
+             seja, na camisa, com o rosto cortado fora. 18% sobe o recorte
+             para a altura do rosto. O ideal mesmo é uma foto deitada. */
+          className="absolute inset-0 w-full h-full object-cover object-[35%_20%] md:object-[50%_18%]"
           style={{
             filter: "grayscale(100%) brightness(0.6)",
             WebkitMaskImage:
@@ -357,23 +362,21 @@ function Numeros() {
             Não é promessa. <span className="text-[#7C1638]">É histórico.</span>
           </h2>
         </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        {/* Três colunas só a partir de lg. Entre md e lg cada card ficaria com
+            ~162px úteis, e "R$ 25 milhões" não cabe em nenhum tamanho legível
+            — era daí que vinha a quebra de linha que desalinhava a faixa. */}
+        <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {numeros.map((n) => (
             <div
               key={n.valor}
-              className="flex flex-col rounded-xl p-8 bg-surface shadow-card card-hover reveal"
+              className="rounded-xl p-8 bg-surface shadow-card card-hover reveal"
             >
-              {/* "R$ 25 milhões" ocupa duas linhas e os outros dois números uma
-                  só. Sem reservar a mesma altura para os três, cada legenda
-                  começa numa altura diferente e a faixa perde a linha de base
-                  comum. O flex-end encosta o número no fim do bloco, então
-                  todos apoiam na mesma linha independente de quantas linhas
-                  ocupem. No celular a faixa vira uma coluna só e a reserva
-                  não faz falta, por isso só vale a partir de md. */}
-              <div className="flex md:min-h-[112px] items-end">
-                <span className="font-display font-extrabold text-[#7C1638] text-[40px] sm:text-[48px] leading-[1.05] tracking-tight text-balance">
-                  {n.valor}
-                </span>
+              {/* O tamanho acompanha a largura da tela em vez de ser fixo: é o
+                  que garante que o maior dos três números caiba numa linha em
+                  qualquer viewport. Com todos numa linha só, as legendas se
+                  alinham sozinhas, sem precisar reservar altura. */}
+              <div className="font-display font-extrabold text-[#7C1638] text-[clamp(30px,3vw,40px)] leading-none tracking-tight whitespace-nowrap">
+                {n.valor}
               </div>
               <p className="mt-5 text-gray-deep text-base leading-relaxed">{n.legenda}</p>
             </div>
@@ -632,13 +635,16 @@ function MudaParaVoce() {
 function Reforma() {
   return (
     <section className="bg-surface px-5 py-24 sm:py-32">
-      {/* O container externo usa a mesma régua das outras seções (max-w-6xl)
-          para a margem esquerda bater com elas; o texto segue limitado a 720px
-          por dentro, para a linha não ficar longa demais de ler. */}
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-[720px] reveal">
+      {/* Bloco centralizado, como as outras seções de texto corrido. A 720px a
+          linha quebrava cedo demais e o conjunto ficava apertado; 900px é a
+          mesma largura do formulário e dá respiro sem esticar a leitura. */}
+      <div className="mx-auto max-w-[900px]">
+        <div className="reveal">
           <div className="eyebrow text-gray-deep mb-6">À FRENTE</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+          {/* text-balance distribui as palavras entre as linhas em vez de
+              encher a primeira e jogar o resto na segunda — sem ele, "já"
+              ficava órfão no fim da primeira linha. */}
+          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight text-balance">
             A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
           </h2>
           <p className="mt-8 text-[19px] leading-[1.7] text-gray-deep">
