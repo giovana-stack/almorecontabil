@@ -43,8 +43,14 @@ const expectations = [
   "Ter tempo de volta para focar no meu negócio",
 ];
 
-const regimes = ["MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real", "Ainda não tenho"];
-const tipos = ["MEI", "ME — Microempresa", "EPP — Empresa de Pequeno Porte", "Ltda.", "S/A", "Ainda não tenho"];
+const numeros = [
+  { valor: "+50", legenda: "empresas na carteira de contabilidade" },
+  { valor: "+1.300", legenda: "clientes atendidos em recuperação tributária pelo grupo" },
+  { valor: "R$ 25 milhões", legenda: "restituídos aos nossos clientes" },
+];
+
+// Substitua pelo número real (formato internacional, só dígitos): ex. 5511999999999
+const WHATSAPP_NUMERO = "SEU_NUMERO_AQUI";
 
 const pains = [
   "Mandou mensagem para o contador e esperou dias para ter uma resposta.",
@@ -155,6 +161,7 @@ function LandingPage() {
         <Dor />
         <QuemSomos />
         <Diferencial />
+        <Numeros />
         <ComoTrabalhamos />
         <Entregamos />
         <Planos />
@@ -164,6 +171,7 @@ function LandingPage() {
         <Formulario />
       </main>
       <Footer />
+      <WhatsAppFlutuante />
     </div>
   );
 }
@@ -238,7 +246,7 @@ function Hero() {
             onClick={scrollToContato}
             className="btn-on-dark mt-10 font-display font-bold text-base px-8 py-4 rounded-md"
           >
-            Quero conhecer a Almore
+            Quero um diagnóstico gratuito
           </button>
         </div>
       </div>
@@ -331,6 +339,31 @@ function Diferencial() {
               <div className="font-display font-extrabold text-[72px] leading-none text-white/15">{c.n}</div>
               <h3 className="mt-4 font-display font-bold text-white text-[22px]">{c.t}</h3>
               <p className="mt-3 text-white/80 text-base leading-relaxed">{c.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Numeros() {
+  return (
+    <section className="bg-white px-5 py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl reveal">
+          <div className="eyebrow text-gray-deep mb-6">NÚMEROS QUE SUSTENTAM</div>
+          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+            Não é promessa. <span className="text-[#7C1638]">É histórico.</span>
+          </h2>
+        </div>
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {numeros.map((n) => (
+            <div key={n.valor} className="rounded-xl p-8 bg-surface shadow-card card-hover reveal">
+              <div className="font-display font-extrabold text-[#7C1638] text-[44px] sm:text-[52px] leading-none tracking-tight">
+                {n.valor}
+              </div>
+              <p className="mt-4 text-gray-deep text-base leading-relaxed">{n.legenda}</p>
             </div>
           ))}
         </div>
@@ -611,11 +644,12 @@ function Formulario() {
     e.preventDefault();
     if (submitting) return;
     const data = new FormData(e.currentTarget);
-    const required = ["nome", "email", "telefone", "empresa", "regime", "tipo", "mensagem"];
+    const required = ["nome", "empresa", "email", "telefone"];
     const errs: Record<string, boolean> = {};
     required.forEach((k) => {
       if (!String(data.get(k) || "").trim()) errs[k] = true;
     });
+    if (checks.length === 0) errs.expectativas = true;
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
@@ -625,10 +659,7 @@ function Formulario() {
       email: String(data.get("email") || "").trim(),
       telefone: String(data.get("telefone") || "").trim(),
       empresa: String(data.get("empresa") || "").trim(),
-      regime_tributario: String(data.get("regime") || "").trim(),
-      tipo_servico: String(data.get("tipo") || "").trim(),
       expectativas: checks,
-      mensagem: String(data.get("mensagem") || "").trim(),
     });
     setSubmitting(false);
 
@@ -684,8 +715,7 @@ function Formulario() {
 
             <div>
               <span className="block text-white/80 text-sm font-medium mb-3">
-                O que você espera de uma contabilidade?{" "}
-                <span className="text-white/60">(opcional)</span>
+                O que você espera de uma contabilidade? *
               </span>
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 bg-white rounded-lg p-4">
                 {expectations.map((opt) => {
@@ -720,45 +750,10 @@ function Formulario() {
                   );
                 })}
               </div>
+              {errors.expectativas && (
+                <span className="text-white/90 text-xs mt-2 block">Selecione ao menos uma opção</span>
+              )}
             </div>
-
-            <Field label="Regime tributário *">
-              <select name="regime" className={inputClass} defaultValue="">
-                <option value="" disabled>
-                  Selecione
-                </option>
-                {regimes.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-              {errors.regime && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-            </Field>
-
-            <Field label="Tipo de empresa *">
-              <select name="tipo" className={inputClass} defaultValue="">
-                <option value="" disabled>
-                  Selecione
-                </option>
-                {tipos.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-              {errors.tipo && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-            </Field>
-
-            <Field label="Mensagem *">
-              <textarea
-                name="mensagem"
-                rows={4}
-                className={inputClass}
-                placeholder="Conta um pouco sobre o que você precisa..."
-              />
-              {errors.mensagem && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-            </Field>
 
             <button
               type="submit"
@@ -771,6 +766,23 @@ function Formulario() {
         )}
       </div>
     </section>
+  );
+}
+
+function WhatsAppFlutuante() {
+  return (
+    <a
+      href={`https://wa.me/${WHATSAPP_NUMERO}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Falar com a Almore no WhatsApp"
+      className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-card-hover transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/60 sm:bottom-6 sm:right-6"
+      style={{ backgroundColor: "#25D366" }}
+    >
+      <svg viewBox="0 0 32 32" width="30" height="30" fill="#FFFFFF" aria-hidden focusable="false">
+        <path d="M16.004 3.2c-7.06 0-12.8 5.74-12.8 12.8 0 2.26.6 4.47 1.73 6.41L3.2 28.8l6.56-1.7a12.74 12.74 0 0 0 6.24 1.62h.01c7.06 0 12.8-5.74 12.8-12.8 0-3.42-1.33-6.63-3.75-9.05a12.71 12.71 0 0 0-9.05-3.67Zm0 23.02h-.01a10.63 10.63 0 0 1-5.42-1.48l-.39-.23-4.03 1.05 1.08-3.93-.25-.4a10.6 10.6 0 0 1-1.63-5.68c0-5.87 4.78-10.64 10.65-10.64 2.85 0 5.52 1.11 7.53 3.12a10.57 10.57 0 0 1 3.12 7.53c0 5.87-4.78 10.66-10.65 10.66Zm5.84-7.98c-.32-.16-1.89-.93-2.18-1.04-.29-.11-.5-.16-.71.16-.21.32-.82 1.04-1 1.25-.19.21-.37.24-.69.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.19-.32-.02-.5.14-.66.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.71-1.73-.98-2.36-.26-.62-.52-.54-.71-.55l-.61-.01c-.21 0-.56.08-.85.4-.29.32-1.11 1.09-1.11 2.66s1.14 3.08 1.3 3.29c.16.21 2.25 3.43 5.45 4.81.76.33 1.35.52 1.82.67.76.24 1.46.21 2.01.13.61-.09 1.89-.77 2.16-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37Z" />
+      </svg>
+    </a>
   );
 }
 

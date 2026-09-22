@@ -21,11 +21,11 @@ export type Database = {
           empresa: string
           expectativas: string[]
           id: string
-          mensagem: string
+          mensagem: string | null
           nome: string
-          regime_tributario: string
+          regime_tributario: string | null
           telefone: string
-          tipo_servico: string
+          tipo_servico: string | null
         }
         Insert: {
           created_at?: string
@@ -33,11 +33,11 @@ export type Database = {
           empresa: string
           expectativas?: string[]
           id?: string
-          mensagem: string
+          mensagem?: string | null
           nome: string
-          regime_tributario: string
+          regime_tributario?: string | null
           telefone: string
-          tipo_servico: string
+          tipo_servico?: string | null
         }
         Update: {
           created_at?: string
@@ -45,11 +45,11 @@ export type Database = {
           empresa?: string
           expectativas?: string[]
           id?: string
-          mensagem?: string
+          mensagem?: string | null
           nome?: string
-          regime_tributario?: string
+          regime_tributario?: string | null
           telefone?: string
-          tipo_servico?: string
+          tipo_servico?: string | null
         }
         Relationships: []
       }
