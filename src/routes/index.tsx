@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
     scripts: [
       { src: `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`, async: true },
       {
-        children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}');`,
+        children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}',${JSON.stringify(CONFIG_GTAG)});`,
       },
     ],
   }),
@@ -52,6 +52,23 @@ export const Route = createFileRoute("/")({
  * atravessar. Ver src/lib/formulario.ts, que repassa gclid e utm_*.
  */
 const GOOGLE_ADS_ID = "AW-XXXXXXXXXX";
+
+/**
+ * Precisa ser IDÊNTICO ao do formulário (src/lib/funil/google-ads.ts no repo
+ * LP-video-almore) — é a igualdade entre as duas configurações que faz a
+ * sessão ser uma só, em vez de o mesmo visitante virar duas.
+ *
+ * Os dois endereços são subdomínios do mesmo domínio registrável, e o gtag já
+ * grava o cookie no domínio de cima por padrão, então a sessão atravessa mesmo
+ * sem isto. Fica declarado para a intenção ficar explícita e para cobrir o dia
+ * em que o formulário mudar de endereço.
+ */
+const CONFIG_GTAG = {
+  linker: {
+    domains: ["almorecontabilidade.com.br", "form.almorecontabilidade.com.br"],
+    decorate_forms: true,
+  },
+};
 
 const numeros = [
   { valor: "+50", legenda: "empresas na carteira de contabilidade" },
