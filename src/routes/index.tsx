@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { toast } from "sonner";
-import { salvarSiteLead } from "@/lib/site-leads";
+import { useEffect, useState } from "react";
+import { useLinkFormulario, type OrigemCta } from "@/lib/formulario";
 import { useAuth } from "@/lib/auth-context";
 import { SiteNavbar } from "@/components/SiteNavbar";
 
@@ -26,22 +25,33 @@ export const Route = createFileRoute("/")({
         content: "A contabilidade que responde quando você precisa e enxerga muito além da obrigação.",
       },
     ],
+    scripts: [
+      { src: `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`, async: true },
+      {
+        children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}');`,
+      },
+    ],
   }),
   component: LandingPage,
 });
 
-const expectations = [
-  "Resposta rápida quando precisar",
-  "Me avisar antes dos prazos, sem surpresas",
-  "Relatórios que eu realmente entenda",
-  "Pagar menos imposto dentro da lei",
-  "Orientação proativa, sem eu precisar perguntar",
-  "Um contador que conheça meu negócio de verdade",
-  "Apoio na Reforma Tributária",
-  "Migrar de contabilidade sem dor de cabeça",
-  "Tomar decisões melhores com base nos números",
-  "Ter tempo de volta para focar no meu negócio",
-];
+/**
+ * ID da conta do Google Ads — TROCAR PELO REAL.
+ *
+ * Formato: AW- seguido dos dígitos da conta, ex. "AW-1234567890". Aparece no
+ * Google Ads em Ferramentas > Gerenciador de tags, ou no topo do snippet que
+ * ele manda instalar.
+ *
+ * Enquanto estiver com o placeholder a tag carrega e não faz nada: o
+ * googletagmanager responde 404 para um ID inexistente, sem quebrar a página.
+ *
+ * Isto instala só a tag global, que mede visitas e alimenta remarketing. A
+ * conversão em si acontece no formulário, que está em outro domínio — então
+ * o evento de conversão precisa ser disparado LÁ, e o Google Ads precisa ter
+ * form.almorecontabilidade.com.br na lista de domínios da conta para o clique
+ * atravessar. Ver src/lib/formulario.ts, que repassa gclid e utm_*.
+ */
+const GOOGLE_ADS_ID = "AW-XXXXXXXXXX";
 
 const numeros = [
   { valor: "+50", legenda: "empresas na carteira de contabilidade" },
@@ -147,8 +157,27 @@ function useReveal() {
   }, []);
 }
 
-function scrollToContato() {
-  document.getElementById("contato")?.scrollIntoView({ behavior: "smooth", block: "start" });
+/**
+ * Botão que leva ao formulário, em outro domínio.
+ *
+ * É um <a> de verdade, e não um botão com onClick, para o link poder ser
+ * aberto em nova aba, copiado e lido por leitor de tela como link.
+ */
+function CtaFormulario({
+  origem,
+  className,
+  children,
+}: {
+  origem: OrigemCta;
+  className: string;
+  children: React.ReactNode;
+}) {
+  const href = useLinkFormulario(origem);
+  return (
+    <a href={href} className={`${className} inline-block text-center`}>
+      {children}
+    </a>
+  );
 }
 
 function LandingPage() {
@@ -247,12 +276,12 @@ function Hero() {
           <p className="mt-6 max-w-[520px] text-white/60 text-[18px] italic leading-relaxed">
             Empresas sem orientação contábil pagam, em média, 12% mais imposto do que deveriam.
           </p>
-          <button
-            onClick={scrollToContato}
+          <CtaFormulario
+            origem="hero"
             className="btn-on-dark mt-10 font-display font-bold text-base px-8 py-4 rounded-md"
           >
             Quero um diagnóstico gratuito
-          </button>
+          </CtaFormulario>
         </div>
       </div>
     </section>
@@ -502,10 +531,12 @@ function PlanCard({
   name,
   subtitle,
   items,
+  origem,
 }: {
   name: string;
   subtitle: string;
   items: string[];
+  origem: OrigemCta;
 }) {
   const cor = coresPlano[name] ?? "#7C1638";
   return (
@@ -530,12 +561,12 @@ function PlanCard({
           </li>
         ))}
       </ul>
-      <button
-        onClick={scrollToContato}
+      <CtaFormulario
+        origem={origem}
         className="btn-primary mt-8 font-display font-semibold text-sm px-6 py-3 rounded-md w-full"
       >
         Quero este plano
-      </button>
+      </CtaFormulario>
     </div>
   );
 }
@@ -551,9 +582,9 @@ function Planos() {
           </h2>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3 items-stretch">
-          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} />
-          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} />
-          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} />
+          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} origem="plano-bronze" />
+          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} origem="plano-prata" />
+          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} origem="plano-ouro" />
         </div>
       </div>
     </section>
@@ -662,159 +693,35 @@ function Reforma() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="block text-white/80 text-sm font-medium mb-2">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-const inputClass =
-  "w-full bg-white text-ink rounded-md px-4 py-3.5 text-[19px] border border-transparent focus:outline-none focus:ring-2 focus:ring-white/60 placeholder:text-gray-mid";
-
+/**
+ * Bloco de fechamento da home.
+ *
+ * O formulario que ficava aqui foi removido: a captacao passou a acontecer
+ * em form.almorecontabilidade.com.br. A secao mantem o id "contato" porque o
+ * botao do menu e os links /#contato continuam apontando para ca.
+ */
 function Formulario() {
-  const [sent, setSent] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, boolean>>({});
-  const [checks, setChecks] = useState<string[]>([]);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  function toggle(item: string) {
-    setChecks((c) => (c.includes(item) ? c.filter((x) => x !== item) : [...c, item]));
-  }
-
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (submitting) return;
-    const data = new FormData(e.currentTarget);
-    const required = ["nome", "empresa", "email", "telefone"];
-    const errs: Record<string, boolean> = {};
-    required.forEach((k) => {
-      if (!String(data.get(k) || "").trim()) errs[k] = true;
-    });
-    if (checks.length === 0) errs.expectativas = true;
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-
-    setSubmitting(true);
-    const erro = await salvarSiteLead({
-      nome: String(data.get("nome") || "").trim(),
-      empresa: String(data.get("empresa") || "").trim(),
-      email: String(data.get("email") || "").trim(),
-      telefone: String(data.get("telefone") || "").trim(),
-      expectativas: checks,
-    });
-    setSubmitting(false);
-
-    if (erro) {
-      console.error("[site_leads] falha ao gravar lead:", erro);
-      toast.error("Não foi possível enviar sua mensagem. Tente novamente.");
-      return;
-    }
-    setSent(true);
-  }
-
+  const href = useLinkFormulario("contato");
   return (
     <section id="contato" className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
-      <div className="mx-auto max-w-[900px]">
-        <div className="text-center reveal">
-          <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Estamos à disposição.
-          </h2>
-          <p className="mt-5 text-white/80 text-[19px]">
-            É só falar com a gente: é rápido, como tudo por aqui.
-          </p>
-        </div>
-
-        {sent ? (
-          <div className="mt-12 bg-white rounded-xl p-10 text-center shadow-card-hover reveal">
-            <div className="eyebrow text-[#7C1638] mb-3">RECEBIDO</div>
-            <p className="font-display font-bold text-ink text-2xl leading-snug">
-              Mensagem recebida!
-              <br />
-              Em breve entraremos em contato.
-            </p>
-          </div>
-        ) : (
-          <form ref={formRef} onSubmit={onSubmit} className="mt-12 space-y-5 reveal" noValidate>
-            <Field label="Nome completo *">
-              <input name="nome" className={inputClass} placeholder="Seu nome" />
-              {errors.nome && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-            </Field>
-            <Field label="Nome da empresa *">
-              <input name="empresa" className={inputClass} placeholder="Sua empresa" />
-              {errors.empresa && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-            </Field>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <Field label="E-mail *">
-                <input name="email" type="email" className={inputClass} placeholder="voce@email.com" />
-                {errors.email && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-              </Field>
-              <Field label="Telefone / WhatsApp *">
-                <input name="telefone" className={inputClass} placeholder="(00) 00000-0000" />
-                {errors.telefone && <span className="text-white/90 text-xs mt-1 block">Campo obrigatório</span>}
-              </Field>
-            </div>
-
-            <div>
-              <span className="block text-white/80 text-sm font-medium mb-3">
-                O que você espera de uma contabilidade? *
-              </span>
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 bg-white rounded-lg p-4">
-                {expectations.map((opt) => {
-                  const active = checks.includes(opt);
-                  return (
-                    <label key={opt} className="flex items-start gap-3 cursor-pointer">
-                      <span
-                        className={`mt-0.5 h-[18px] w-[18px] shrink-0 rounded-[4px] border-[1.5px] flex items-center justify-center transition-colors ${
-                          active ? "bg-[#7C1638] border-[#7C1638]" : "bg-white border-[#d4d0cb]"
-                        }`}
-                      >
-                        {active && (
-                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                            <path
-                              d="M2 6.5L4.8 9L10 3"
-                              stroke="white"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </span>
-                      <input
-                        type="checkbox"
-                        className="sr-only"
-                        checked={active}
-                        onChange={() => toggle(opt)}
-                      />
-                      <span className="text-ink text-[18px] font-medium leading-snug">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-              {errors.expectativas && (
-                <span className="text-white/90 text-xs mt-2 block">Selecione ao menos uma opção</span>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="btn-on-dark w-full font-display font-bold text-base px-8 py-4 rounded-md disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Enviando..." : "Enviar mensagem"}
-            </button>
-          </form>
-        )}
+      <div className="mx-auto max-w-[760px] text-center reveal">
+        <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
+        <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
+          Estamos à disposição.
+        </h2>
+        <p className="mt-5 text-white/80 text-[19px]">
+          É só falar com a gente: é rápido, como tudo por aqui.
+        </p>
+        <a
+          href={href}
+          className="btn-on-dark mt-10 inline-block text-center font-display font-bold text-base px-8 py-4 rounded-md"
+        >
+          Quero um diagnóstico gratuito
+        </a>
       </div>
     </section>
   );
 }
-
 function WhatsAppFlutuante() {
   return (
     <a
