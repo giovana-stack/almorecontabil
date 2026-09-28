@@ -36,14 +36,14 @@ export const Route = createFileRoute("/")({
 });
 
 /**
- * ID da conta do Google Ads — TROCAR PELO REAL.
+ * ID da conta do Google Ads. Preenchido em 28/09/2026.
  *
  * Formato: AW- seguido dos dígitos da conta, ex. "AW-1234567890". Aparece no
  * Google Ads em Ferramentas > Gerenciador de tags, ou no topo do snippet que
  * ele manda instalar.
  *
- * Enquanto estiver com o placeholder a tag carrega e não faz nada: o
- * googletagmanager responde 404 para um ID inexistente, sem quebrar a página.
+ * O rótulo da conversão ainda não existe — e ele não é usado aqui: a
+ * conversão é disparada no formulário, não na home.
  *
  * Isto instala só a tag global, que mede visitas e alimenta remarketing. A
  * conversão em si acontece no formulário, que está em outro domínio — então
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/")({
  * form.almorecontabilidade.com.br na lista de domínios da conta para o clique
  * atravessar. Ver src/lib/formulario.ts, que repassa gclid e utm_*.
  */
-const GOOGLE_ADS_ID = "AW-XXXXXXXXXX";
+const GOOGLE_ADS_ID = "AW-18343127097";
 
 /**
  * Precisa ser IDÊNTICO ao do formulário (src/lib/funil/google-ads.ts no repo
