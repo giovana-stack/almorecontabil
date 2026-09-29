@@ -143,6 +143,20 @@
     font-size: 19px;
   }
 
+  /*
+    Seções que servem de destino de âncora (/#dores, /#planos, ...).
+
+    O cabeçalho é `sticky top-0` e mede 77px, então sem isto o navegador
+    encosta o topo da seção no topo da janela e o cabeçalho cobre justamente
+    o título — a pessoa chega e acha que caiu no lugar errado. Os 96px são os
+    77 do cabeçalho mais um respiro.
+
+    Se a altura do cabeçalho mudar, este número muda junto.
+  */
+  .ancora {
+    scroll-margin-top: 96px;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);

@@ -145,6 +145,58 @@ const faqs = [
   },
 ];
 
+/**
+ * Garante que quem chega por /#planos, /#faq e afins pare na seção certa.
+ *
+ * O scroll nativo do navegador acerta quando a página já está montada, mas em
+ * rede lenta ele tenta antes da hora: medido em 28/09/2026 com throttling, a
+ * seção ainda estava a 1464px do topo três segundos depois da chegada, e só
+ * então se ajustou sozinha. Isso é heurística do navegador, não garantia — e
+ * é justamente por esse caminho que entra o tráfego pago dos sitelinks.
+ *
+ * Então reaplicamos a posição na montagem e de novo quando tudo termina de
+ * carregar, que é quando uma imagem tardia poderia ter empurrado a página.
+ *
+ * `instant` de propósito: o CSS tem `scroll-behavior: smooth`, e uma animação
+ * disparando sozinha na abertura parece travamento.
+ *
+ * Se a pessoa já rolou por conta própria, paramos — corrigir o scroll de
+ * alguém que está lendo é pior do que a âncora ter falhado.
+ */
+function useAncoraDaUrl() {
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+
+    let cancelado = false;
+    const aoRolar = () => {
+      cancelado = true;
+    };
+
+    const irAteLa = () => {
+      if (cancelado) return;
+      document.getElementById(id)?.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+
+    irAteLa();
+    // Depois do primeiro paint, com o layout já resolvido.
+    const quadro = requestAnimationFrame(irAteLa);
+    window.addEventListener("load", irAteLa);
+    // `wheel` e `touchstart` são gesto da pessoa. `scroll` não serve: ele
+    // dispara com o nosso próprio scrollIntoView e cancelaria a correção
+    // seguinte antes de ela acontecer.
+    window.addEventListener("wheel", aoRolar, { passive: true, once: true });
+    window.addEventListener("touchstart", aoRolar, { passive: true, once: true });
+
+    return () => {
+      cancelAnimationFrame(quadro);
+      window.removeEventListener("load", irAteLa);
+      window.removeEventListener("wheel", aoRolar);
+      window.removeEventListener("touchstart", aoRolar);
+    };
+  }, []);
+}
+
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
@@ -199,6 +251,7 @@ function CtaFormulario({
 
 function LandingPage() {
   useReveal();
+  useAncoraDaUrl();
   return (
     <div className="bg-background text-foreground">
       <Navbar />
@@ -307,7 +360,7 @@ function Hero() {
 
 function Dor() {
   return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
+    <section id="dores" className="ancora bg-surface px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-[960px]">
         <div className="max-w-[760px] reveal">
           <div className="eyebrow text-gray-deep mb-6">ISSO TE PARECE FAMILIAR?</div>
@@ -505,7 +558,7 @@ function Entregamos() {
     },
   ];
   return (
-    <section className="bg-white px-5 py-24 sm:py-32">
+    <section id="entregas" className="ancora bg-white px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl reveal">
           <div className="eyebrow text-gray-deep mb-6">O QUE ENTREGAMOS</div>
@@ -590,7 +643,7 @@ function PlanCard({
 
 function Planos() {
   return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
+    <section id="planos" className="ancora bg-surface px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl reveal">
           <div className="eyebrow text-gray-deep mb-6">PLANOS</div>
@@ -611,7 +664,7 @@ function Planos() {
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="bg-white px-5 py-24 sm:py-32">
+    <section id="faq" className="ancora bg-white px-5 py-24 sm:py-32">
       <div className="mx-auto max-w-[720px]">
         <div className="reveal">
           <div className="eyebrow text-gray-deep mb-6">DÚVIDAS FREQUENTES</div>
@@ -720,7 +773,7 @@ function Reforma() {
 function Formulario() {
   const href = useLinkFormulario("contato");
   return (
-    <section id="contato" className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
+    <section id="contato" className="ancora px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
       <div className="mx-auto max-w-[760px] text-center reveal">
         <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
         <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
