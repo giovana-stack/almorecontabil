@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as MinhaContaRouteImport } from './routes/minha-conta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as AdminRedacaoRouteImport } from './routes/admin/redacao'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
+  id: '/politica-de-privacidade',
+  path: '/politica-de-privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinhaContaRoute = MinhaContaRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/minha-conta': typeof MinhaContaRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/redacao': typeof AdminRedacaoRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/minha-conta': typeof MinhaContaRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/redacao': typeof AdminRedacaoRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/minha-conta': typeof MinhaContaRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/redacao': typeof AdminRedacaoRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/minha-conta'
+    | '/politica-de-privacidade'
     | '/sitemap.xml'
     | '/admin/redacao'
     | '/blog/$slug'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/minha-conta'
+    | '/politica-de-privacidade'
     | '/sitemap.xml'
     | '/admin/redacao'
     | '/blog/$slug'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/minha-conta'
+    | '/politica-de-privacidade'
     | '/sitemap.xml'
     | '/admin/redacao'
     | '/blog/$slug'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   MinhaContaRoute: typeof MinhaContaRoute
+  PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminRedacaoRoute: typeof AdminRedacaoRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidade': {
+      id: '/politica-de-privacidade'
+      path: '/politica-de-privacidade'
+      fullPath: '/politica-de-privacidade'
+      preLoaderRoute: typeof PoliticaDePrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minha-conta': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   MinhaContaRoute: MinhaContaRoute,
+  PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminRedacaoRoute: AdminRedacaoRoute,
   BlogSlugRoute: BlogSlugRoute,

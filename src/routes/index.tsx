@@ -819,6 +819,7 @@ function Footer() {
           className="h-10 w-auto mx-auto opacity-90"
         />
         <p className="mt-5 text-[#8a8a8a] text-sm">CNPJ: 67.132.226/0001-17</p>
+        <a href="/politica-de-privacidade" className="mt-3 inline-block text-[#8a8a8a] text-sm underline hover:text-white">Política de Privacidade</a>
         <div className="mt-8 mx-auto max-w-md h-px bg-white/15" />
         <p className="mt-6 text-[#7a7a7a] text-[19px]">
           © 2025 Almore Inteligência Contábil. Todos os direitos reservados.
