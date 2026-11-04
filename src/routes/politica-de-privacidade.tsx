@@ -39,7 +39,7 @@ export const Route = createFileRoute("/politica-de-privacidade")({
 function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="font-display font-extrabold text-ink text-base">{titulo}</h2>
+      <h2 className="font-bold text-ink text-[17px]">{titulo}</h2>
       <div className="flex flex-col gap-3 text-base leading-8 text-gray-deep [&_strong]:font-bold [&_strong]:text-ink [&_a]:text-[#7C1638] [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_li]:marker:text-gray-mid">
         {children}
       </div>
