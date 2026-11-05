@@ -179,16 +179,17 @@ function PoliticaPrivacidade() {
           <Secao titulo="6. Atendimento automatizado">
             <p>
               O primeiro contato após o formulário pode ser feito pelo <strong>Adriano</strong>, nosso
-              atendente virtual. As mensagens automáticas são identificadas, você pode pedir atendimento
-              humano a qualquer momento e pode solicitar revisão de decisões automatizadas (art. 20).
+              atendente virtual, que é automatizado. Você pode pedir atendimento humano a qualquer
+              momento e solicitar revisão de decisões automatizadas (art. 20).
             </p>
           </Secao>
 
           <Secao titulo="7. Retenção">
             <p>
-              Dados de interessados sem contrato ficam guardados por até <strong>24 meses</strong>.
-              Documentos contábeis, fiscais e trabalhistas seguem o <strong>prazo legal</strong> (em regra,
-              no mínimo 5 anos). Depois disso, são eliminados ou anonimizados.
+              Dados de interessados sem contrato ficam guardados enquanto houver interesse comercial, ou
+              até você pedir a exclusão. Documentos contábeis, fiscais e trabalhistas seguem o{" "}
+              <strong>prazo legal</strong> (em regra, no mínimo 5 anos). Depois disso, são eliminados ou
+              anonimizados.
             </p>
           </Secao>
 
@@ -203,7 +204,8 @@ function PoliticaPrivacidade() {
             </ul>
             <p>
               As solicitações são atendidas pelo e-mail {email}. Dados que a lei obriga a guardar só são
-              eliminados após o prazo legal.
+              eliminados após o prazo legal. Você também pode apresentar reclamação à Autoridade Nacional
+              de Proteção de Dados (ANPD).
             </p>
           </Secao>
 
