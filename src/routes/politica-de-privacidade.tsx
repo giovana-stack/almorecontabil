@@ -230,7 +230,7 @@ function PoliticaPrivacidade() {
           <Secao titulo="11. Disposições gerais">
             <p>
               Esta Política pode ser atualizada a qualquer momento; a versão vigente fica sempre nesta
-              página. É regida pela legislação brasileira, com foro na Comarca de Araras/SP.
+              página. É regida pela legislação brasileira.
             </p>
           </Secao>
 
