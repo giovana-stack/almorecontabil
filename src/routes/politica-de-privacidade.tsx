@@ -120,7 +120,7 @@ function PoliticaPrivacidade() {
             <Tabela
               colunas={["Titular", "Exemplos de dados"]}
               linhas={[
-                ["Visitantes do site", "IP, dispositivo, páginas visitadas, origem da visita (UTM) e cookies."],
+                ["Visitantes do site", "IP, navegador, tipo de dispositivo, tamanho de tela, idioma e fuso horário, página de entrada, site de origem, botão clicado, parâmetros de campanha (UTM e identificadores de anúncio) e cookies."],
                 ["Usuários do blog", "Nome, e-mail, senha (criptografada) e comentários publicados."],
                 [
                   "Interessados (formulário)",
@@ -146,7 +146,7 @@ function PoliticaPrivacidade() {
                 ["Contato por WhatsApp e ligação", "Consentimento (art. 7º, I)"],
                 ["Prestar os serviços contratados e manter a conta do blog", "Execução de contrato (art. 7º, V)"],
                 ["Entregar obrigações fiscais, trabalhistas e contábeis", "Obrigação legal ou regulatória (art. 7º, II)"],
-                ["Medir anúncios e melhorar o site", "Legítimo interesse (art. 7º, IX)"],
+                ["Medir anúncios, identificar a origem do contato para o atendimento e melhorar o site", "Legítimo interesse (art. 7º, IX)"],
                 ["Defesa em processos e fiscalizações", "Exercício regular de direitos (art. 7º, VI)"],
               ]}
             />
