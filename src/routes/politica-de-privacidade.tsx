@@ -120,7 +120,7 @@ function PoliticaPrivacidade() {
             <Tabela
               colunas={["Titular", "Exemplos de dados"]}
               linhas={[
-                ["Visitantes do site", "IP, navegador, tipo de dispositivo, tamanho de tela, idioma e fuso horário, página de entrada, site de origem, botão clicado, parâmetros de campanha (UTM e identificadores de anúncio) e cookies."],
+                ["Visitantes do site", "IP, navegador, tipo de dispositivo, tamanho de tela, idioma e fuso horário, páginas e etapas visitadas, página de entrada, site de origem, botão clicado, parâmetros de campanha (UTM e identificadores de anúncio), um identificador anônimo do navegador e cookies."],
                 ["Usuários do blog", "Nome, e-mail, senha (criptografada) e comentários publicados."],
                 [
                   "Interessados (formulário)",
@@ -151,8 +151,9 @@ function PoliticaPrivacidade() {
               ]}
             />
             <p className="mt-3">
-              Usamos cookies essenciais (login e origem da visita) e de medição (Google Ads e Pixel do
-              Meta). Você pode bloqueá-los no navegador.
+              Usamos cookies e armazenamento local do navegador: essenciais (login, origem da visita e um
+              identificador anônimo que liga as páginas vistas ao contato, se você preencher o formulário) e
+              de medição (Google Ads e Pixel do Meta). Você pode bloqueá-los ou apagá-los no navegador.
             </p>
           </Secao>
 
