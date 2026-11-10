@@ -105,6 +105,7 @@ function RedacaoPage() {
   const [capa, setCapa] = useState<string>("");
   const [capaAlt, setCapaAlt] = useState<string>("");
   const [capaPos, setCapaPos] = useState<CapaPos>({ x: 50, y: 50 });
+  const [uploadingCapa, setUploadingCapa] = useState(false);
   const [marcados, setMarcados] = useState<Set<Artigo["id"]>>(new Set());
 
   const [saving, setSaving] = useState<string | null>(null);
@@ -190,7 +191,7 @@ function RedacaoPage() {
       setRegerandoTitulo(false);
     }
   };
-  
+
   const contarNovos = async (): Promise<number> => {
     const {
       data: { session },
@@ -206,7 +207,7 @@ function RedacaoPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-      setMarcados(new Set());
+    setMarcados(new Set());
     setError(null);
     try {
       const {
@@ -346,8 +347,8 @@ function RedacaoPage() {
     }
   };
 
-  // Novos
-   const alternarMarcado = (id: Artigo["id"]) =>
+  // Seleção em lote (Novos)
+  const alternarMarcado = (id: Artigo["id"]) =>
     setMarcados((prev) => {
       const n = new Set(prev);
       if (n.has(id)) n.delete(id);
@@ -387,6 +388,40 @@ function RedacaoPage() {
       alert(`Erro: ${e.message}`);
     } finally {
       setSaving(null);
+    }
+  };
+
+  // Novos
+  const descartar = () => {
+    if (!selected) return;
+    if (!confirm("Descartar este artigo?")) return;
+    patchIt(selected.id, { status: "descartado" }, "descartar", true);
+  };
+  const publicar = async () => {
+    if (!selected) return;
+    if (!confirm("Publicar este artigo?")) return;
+    const id = selected.id;
+    const ok = await patchIt(
+      id,
+      {
+        artigo_titulo: titulo,
+        artigo_corpo: corpo,
+        artigo_capa: capa || null,
+        artigo_capa_alt: capaAlt || null,
+        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+
+        status: "publicado",
+        publicado_em: new Date().toISOString(),
+        agendado_para: null,
+      },
+      "publicar",
+      true,
+    );
+    if (ok) {
+      fetch(
+        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(id))}`,
+        { method: "GET", mode: "no-cors" },
+      ).catch(() => {});
     }
   };
 
@@ -546,6 +581,7 @@ function RedacaoPage() {
         {loading && <p>Carregando…</p>}
         {error && <p style={{ color: "#b00" }}>Erro: {error}</p>}
         {!loading && !error && items.length === 0 && <p style={{ color: "#595959" }}>Nenhum artigo.</p>}
+
         {tab === "novo" && items.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
             <label
@@ -561,6 +597,7 @@ function RedacaoPage() {
             )}
           </div>
         )}
+
         <div style={{ display: "grid", gap: 16 }}>
           {items.map((item) => {
             const actions = (
@@ -588,13 +625,13 @@ function RedacaoPage() {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
                   <div style={cardHeaderStyle}>
-                      <input
-                        type="checkbox"
-                        checked={marcados.has(item.id)}
-                        onChange={() => alternarMarcado(item.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ marginTop: 6, width: 18, height: 18, cursor: "pointer", flexShrink: 0 }}
-                        />
+                    <input
+                      type="checkbox"
+                      checked={marcados.has(item.id)}
+                      onChange={() => alternarMarcado(item.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ marginTop: 6, width: 18, height: 18, cursor: "pointer", flexShrink: 0 }}
+                    />
                     <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
                       {item.noticia_titulo || "(sem título)"}
                     </h2>
@@ -1186,7 +1223,7 @@ const btnPrimarySm: React.CSSProperties = {
   background: "#7C1638",
   color: "#fff",
   border: "none",
-  borderRadius: 4,
+  borderRadius: 6,
   cursor: "pointer",
   fontSize: 13,
 };
