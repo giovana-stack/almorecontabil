@@ -105,7 +105,7 @@ function RedacaoPage() {
   const [capa, setCapa] = useState<string>("");
   const [capaAlt, setCapaAlt] = useState<string>("");
   const [capaPos, setCapaPos] = useState<CapaPos>({ x: 50, y: 50 });
-  const [uploadingCapa, setUploadingCapa] = useState(false);
+  const [marcados, setMarcados] = useState<Set<Artigo["id"]>>(new Set());
 
   const [saving, setSaving] = useState<string | null>(null);
   const [agendadoPara, setAgendadoPara] = useState("");
@@ -206,6 +206,7 @@ function RedacaoPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
+      setMarcados(new Set());
     setError(null);
     try {
       const {
@@ -346,36 +347,46 @@ function RedacaoPage() {
   };
 
   // Novos
-  const descartar = () => {
-    if (!selected) return;
-    if (!confirm("Descartar este artigo?")) return;
-    patchIt(selected.id, { status: "descartado" }, "descartar", true);
-  };
-  const publicar = async () => {
-    if (!selected) return;
-    if (!confirm("Publicar este artigo?")) return;
-    const id = selected.id;
-    const ok = await patchIt(
-      id,
-      {
-        artigo_titulo: titulo,
-        artigo_corpo: corpo,
-        artigo_capa: capa || null,
-        artigo_capa_alt: capaAlt || null,
-        artigo_capa_pos: capa ? formatCapaPos(capaPos) : null,
+   const alternarMarcado = (id: Artigo["id"]) =>
+    setMarcados((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
 
-        status: "publicado",
-        publicado_em: new Date().toISOString(),
-        agendado_para: null,
-      },
-      "publicar",
-      true,
-    );
-    if (ok) {
-      fetch(
-        `https://script.google.com/macros/s/AKfycbxUyhnNvO8_q7iBXEUiTm1t9-c48wBb4mvZ7hAwYNCgwiBizQ9o7C_ro4NYpkBckgEv2g/exec?senha=eet5tpnz&postar=${encodeURIComponent(String(id))}`,
-        { method: "GET", mode: "no-cors" },
-      ).catch(() => {});
+  const marcarTodos = () =>
+    setMarcados((prev) => (prev.size === items.length ? new Set() : new Set(items.map((x) => x.id))));
+
+  const descartarMarcados = async () => {
+    if (marcados.size === 0) return;
+    if (!confirm(`Descartar ${marcados.size} artigo(s) selecionado(s)?`)) return;
+    setSaving("descartar-lote");
+    try {
+      const {
+        data: { session },
+      } = await supabaseExt.auth.getSession();
+      const headers: Record<string, string> = {
+        ...baseHeaders,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+      const ids = Array.from(marcados).join(",");
+      const res = await fetch(`${REST}?id=in.(${ids})`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ status: "descartado" }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setItems((prev) => prev.filter((x) => !marcados.has(x.id)));
+      setMarcados(new Set());
+    } catch (e: any) {
+      alert(`Erro: ${e.message}`);
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -535,7 +546,21 @@ function RedacaoPage() {
         {loading && <p>Carregando…</p>}
         {error && <p style={{ color: "#b00" }}>Erro: {error}</p>}
         {!loading && !error && items.length === 0 && <p style={{ color: "#595959" }}>Nenhum artigo.</p>}
-
+        {tab === "novo" && items.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+            <label
+              style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#595959", cursor: "pointer" }}
+            >
+              <input type="checkbox" checked={marcados.size === items.length} onChange={marcarTodos} />
+              Selecionar todos
+            </label>
+            {marcados.size > 0 && (
+              <button onClick={descartarMarcados} disabled={!!saving} style={btnDanger}>
+                {saving === "descartar-lote" ? "Descartando…" : `Descartar selecionados (${marcados.size})`}
+              </button>
+            )}
+          </div>
+        )}
         <div style={{ display: "grid", gap: 16 }}>
           {items.map((item) => {
             const actions = (
@@ -563,6 +588,13 @@ function RedacaoPage() {
               return (
                 <article key={item.id} onClick={() => openEditor(item)} style={cardStyle}>
                   <div style={cardHeaderStyle}>
+                      <input
+                        type="checkbox"
+                        checked={marcados.has(item.id)}
+                        onChange={() => alternarMarcado(item.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ marginTop: 6, width: 18, height: 18, cursor: "pointer", flexShrink: 0 }}
+                        />
                     <h2 style={{ margin: "0 0 8px", fontSize: 18, color: "#111", flex: 1 }}>
                       {item.noticia_titulo || "(sem título)"}
                     </h2>
