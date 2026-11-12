@@ -319,8 +319,8 @@
   height: 0;
 }
 
-/* Carrossel 3D de "O que fazemos": só no celular. De md para cima vale a grade do Tailwind. */
-@media (max-width: 767px) {
+/* Carrossel 3D de "O que fazemos": em celular e tablet. De lg (1024px) para cima vale a grade do Tailwind. */
+@media (max-width: 1023px) {
   .carrossel-3d {
     display: flex;
     gap: 12px;

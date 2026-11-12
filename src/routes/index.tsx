@@ -524,12 +524,12 @@ function Hero() {
 }
 
 /**
- * Carrossel 3D do bloco "O que fazemos" — só no celular (< 768px).
+ * Carrossel 3D do bloco "O que fazemos" — em celular e tablet (< 1024px).
  *
  * Os cards ficam numa faixa com scroll horizontal e snap. A cada rolagem, cada
  * slide recebe um rotateY proporcional à distância até o centro da tela, como
  * se estivessem num cilindro: o card central fica de frente e os vizinhos
- * giram para trás, menores e mais apagados. De md para cima nada disso roda e
+ * giram para trás, menores e mais apagados. De lg (1024px) para cima nada disso roda e
  * os cards ficam na grade de três colunas (os estilos ficam em styles.css,
  * dentro de @media, e aqui só limpamos o inline se a tela crescer).
  *
@@ -548,7 +548,7 @@ function useCarrossel3D(
   useEffect(() => {
     const faixa = ref.current;
     if (!faixa) return;
-    const celular = window.matchMedia("(max-width: 767px)");
+    const celular = window.matchMedia("(max-width: 1023px)");
     const slides = Array.from(faixa.querySelectorAll<HTMLElement>("[data-slide]"));
     let quadro = 0;
 
@@ -631,77 +631,52 @@ function OQueFazemos() {
         </CabecalhoSecao>
         {/* No celular a faixa sangra até as bordas da tela (-mx-5) para o card
             central ter mais largura. */}
-        <div className="reveal -mx-5 md:mx-0">
-          <div ref={faixa} className="carrossel-3d md:grid md:grid-cols-3 md:items-stretch md:gap-6">
+        <div className="reveal -mx-5 lg:mx-0">
+          <div ref={faixa} className="carrossel-3d lg:grid lg:grid-cols-3 lg:items-stretch lg:gap-6">
             {solucoes.map(({ titulo, desc, itens, Icone, href, destaque }) => (
               <div key={titulo} data-slide className="slide flex">
                 <div className="flex w-full will-change-transform">
-                <article
-                  className={`group relative flex w-full flex-col rounded-2xl border p-6 transition-all duration-300 ease-out hover:-translate-y-2.5 md:p-8 ${
-                    destaque
-                      ? "border-gold bg-linear-to-br from-wine-900 to-wine-800 text-white hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
-                      : "border-border bg-white hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
-                  }`}
-                >
-                  {destaque && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 font-display text-[11px] font-extrabold uppercase tracking-wider text-wine-950">
-                      Essencial
-                    </span>
-                  )}
-                  <div
-                    className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${
-                      destaque
-                        ? "bg-white/12 text-gold"
-                        : "bg-[#F6E6EB] text-[#7C1638] transition-colors duration-300 group-hover:bg-white/12 group-hover:text-gold"
-                    }`}
-                  >
-                    <Icone size={22} aria-hidden />
-                  </div>
-                  <h3
-                    className={`font-display text-[22px] font-extrabold ${
-                      destaque ? "text-white" : "text-wine-900 transition-colors duration-300 group-hover:text-white"
-                    }`}
-                  >
-                    {titulo}
-                  </h3>
-                  <p
-                    className={`mt-3 text-[16px] leading-relaxed md:text-[17px] ${
-                      destaque ? "text-white/80" : "text-gray-deep transition-colors duration-300 group-hover:text-white/80"
-                    }`}
-                  >
-                    {desc}
-                  </p>
-                  <ul className="mt-5 flex-1 space-y-2.5">
-                    {itens.map((it) => (
-                      <li
-                        key={it}
-                        className={`flex gap-2.5 text-[16px] md:text-[17px] ${
-                          destaque ? "text-white/90" : "text-[#4D3B44] transition-colors duration-300 group-hover:text-white/90"
-                        }`}
-                      >
-                        <span className="font-bold text-gold-dark" aria-hidden>
-                          →
-                        </span>
-                        <span>{it}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    href={href}
-                    className={`mt-6 font-display text-[15px] font-bold ${
-                      destaque
-                        ? "text-gold hover:text-white"
-                        : "text-[#7C1638] transition-colors duration-300 group-hover:text-gold hover:text-gold-dark"
-                    }`}
-                  >
-                    Saiba mais →
-                  </a>
-                </article>
+                <article className="group relative flex w-full flex-col rounded-2xl border border-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-2.5 hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)] md:p-8">
+                    {/* Os três cards são iguais; só o selo marca o "Essencial". */}
+                    {destaque && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 font-display text-[11px] font-extrabold uppercase tracking-wider text-wine-950">
+                        Essencial
+                      </span>
+                    )}
+                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F6E6EB] text-[#7C1638] transition-colors duration-300 group-hover:bg-white/12 group-hover:text-gold">
+                      <Icone size={22} aria-hidden />
+                    </div>
+                    <h3 className="font-display text-[22px] font-extrabold text-wine-900 transition-colors duration-300 group-hover:text-white">
+                      {titulo}
+                    </h3>
+                    <p className="mt-3 text-[16px] leading-relaxed text-gray-deep transition-colors duration-300 group-hover:text-white/80 md:text-[17px]">
+                      {desc}
+                    </p>
+                    <ul className="mt-5 flex-1 space-y-2.5">
+                      {itens.map((it) => (
+                        <li
+                          key={it}
+                          className="flex gap-2.5 text-[16px] text-[#4D3B44] transition-colors duration-300 group-hover:text-white/90 md:text-[17px]"
+                        >
+                          <span className="font-bold text-gold-dark" aria-hidden>
+                            →
+                          </span>
+                          <span>{it}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      href={href}
+                      className="mt-6 font-display text-[15px] font-bold text-[#7C1638] transition-colors duration-300 group-hover:text-gold hover:text-gold-dark"
+                    >
+                      Saiba mais →
+                    </a>
+                  </article>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-2.5 pt-1 md:hidden" role="tablist" aria-label="Escolher serviço">
+          <div className="flex justify-center gap-2.5 pt-1 lg:hidden" role="tablist" aria-label="Escolher serviço">
             {solucoes.map((s, i) => (
               <button
                 key={s.titulo}
