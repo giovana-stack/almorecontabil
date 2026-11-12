@@ -329,6 +329,27 @@
   }
 }
 
+/* Carrossel 3D de "O que fazemos": só no celular. De md para cima vale a grade do Tailwind. */
+@media (max-width: 767px) {
+  .carrossel-3d {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 22px max(7vw, calc((100vw - 380px) / 2)) 30px;
+  }
+  .carrossel-3d::-webkit-scrollbar {
+    display: none;
+  }
+  .carrossel-3d > .slide {
+    flex: 0 0 min(86vw, 380px);
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /*

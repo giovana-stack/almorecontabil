@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Building2,
   Check,
@@ -516,7 +516,103 @@ function Hero() {
   );
 }
 
+/**
+ * Carrossel 3D do bloco "O que fazemos" — só no celular (< 768px).
+ *
+ * Os cards ficam numa faixa com scroll horizontal e snap. A cada rolagem, cada
+ * slide recebe um rotateY proporcional à distância até o centro da tela, como
+ * se estivessem num cilindro: o card central fica de frente e os vizinhos
+ * giram para trás, menores e mais apagados. De md para cima nada disso roda e
+ * os cards ficam na grade de três colunas (os estilos ficam em styles.css,
+ * dentro de @media, e aqui só limpamos o inline se a tela crescer).
+ *
+ * O efeito vai num elemento INTERNO ([data-slide] > div), e não no próprio
+ * [data-slide]. Motivo: o scroll-snap calcula o ponto de parada com a caixa já
+ * transformada; se o alvo do snap girar, a rotação (que depende da posição) muda
+ * a caixa e o card nunca centraliza — parava 70-90px fora do centro. Com o
+ * [data-slide] parado, o snap é exato. A perspectiva vai dentro do transform de
+ * cada card (perspective(900px)) porque perspective no container só vale para
+ * filhos diretos.
+ */
+function useCarrossel3D(
+  ref: React.RefObject<HTMLDivElement | null>,
+  aoMudarAtivo: (indice: number) => void,
+) {
+  useEffect(() => {
+    const faixa = ref.current;
+    if (!faixa) return;
+    const celular = window.matchMedia("(max-width: 767px)");
+    const slides = Array.from(faixa.querySelectorAll<HTMLElement>("[data-slide]"));
+    let quadro = 0;
+
+    const limpar = () =>
+      slides.forEach((s) => {
+        const alvo = s.firstElementChild as HTMLElement | null;
+        if (alvo) {
+          alvo.style.transform = "";
+          alvo.style.opacity = "";
+        }
+      });
+
+    const atualizar = () => {
+      quadro = 0;
+      if (!celular.matches) return;
+      const caixa = faixa.getBoundingClientRect();
+      const centro = caixa.left + caixa.width / 2;
+      let ativo = 0;
+      let menor = Infinity;
+      slides.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        // 0 = centralizado; ±1 = a um card de distância.
+        const d = (r.left + r.width / 2 - centro) / r.width;
+        const a = Math.min(Math.abs(d), 1);
+        const giro = Math.max(-1, Math.min(1, d)) * 38;
+        const alvo = s.firstElementChild as HTMLElement | null;
+        if (alvo) {
+          alvo.style.transform = `perspective(900px) rotateY(${giro}deg) translateZ(${-a * 80}px) scale(${1 - a * 0.08})`;
+          alvo.style.opacity = String(1 - a * 0.45);
+        }
+        if (Math.abs(d) < menor) {
+          menor = Math.abs(d);
+          ativo = i;
+        }
+      });
+      aoMudarAtivo(ativo);
+    };
+
+    const agendar = () => {
+      if (!quadro) quadro = requestAnimationFrame(atualizar);
+    };
+    const aoTrocarTela = () => {
+      if (celular.matches) agendar();
+      else limpar();
+    };
+
+    faixa.addEventListener("scroll", agendar, { passive: true });
+    window.addEventListener("resize", agendar);
+    celular.addEventListener("change", aoTrocarTela);
+    atualizar();
+
+    return () => {
+      if (quadro) cancelAnimationFrame(quadro);
+      faixa.removeEventListener("scroll", agendar);
+      window.removeEventListener("resize", agendar);
+      celular.removeEventListener("change", aoTrocarTela);
+      limpar();
+    };
+  }, [ref, aoMudarAtivo]);
+}
+
 function OQueFazemos() {
+  const faixa = useRef<HTMLDivElement>(null);
+  const [ativo, setAtivo] = useState(0);
+  useCarrossel3D(faixa, setAtivo);
+
+  const irPara = (i: number) => {
+    const slide = faixa.current?.querySelectorAll<HTMLElement>("[data-slide]")[i];
+    slide?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
+
   return (
     <section id="solucoes" className="ancora bg-white px-5 py-24 sm:py-28">
       <div className="mx-auto max-w-6xl">
@@ -526,52 +622,93 @@ function OQueFazemos() {
         >
           Soluções completas para a sua empresa
         </CabecalhoSecao>
-        <div className="grid gap-6 md:grid-cols-3 items-stretch">
-          {solucoes.map(({ titulo, desc, itens, Icone, href, destaque }) => (
-            <article
-              key={titulo}
-              className={`reveal relative flex flex-col group rounded-2xl p-8 border transition-all duration-300 ease-out hover:-translate-y-2.5 ${
-                destaque
-                  ? "bg-linear-to-br from-wine-900 to-wine-800 border-gold text-white hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
-                  : "bg-white border-border hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
-              }`}
-            >
-              {destaque && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 font-display text-[11px] font-extrabold uppercase tracking-wider text-wine-950">
-                  Essencial
-                </span>
-              )}
-              <div
-                className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${
-                  destaque ? "bg-white/12 text-gold" : "bg-[#F6E6EB] text-[#7C1638] transition-colors duration-300 group-hover:bg-white/12 group-hover:text-gold"
-                }`}
-              >
-                <Icone size={22} aria-hidden />
+        {/* No celular a faixa sangra até as bordas da tela (-mx-5) para o card
+            central ter mais largura. */}
+        <div className="reveal -mx-5 md:mx-0">
+          <div ref={faixa} className="carrossel-3d md:grid md:grid-cols-3 md:items-stretch md:gap-6">
+            {solucoes.map(({ titulo, desc, itens, Icone, href, destaque }) => (
+              <div key={titulo} data-slide className="slide flex">
+                <div className="flex w-full will-change-transform">
+                <article
+                  className={`group relative flex w-full flex-col rounded-2xl border p-6 transition-all duration-300 ease-out hover:-translate-y-2.5 md:p-8 ${
+                    destaque
+                      ? "border-gold bg-linear-to-br from-wine-900 to-wine-800 text-white hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
+                      : "border-border bg-white hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
+                  }`}
+                >
+                  {destaque && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 font-display text-[11px] font-extrabold uppercase tracking-wider text-wine-950">
+                      Essencial
+                    </span>
+                  )}
+                  <div
+                    className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${
+                      destaque
+                        ? "bg-white/12 text-gold"
+                        : "bg-[#F6E6EB] text-[#7C1638] transition-colors duration-300 group-hover:bg-white/12 group-hover:text-gold"
+                    }`}
+                  >
+                    <Icone size={22} aria-hidden />
+                  </div>
+                  <h3
+                    className={`font-display text-[22px] font-extrabold ${
+                      destaque ? "text-white" : "text-wine-900 transition-colors duration-300 group-hover:text-white"
+                    }`}
+                  >
+                    {titulo}
+                  </h3>
+                  <p
+                    className={`mt-3 text-[16px] leading-relaxed md:text-[17px] ${
+                      destaque ? "text-white/80" : "text-gray-deep transition-colors duration-300 group-hover:text-white/80"
+                    }`}
+                  >
+                    {desc}
+                  </p>
+                  <ul className="mt-5 flex-1 space-y-2.5">
+                    {itens.map((it) => (
+                      <li
+                        key={it}
+                        className={`flex gap-2.5 text-[16px] md:text-[17px] ${
+                          destaque ? "text-white/90" : "text-[#4D3B44] transition-colors duration-300 group-hover:text-white/90"
+                        }`}
+                      >
+                        <span className="font-bold text-gold-dark" aria-hidden>
+                          →
+                        </span>
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href={href}
+                    className={`mt-6 font-display text-[15px] font-bold ${
+                      destaque
+                        ? "text-gold hover:text-white"
+                        : "text-[#7C1638] transition-colors duration-300 group-hover:text-gold hover:text-gold-dark"
+                    }`}
+                  >
+                    Saiba mais →
+                  </a>
+                </article>
+                </div>
               </div>
-              <h3 className={`font-display font-extrabold text-[22px] ${destaque ? "text-white" : "text-wine-900 transition-colors duration-300 group-hover:text-white"}`}>
-                {titulo}
-              </h3>
-              <p className={`mt-3 text-[17px] leading-relaxed ${destaque ? "text-white/80" : "text-gray-deep transition-colors duration-300 group-hover:text-white/80"}`}>
-                {desc}
-              </p>
-              <ul className="mt-5 flex-1 space-y-2.5">
-                {itens.map((it) => (
-                  <li key={it} className={`flex gap-2.5 text-[17px] ${destaque ? "text-white/90" : "text-[#4D3B44] transition-colors duration-300 group-hover:text-white/90"}`}>
-                    <span className="text-gold-dark font-bold" aria-hidden>→</span>
-                    <span>{it}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={href}
-                className={`mt-6 font-display text-[15px] font-bold ${
-                  destaque ? "text-gold hover:text-white" : "text-[#7C1638] transition-colors duration-300 group-hover:text-gold hover:text-gold-dark"
+            ))}
+          </div>
+          <div className="flex justify-center gap-2.5 pt-1 md:hidden" role="tablist" aria-label="Escolher serviço">
+            {solucoes.map((s, i) => (
+              <button
+                key={s.titulo}
+                type="button"
+                role="tab"
+                aria-selected={ativo === i}
+                aria-label={s.titulo}
+                onClick={() => irPara(i)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  ativo === i ? "w-7 bg-[#7C1638]" : "w-2.5 bg-[#7C1638]/25"
                 }`}
-              >
-                Saiba mais →
-              </a>
-            </article>
-          ))}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
