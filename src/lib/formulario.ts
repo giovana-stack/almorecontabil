@@ -31,6 +31,7 @@ export type OrigemCta =
   | "plano-bronze"
   | "plano-prata"
   | "plano-ouro"
+  | "solucao-abertura"
   | "solucao-mensal"
   | "solucao-troca"
   | "solucao-planejamento"

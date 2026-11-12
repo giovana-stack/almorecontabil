@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
 import {
-  ArrowLeftRight,
   Building2,
   Check,
   Coins,
@@ -32,7 +31,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Contabilidade 100% digital, consultiva e ágil. Atendimento rápido, orientação proativa e planos Bronze, Prata e Ouro.",
+          "Contabilidade 100% digital, consultiva e ágil. Atendimento rápido, orientação proativa e plano completo de contabilidade, com abertura de empresa e planejamento tributário.",
       },
       { property: "og:title", content: "Almore Inteligência Contábil" },
       {
@@ -101,16 +100,17 @@ const SITE_EXIBICAO = "almorecontabilidade.com.br";
 
 const solucoes = [
   {
-    titulo: "Troca de Contador",
-    desc: "Migração simples e sem riscos. A Almore conduz tudo, do distrato com o escritório anterior à transferência de acessos.",
+    titulo: "Abertura de Empresa",
+    desc: "CNPJ no regime tributário certo desde o primeiro dia. Planejamento tributário, definição do melhor enquadramento e estruturação inicial completa.",
     itens: [
-      "Distrato com o escritório anterior",
-      "Transferência de documentos e acessos",
-      "Sem interromper notas e guias",
+      "Abertura de CNPJ",
+      "Definição do regime tributário",
+      "Planejamento tributário inicial",
+      "Acompanhamento personalizado",
       "Reunião de alinhamento",
     ],
-    Icone: ArrowLeftRight,
-    href: "#bloco-troca",
+    Icone: Building2,
+    href: "#bloco-abertura",
     destaque: false,
   },
   {
@@ -810,8 +810,31 @@ function Blocos() {
         <CabecalhoSecao eyebrow="SOLUÇÕES">Encontre a solução certa para você</CabecalhoSecao>
         <div className="space-y-20 sm:space-y-24">
           <Bloco
-            id="bloco-mensal"
+            id="bloco-abertura"
             numero="01"
+            titulo="Abra sua empresa do jeito certo"
+            texto="Muitos empreendedores abrem o CNPJ no regime errado e pagam muito mais imposto do que precisam. A Almore faz todo o processo: análise do seu modelo de negócio, escolha do regime tributário ideal e abertura completa."
+            itens={[
+              "Abertura de CNPJ sem burocracia",
+              "Definição do melhor regime tributário",
+              "Planejamento tributário desde o início",
+              "Acompanhamento personalizado e reunião de alinhamento",
+            ]}
+            cta="Abrir minha empresa"
+            origem="solucao-abertura"
+            visual={
+              <Mock titulo="Abertura de empresa">
+                <Passo>Análise do seu modelo de negócio</Passo>
+                <Passo>Regime tributário ideal definido</Passo>
+                <Passo>Abertura do CNPJ</Passo>
+                <Passo>Reunião de alinhamento</Passo>
+              </Mock>
+            }
+          />
+          <Bloco
+            id="bloco-mensal"
+            numero="02"
+            invertido
             titulo="Uma contabilidade que te acompanha todo mês"
             texto="Muitos empresários recebem guias todo mês e não entendem nada do que acontece com os números. A Almore cuida de toda a rotina fiscal, pessoal e contábil — e traduz tudo em um relatório consultivo mensal."
             itens={[
@@ -833,8 +856,7 @@ function Blocos() {
           />
           <Bloco
             id="bloco-troca"
-            numero="02"
-            invertido
+            numero="03"
             titulo="Troque de contador sem complicações"
             texto="Seu contador atual só responde quando você pergunta? A migração para a Almore é simples, rápida e sem riscos. Cuidamos de toda a transição, sem interromper nenhuma obrigação da sua empresa."
             itens={[
@@ -856,7 +878,8 @@ function Blocos() {
           />
           <Bloco
             id="bloco-plan"
-            numero="03"
+            numero="04"
+            invertido
             titulo="Pague menos imposto, dentro da lei"
             texto="Empresas sem orientação contábil pagam, em média, 12% mais imposto do que deveriam. A Almore audita a classificação fiscal, acompanha o faturamento e a alíquota efetiva e aponta o caminho legal mais leve para a sua empresa."
             itens={[
@@ -929,12 +952,15 @@ function PlanCard({
   items,
   origem,
   cta,
+  largo = false,
 }: {
   name: string;
   subtitle: string;
   items: string[];
   origem: OrigemCta;
   cta: string;
+  /** Plano único: lista em duas colunas para o card largo não ficar comprido. */
+  largo?: boolean;
 }) {
   const cor = coresPlano[name] ?? "#7C1638";
   return (
@@ -949,7 +975,7 @@ function PlanCard({
       <p className="mt-2 text-[18px] italic text-gray-mid transition-colors duration-300 group-hover:text-white/78">
         {subtitle}
       </p>
-      <ul className="mt-6 flex-1 space-y-3">
+      <ul className={`mt-6 flex-1 ${largo ? "grid gap-x-10 gap-y-3 sm:grid-cols-2" : "space-y-3"}`}>
         {items.map((it) => (
           <li
             key={it}
@@ -970,21 +996,48 @@ function PlanCard({
   );
 }
 
+/**
+ * Decisão do comercial (12/11/2026): a Almore passa a oferecer um único plano,
+ * o Bronze, como padrão.
+ *
+ * Prata e Ouro NÃO foram apagados: seguem definidos acima (prataItems,
+ * ouroItems) e voltam à página trocando esta constante para `true` — a grade
+ * volta a três colunas sozinha.
+ */
+const MOSTRAR_TODOS_OS_PLANOS = false;
+
 function Planos() {
   return (
     <section id="planos" className="ancora bg-surface px-5 py-24 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <CabecalhoSecao
-          eyebrow="PLANOS"
-          sub="Planos para cada etapa da sua empresa. Cada um inclui tudo do anterior — e acrescenta mais."
+          eyebrow={MOSTRAR_TODOS_OS_PLANOS ? "PLANOS" : "NOSSO PLANO"}
+          sub={
+            MOSTRAR_TODOS_OS_PLANOS
+              ? "Planos para cada etapa da sua empresa. Cada um inclui tudo do anterior — e acrescenta mais."
+              : "Atendimento essencial e completo, do diagnóstico inicial ao relatório consultivo mensal."
+          }
         >
-          Escolha o plano ideal para você
+          {MOSTRAR_TODOS_OS_PLANOS ? "Escolha o plano ideal para você" : "Um plano completo para a sua empresa"}
         </CabecalhoSecao>
-        <div className="grid items-stretch gap-6 md:grid-cols-3">
-          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} origem="plano-bronze" cta="Começar agora" />
-          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} origem="plano-prata" cta="Começar agora" />
-          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} origem="plano-ouro" cta="Falar com especialista" />
-        </div>
+        {MOSTRAR_TODOS_OS_PLANOS ? (
+          <div className="grid items-stretch gap-6 md:grid-cols-3">
+            <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} origem="plano-bronze" cta="Começar agora" />
+            <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} origem="plano-prata" cta="Começar agora" />
+            <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} origem="plano-ouro" cta="Falar com especialista" />
+          </div>
+        ) : (
+          <div className="mx-auto max-w-[820px]">
+            <PlanCard
+              name="Bronze"
+              subtitle="Nosso atendimento essencial e completo."
+              items={bronzeItems}
+              origem="plano-bronze"
+              cta="Começar agora"
+              largo
+            />
+          </div>
+        )}
         <p className="reveal mt-8 text-center text-[16px] text-gray-deep">
           * Valores sujeitos a ajuste conforme complexidade e regime tributário. Solicite uma proposta personalizada.
         </p>
@@ -1289,11 +1342,11 @@ function Footer() {
           <div>
             <h4 className="eyebrow mb-4 text-gold">ESPECIALIDADES</h4>
             <ul className="space-y-2.5 text-[16px]">
+              <li><a className="hover:text-gold" href="#bloco-abertura">Abertura de Empresa</a></li>
               <li><a className="hover:text-gold" href="#bloco-mensal">Contabilidade Mensal</a></li>
               <li><a className="hover:text-gold" href="#bloco-plan">Planejamento Tributário</a></li>
               <li><a className="hover:text-gold" href="#bloco-troca">Troca de Contador</a></li>
               <li><a className="hover:text-gold" href="#planos">Departamento Pessoal</a></li>
-              <li><a className="hover:text-gold" href="#planos">Imposto de Renda</a></li>
             </ul>
           </div>
           <div>
