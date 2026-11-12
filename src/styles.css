@@ -102,6 +102,11 @@
   --color-ink: var(--ink);
   --color-gray-mid: var(--gray-mid);
   --color-gray-deep: var(--gray-deep);
+  --color-wine-950: #2e0715;
+  --color-wine-900: #4a0d22;
+  --color-wine-800: #5f1029;
+  --color-gold: #e3b05b;
+  --color-gold-dark: #cf9a40;
   --font-display: "Manual", sans-serif;
   --font-sans: "Volte", sans-serif;
 
@@ -209,6 +214,29 @@
     background-color: #f0e6ea;
   }
 
+  .btn-gold {
+    background-color: #e3b05b;
+    color: #2e0715;
+    box-shadow: 0 8px 22px rgba(227, 176, 91, 0.35);
+    transition: background-color 200ms ease, transform 200ms ease;
+  }
+  .btn-gold:hover {
+    background-color: #cf9a40;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost-light {
+    display: inline-block;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transition: background-color 200ms ease, transform 200ms ease;
+  }
+  .btn-ghost-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
   .card-hover {
     transition: box-shadow 200ms ease, transform 200ms ease;
   }
@@ -292,4 +320,72 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/*
+  Orbital do bloco "Por que a Almore é diferente?".
+
+  Os chips giram em volta do isotipo; cada texto gira ao contrário para ficar
+  sempre em pé. --a é o ângulo de cada chip e --r o raio (cai nos anéis).
+*/
+.orbit {
+  --r: 161px;
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+}
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.orbit-ring-2 { inset: 15%; }
+.orbit-ring-3 { inset: 30%; background: rgba(255, 255, 255, 0.04); }
+.orbit-core {
+  position: absolute;
+  inset: 36%;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: #e3b05b;
+  box-shadow: 0 0 0 14px rgba(227, 176, 91, 0.18), 0 0 60px rgba(227, 176, 91, 0.35);
+}
+.orbit-core img { width: 58%; }
+.orbit-spin {
+  position: absolute;
+  inset: 0;
+  animation: spin 40s linear infinite;
+}
+.orbit-chip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140px;
+  margin: -17px 0 0 -70px;
+  transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) rotate(calc(var(--a) * -1));
+}
+.orbit-chip span {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  animation: spin 40s linear infinite reverse;
+}
+@media (max-width: 620px) {
+  .orbit { --r: 119px; max-width: 340px; }
+  .orbit-chip { width: 104px; margin-left: -52px; }
+  .orbit-chip span { font-size: 11px; padding: 7px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin, .orbit-chip span { animation: none; }
+}
 

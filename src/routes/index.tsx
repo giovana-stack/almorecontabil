@@ -1,13 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState, type CSSProperties } from "react";
+import {
+  ArrowLeftRight,
+  Building2,
+  Check,
+  Coins,
+  FileText,
+  Lightbulb,
+  Users,
+} from "lucide-react";
 import { useLinkFormulario, type OrigemCta } from "@/lib/formulario";
-import { useAuth } from "@/lib/auth-context";
+import {
+  REST_ARTIGOS,
+  SITE_URL,
+  restHeaders,
+  articlePath,
+  excerpt,
+  formatDate,
+  type Artigo,
+} from "@/lib/blog";
 import { SiteNavbar } from "@/components/SiteNavbar";
 
-import logoBordeaux from "@/assets/almore-logo.png.asset.json";
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
-import businessmanOffice from "@/assets/businessman-office.jpg.asset.json";
 import heroNew from "@/assets/hero-new.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -24,7 +39,9 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "A contabilidade que responde quando você precisa e enxerga muito além da obrigação.",
       },
+      { property: "og:url", content: `${SITE_URL}/` },
     ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
     scripts: [
       { src: `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`, async: true },
       {
@@ -71,20 +88,112 @@ const CONFIG_GTAG = {
 };
 
 const numeros = [
-  { valor: "+50", legenda: "empresas na carteira de contabilidade" },
-  { valor: "+1.300", legenda: "clientes atendidos em recuperação tributária pelo grupo" },
-  { valor: "R$ 25 milhões", legenda: "restituídos aos nossos clientes" },
+  { valor: "+50", legenda: "empresas na carteira de contabilidade", Icone: Building2 },
+  { valor: "+1.300", legenda: "clientes atendidos em recuperação tributária pelo grupo", Icone: Users },
+  { valor: "R$ 25 milhões", legenda: "restituídos aos nossos clientes", Icone: Coins },
 ];
 
 // Formato internacional, só dígitos: 55 (Brasil) + 19 (DDD) + 991368837
 const WHATSAPP_NUMERO = "5519991368837";
+const WHATSAPP_EXIBICAO = "(19) 99136-8837";
+const EMAIL_COMERCIAL = "comercial@almorecontabilidade.com.br";
+const SITE_EXIBICAO = "almorecontabilidade.com.br";
 
-const pains = [
-  "Mandou mensagem para o contador e esperou dias para ter uma resposta.",
-  "Ficou sabendo da multa ou do prazo perdido depois que já aconteceu.",
-  "Recebe guias todos os meses, mas não entende nada do que está acontecendo com os números da empresa.",
-  "Sua empresa cresceu — e a contabilidade ficou no mesmo lugar de sempre.",
-  "Nunca recebeu uma orientação que você não pediu. Só responde quando você pergunta.",
+const solucoes = [
+  {
+    titulo: "Troca de Contador",
+    desc: "Migração simples e sem riscos. A Almore conduz tudo, do distrato com o escritório anterior à transferência de acessos.",
+    itens: [
+      "Distrato com o escritório anterior",
+      "Transferência de documentos e acessos",
+      "Sem interromper notas e guias",
+      "Reunião de alinhamento",
+    ],
+    Icone: ArrowLeftRight,
+    href: "#bloco-troca",
+    destaque: false,
+  },
+  {
+    titulo: "Contabilidade Mensal",
+    desc: "Gestão contábil completa e consultiva. Impostos, folha, obrigações e relatório mensal para você decidir com clareza.",
+    itens: [
+      "Apuração de impostos e obrigações",
+      "Folha de pagamento e pró-labore",
+      "DRE, balancete e conciliações",
+      "Relatório consultivo mensal",
+    ],
+    Icone: FileText,
+    href: "#bloco-mensal",
+    destaque: true,
+  },
+  {
+    titulo: "Planejamento Tributário",
+    desc: "Reduza legalmente o quanto você paga de imposto. Auditoria fiscal e estratégia sob medida para o seu faturamento.",
+    itens: [
+      "Auditoria de classificação fiscal",
+      "Acompanhamento de alíquota efetiva",
+      "Planejamento tributário estratégico",
+      "Consultoria em precificação",
+    ],
+    Icone: Lightbulb,
+    href: "#bloco-plan",
+    destaque: false,
+  },
+];
+
+const diferenciais = [
+  {
+    t: "Atendimento Rápido",
+    d: "Você fala com quem conhece a sua empresa e recebe resposta ágil. Sem fila, sem burocracia, sem ficar sem retorno. Não existe bot respondendo no lugar de contador.",
+  },
+  {
+    t: "Atendimento Consultivo",
+    d: "Não esperamos a pergunta. Antecipamos, alertamos e recomendamos em cada decisão que afeta o seu caixa.",
+  },
+  {
+    t: "Onboarding Premium 360º",
+    d: "Diagnóstico inicial, reunião de alinhamento, organização de acessos e a lista certa de documentos. Você sabe o que esperar desde o primeiro dia.",
+  },
+  {
+    t: "À Frente da Reforma Tributária",
+    d: "Acompanhamos cada mudança e orientamos a sua empresa antes do prazo apertar. Com a Almore, você não descobre de última hora.",
+  },
+];
+
+const chipsOrbital = [
+  "Resposta rápida",
+  "Clareza nos números",
+  "Menos imposto",
+  "Zero burocracia",
+  "Atendimento humano",
+  "Tranquilidade fiscal",
+];
+
+const processo = [
+  {
+    t: "Diagnóstico",
+    d: "Análise completa da sua situação atual. Identificamos erros, oportunidades e quanto você pode economizar.",
+  },
+  {
+    t: "Reunião de Alinhamento",
+    d: "Combinamos expectativas, prazos e a forma de atendimento. Você sabe o que esperar desde o primeiro dia.",
+  },
+  {
+    t: "Migração Sem Estresse",
+    d: "Cuidamos de toda a transição, do distrato à transferência de acessos. Você não precisa fazer nada — apenas aprovar.",
+  },
+  {
+    t: "Onboarding Premium 360º",
+    d: "Organizamos os acessos e entregamos a lista certa de documentos, sem burocracia.",
+  },
+  {
+    t: "Acompanhamento Mensal",
+    d: "Relatório consultivo, respostas rápidas e atendimento próximo. Você sempre sabe o que está acontecendo.",
+  },
+  {
+    t: "Crescimento com Segurança",
+    d: "Empresa organizada, impostos em dia e uma contabilidade que acompanha o seu crescimento e antecipa a reforma tributária.",
+  },
 ];
 
 const bronzeItems = [
@@ -249,37 +358,72 @@ function CtaFormulario({
   );
 }
 
+/**
+ * Cabeçalho padrão das seções.
+ *
+ * O título fica numa linha só a partir de lg (whitespace-nowrap) e o tamanho
+ * acompanha a largura da tela, para o maior deles caber sem estourar. Abaixo de
+ * lg a linha pode quebrar normalmente.
+ */
+function CabecalhoSecao({
+  eyebrow,
+  children,
+  sub,
+  escuro = false,
+}: {
+  eyebrow: string;
+  children: React.ReactNode;
+  sub?: string;
+  escuro?: boolean;
+}) {
+  return (
+    <div className="reveal mx-auto mb-14 text-center">
+      <div className={`eyebrow mb-4 ${escuro ? "text-gold" : "text-[#7C1638]"}`}>{eyebrow}</div>
+      <h2
+        className={`font-display font-extrabold text-[clamp(26px,3.2vw,36px)] leading-[1.15] tracking-tight lg:whitespace-nowrap ${
+          escuro ? "text-white" : "text-wine-900"
+        }`}
+      >
+        {children}
+      </h2>
+      {sub && (
+        <p
+          className={`mx-auto mt-4 max-w-[720px] text-[18px] leading-relaxed ${
+            escuro ? "text-white/75" : "text-gray-deep"
+          }`}
+        >
+          {sub}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function LandingPage() {
   useReveal();
   useAncoraDaUrl();
   return (
     <div className="bg-background text-foreground">
-      <Navbar />
+      <SiteNavbar />
       <main>
         <Hero />
-        <Dor />
-        <QuemSomos />
-        <Diferencial />
-        <Numeros />
-        <ComoTrabalhamos />
-        <Entregamos />
+        <OQueFazemos />
+        <Confianca />
+        <Diferenciais />
+        <Blocos />
+        <Processo />
         <Planos />
+        <Numeros />
         <FAQ />
-        <MudaParaVoce />
         <Reforma />
-        <Formulario />
+        <BlogRecente />
+        <Contato />
       </main>
       <Footer />
       <WhatsAppFlutuante />
     </div>
   );
 }
-
-function Navbar() {
-  return <SiteNavbar />;
-}
-
-
 
 function Hero() {
   return (
@@ -312,7 +456,7 @@ function Hero() {
           className="absolute inset-0"
           style={{ background: "#7C1638", opacity: 0.6, mixBlendMode: "multiply" }}
         />
-        {/* Horizontal fade from bordeaux into photo (Text area is now on the right) */}
+        {/* Horizontal fade from bordeaux into photo (Text area is on the right) */}
         <div
           className="absolute right-0 top-0 h-full w-[60%]"
           style={{
@@ -329,255 +473,433 @@ function Hero() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl w-full flex justify-end">
-        <div className="max-w-[650px] text-white reveal text-right flex flex-col items-end">
-          <div className="eyebrow text-white/60 mb-8">ALMORE · INTELIGÊNCIA CONTÁBIL</div>
-          <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[44px] sm:text-6xl md:text-[80px]">
-            Rápido.
-            <br />
-            Consultivo.
-            <br />
-            Sempre.
+      <div className="relative mx-auto max-w-7xl w-full flex md:justify-end">
+        {/* 700px: a 520 o título quebrava em quatro linhas e sobrava vazio ao
+            lado; o text-balance reparte as palavras entre as linhas. */}
+        <div className="w-full max-w-[700px] text-white reveal">
+          <div className="eyebrow text-gold mb-6">RÁPIDO. CONSULTIVO. SEMPRE.</div>
+          <h1 className="font-display font-extrabold leading-[1.08] tracking-tight text-balance text-[clamp(34px,4.6vw,56px)]">
+            A contabilidade que <span className="text-gold">responde</span> quando você precisa
           </h1>
-          <p className="mt-8 max-w-[520px] text-white/80 text-lg sm:text-xl leading-relaxed">
-            A contabilidade que responde quando você precisa e enxerga muito além da obrigação.
+          <p className="mt-6 max-w-[600px] text-white/85 text-lg sm:text-xl leading-relaxed">
+            Pare de pagar mais imposto do que deveria: empresas sem orientação contábil pagam, em
+            média, 12% a mais. A Almore é consultiva, rápida e enxerga muito além da obrigação.
           </p>
-          <div className="mt-8 h-px w-[60px] bg-white/20" />
-          <p className="mt-6 max-w-[520px] text-white/60 text-[18px] italic leading-relaxed">
-            Empresas sem orientação contábil pagam, em média, 12% mais imposto do que deveriam.
-          </p>
-          <CtaFormulario
-            origem="hero"
-            className="btn-on-dark mt-10 font-display font-bold text-base px-8 py-4 rounded-md"
-          >
-            Quero um diagnóstico gratuito
-          </CtaFormulario>
+          <div className="mt-9 flex flex-wrap gap-4">
+            <CtaFormulario
+              origem="hero"
+              className="btn-gold font-display font-bold text-base px-8 py-4 rounded-full"
+            >
+              Quero Pagar Menos Imposto
+            </CtaFormulario>
+            <a
+              href="#solucoes"
+              className="btn-ghost-light font-display font-bold text-base px-8 py-4 rounded-full"
+            >
+              Conhecer as Soluções
+            </a>
+          </div>
+          <div className="mt-12 flex flex-wrap gap-x-10 gap-y-5 border-t border-white/20 pt-7">
+            {[
+              ["+50", "Empresas na carteira"],
+              ["+1.300", "Clientes em recuperação"],
+              ["R$ 25 mi", "Restituídos"],
+            ].map(([v, l]) => (
+              <div key={l}>
+                <div className="font-display font-extrabold text-[26px] leading-none text-gold whitespace-nowrap">
+                  {v}
+                </div>
+                <div className="eyebrow mt-2 text-white/65 !text-[11px]">{l}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function Dor() {
+function OQueFazemos() {
   return (
-    <section id="dores" className="ancora bg-surface px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-[960px]">
-        <div className="max-w-[760px] reveal">
-          <div className="eyebrow text-gray-deep mb-6">ISSO TE PARECE FAMILIAR?</div>
-          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Se você já viveu alguma dessas situações,{" "}
-            <span className="text-[#7C1638]">a Almore foi feita para você.</span>
-          </h2>
-        </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
-          {pains.map((p, i) => (
-            <div
-              key={i}
-              className={`rounded-xl p-7 bg-white shadow-card card-hover reveal border-l-[3px] border-[#7C1638] ${
-                i === 4 ? "md:col-span-2" : ""
+    <section id="solucoes" className="ancora bg-white px-5 py-24 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <CabecalhoSecao
+          eyebrow="O QUE FAZEMOS"
+          sub="Muito além de apurar imposto. A Almore cuida de toda a estrutura fiscal, pessoal, contábil e de gestão do seu negócio."
+        >
+          Soluções completas para a sua empresa
+        </CabecalhoSecao>
+        <div className="grid gap-6 md:grid-cols-3 items-stretch">
+          {solucoes.map(({ titulo, desc, itens, Icone, href, destaque }) => (
+            <article
+              key={titulo}
+              className={`reveal relative flex flex-col rounded-2xl p-8 border card-hover ${
+                destaque
+                  ? "bg-linear-to-br from-wine-900 to-wine-800 border-gold text-white"
+                  : "bg-white border-border"
               }`}
             >
-              <p className="text-ink text-[18px] font-medium leading-[1.6]">{p}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-12 mx-auto max-w-[640px] text-center text-gray-deep text-[18px] leading-relaxed reveal">
-          Se você se reconheceu em algum desses pontos, não é coincidência. São as queixas mais comuns
-          de empresários que ainda não encontraram uma contabilidade consultiva de verdade.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function QuemSomos() {
-  return (
-    <section className="bg-white px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-[800px] reveal">
-        <div className="eyebrow text-gray-deep mb-6">QUEM SOMOS</div>
-        <h2 className="font-display font-bold text-[32px] sm:text-[44px] leading-[1.15] tracking-tight">
-          <span className="text-ink">Cumprir a obrigação é o mínimo.</span>
-          <br />
-          <span className="text-[#7C1638]">Nosso trabalho começa depois dela.</span>
-        </h2>
-        <p className="mt-8 text-[19px] leading-[1.75] text-gray-deep">
-          Mais do que apurar impostos e entregar obrigações, a Almore traduz os números em direção:
-          mostra onde dá para melhorar, antecipa o que vem pela frente e está perto quando você
-          precisa decidir.
-        </p>
-        <div className="mt-10 bg-surface rounded-lg border-l-4 border-[#7C1638] px-6 py-5">
-          <div className="eyebrow text-gray-mid mb-2">NOTA CONSULTIVA</div>
-          <p className="font-display font-semibold text-[#7C1638] text-lg sm:text-xl leading-snug">
-            Contabilidade que serve para decidir, não só para arquivar.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Diferencial() {
-  return (
-    <section className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl reveal">
-          <div className="eyebrow text-white/60 mb-6">O NOSSO DIFERENCIAL</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Dois compromissos que sustentam tudo.
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
-          {[
-            {
-              n: "01",
-              t: "Atendimento rápido",
-              d: "Você fala com quem conhece a sua empresa e recebe resposta ágil. Sem fila, sem burocracia, sem ficar sem retorno.",
-            },
-            {
-              n: "02",
-              t: "Sempre consultivo",
-              d: "Não esperamos a pergunta. Antecipamos, alertamos e recomendamos em cada decisão que afeta o seu caixa.",
-            },
-          ].map((c) => (
-            <div key={c.n} className="rounded-xl p-8 reveal" style={{ backgroundColor: "#68112F" }}>
-              <div className="font-display font-extrabold text-[72px] leading-none text-white/15">{c.n}</div>
-              <h3 className="mt-4 font-display font-bold text-white text-[22px]">{c.t}</h3>
-              <p className="mt-3 text-white/80 text-base leading-relaxed">{c.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Numeros() {
-  return (
-    <section className="bg-white px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl reveal">
-          <div className="eyebrow text-gray-deep mb-6">NÚMEROS QUE SUSTENTAM</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Não é promessa. <span className="text-[#7C1638]">É histórico.</span>
-          </h2>
-        </div>
-        {/* Três colunas só a partir de lg. Entre md e lg cada card ficaria com
-            ~162px úteis, e "R$ 25 milhões" não cabe em nenhum tamanho legível
-            — era daí que vinha a quebra de linha que desalinhava a faixa. */}
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {numeros.map((n) => (
-            <div
-              key={n.valor}
-              className="rounded-xl p-8 bg-surface shadow-card card-hover reveal"
-            >
-              {/* O tamanho acompanha a largura da tela em vez de ser fixo: é o
-                  que garante que o maior dos três números caiba numa linha em
-                  qualquer viewport. Com todos numa linha só, as legendas se
-                  alinham sozinhas, sem precisar reservar altura. */}
-              <div className="font-display font-extrabold text-[#7C1638] text-[clamp(30px,3vw,40px)] leading-none tracking-tight whitespace-nowrap">
-                {n.valor}
+              {destaque && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 font-display text-[11px] font-extrabold uppercase tracking-wider text-wine-950">
+                  Essencial
+                </span>
+              )}
+              <div
+                className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${
+                  destaque ? "bg-white/12 text-gold" : "bg-[#F6E6EB] text-[#7C1638]"
+                }`}
+              >
+                <Icone size={22} aria-hidden />
               </div>
-              <p className="mt-5 text-gray-deep text-base leading-relaxed">{n.legenda}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ComoTrabalhamos() {
-  return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl reveal">
-          <div className="eyebrow text-gray-deep mb-6">COMO TRABALHAMOS</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Estrutura no início, <span className="text-[#7C1638]">proximidade no dia a dia.</span>
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
-          {[
-            {
-              t: "Onboarding Premium 360º",
-              d: "Diagnóstico inicial, reunião de alinhamento, organização de acessos e a lista certa de documentos. Você sabe o que esperar desde o primeiro dia.",
-            },
-            {
-              t: "Atendimento consultivo",
-              d: "Relatório consultivo mensal e atendimento próximo e personalizado, que acompanha o seu negócio e te responde rápido sempre que você precisa.",
-            },
-          ].map((c) => (
-            <div key={c.t} className="rounded-xl p-8 bg-white shadow-card card-hover reveal">
-              <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>
-              <p className="mt-3 text-gray-deep text-base leading-relaxed">{c.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Entregamos() {
-  const cols = [
-    {
-      t: "Fiscal",
-      items: [
-        "Apuração de impostos",
-        "Auditoria de classificação fiscal",
-        "Entrega das obrigações acessórias",
-        "Faturamento e alíquota efetiva",
-      ],
-    },
-    {
-      t: "Pessoal",
-      items: [
-        "Folha de pagamento e pró-labore",
-        "Admissão e rescisão de funcionários",
-        "Controle de férias e prazos",
-      ],
-    },
-    {
-      t: "Contábil",
-      items: [
-        "DRE",
-        "Balancete",
-        "Conciliações bancárias",
-        "Escriturações",
-        "Controle de mobilizado e depreciações",
-      ],
-    },
-    {
-      t: "Consultivo & gestão",
-      items: [
-        "Diagnóstico e reunião de alinhamento",
-        "Relatório consultivo mensal",
-        "Demonstração do Resultado gerencial",
-        "Atendimento consultivo",
-      ],
-    },
-  ];
-  return (
-    <section id="entregas" className="ancora bg-white px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-3xl reveal">
-          <div className="eyebrow text-gray-deep mb-6">O QUE ENTREGAMOS</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            Fiscal, pessoal, contábil e consultivo. <span className="text-[#7C1638]">Tudo sob o mesmo cuidado.</span>
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {cols.map((c) => (
-            <div key={c.t} className="rounded-xl p-7 bg-surface card-hover reveal">
-              <h3 className="font-display font-bold text-[#7C1638] text-[22px]">{c.t}</h3>
-              <ul className="mt-5 space-y-3">
-                {c.items.map((it) => (
-                  <li key={it} className="flex gap-3 text-gray-deep text-[19px] leading-relaxed">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-[#7C1638]" />
+              <h3 className={`font-display font-extrabold text-[22px] ${destaque ? "text-white" : "text-wine-900"}`}>
+                {titulo}
+              </h3>
+              <p className={`mt-3 text-[17px] leading-relaxed ${destaque ? "text-white/80" : "text-gray-deep"}`}>
+                {desc}
+              </p>
+              <ul className="mt-5 flex-1 space-y-2.5">
+                {itens.map((it) => (
+                  <li key={it} className={`flex gap-2.5 text-[17px] ${destaque ? "text-white/90" : "text-[#4D3B44]"}`}>
+                    <span className="text-gold-dark font-bold" aria-hidden>→</span>
                     <span>{it}</span>
                   </li>
                 ))}
               </ul>
+              <a
+                href={href}
+                className={`mt-6 font-display text-[15px] font-bold ${
+                  destaque ? "text-gold hover:text-white" : "text-[#7C1638] hover:text-gold-dark"
+                }`}
+              >
+                Saiba mais →
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Confianca() {
+  return (
+    <section id="sobre" className="ancora bg-surface px-5 py-24 sm:py-28">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+        <div className="reveal relative">
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-wine-900 to-[#7C1638] px-8 py-14 text-white shadow-card sm:px-11">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-6 left-5 font-display text-[200px] font-extrabold leading-none text-gold/20"
+            >
+              “
+            </span>
+            <div className="eyebrow relative mb-4 text-gold">NOTA CONSULTIVA</div>
+            <p className="relative font-display text-[26px] font-bold leading-[1.3] sm:text-[30px]">
+              Contabilidade que serve para decidir, não só para arquivar.
+            </p>
+          </div>
+          <div className="absolute -bottom-4 right-3 flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-display text-[14px] font-bold text-wine-900 shadow-card-hover sm:-right-3">
+            <span className="text-gold-dark">★</span> +50 empresas confiam na Almore
+          </div>
+        </div>
+        <div className="reveal">
+          <div className="eyebrow mb-4 text-[#7C1638]">TRANSPARÊNCIA E CONFIANÇA</div>
+          <h2 className="font-display text-[clamp(28px,3.6vw,40px)] font-extrabold leading-[1.15] tracking-tight text-wine-900">
+            Uma contabilidade que <span className="text-[#7C1638]">pensa junto</span> com você
+          </h2>
+          <p className="mt-5 text-[19px] leading-[1.7] text-gray-deep">
+            A Almore existe para ser a contabilidade consultiva que o empresário precisa para
+            decidir com segurança e pagar menos imposto de forma legal.
+          </p>
+          <p className="mt-3 text-[17px] leading-[1.7] text-gray-deep">
+            Não somos uma contabilidade tradicional que só entrega guias e responde quando você
+            pergunta. Traduzimos os números em direção: mostramos onde dá para melhorar,
+            antecipamos o que vem pela frente e estamos perto quando você precisa decidir.
+          </p>
+          <ul className="my-7 grid gap-3 sm:grid-cols-2">
+            {[
+              "Clareza em cada informação",
+              "Atendimento rápido e humano",
+              "Foco em decisão com segurança",
+              "Orientação antes de você pedir",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2.5 font-display text-[16px] font-semibold text-wine-900">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FBF0DC] text-gold-dark">
+                  <Check size={13} strokeWidth={3} aria-hidden />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+          <a href="#diferenciais" className="btn-primary inline-block rounded-full px-8 py-4 font-display text-base font-bold">
+            Conhecer a Almore
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Diferenciais() {
+  const [aberto, setAberto] = useState<number | null>(0);
+  return (
+    <section
+      id="diferenciais"
+      className="ancora relative overflow-hidden px-5 py-24 text-white sm:py-28 bg-linear-to-br from-wine-950 to-wine-900"
+    >
+      <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_1fr]">
+        <div className="reveal">
+          <div className="eyebrow mb-4 text-gold">NOSSOS DIFERENCIAIS</div>
+          <h2 className="font-display text-[clamp(28px,3.6vw,40px)] font-extrabold leading-[1.15] tracking-tight">
+            Por que a Almore é diferente?
+          </h2>
+          <p className="mb-7 mt-3 text-[18px] leading-relaxed text-white/75">
+            Enquanto a maioria dos escritórios contábeis foca apenas em cumprir obrigações, a Almore
+            atua como parceira de decisão do seu negócio.
+          </p>
+          <div className="space-y-3">
+            {diferenciais.map((d, i) => {
+              const isOpen = aberto === i;
+              return (
+                <div
+                  key={d.t}
+                  className={`overflow-hidden rounded-[14px] border transition-colors ${
+                    isOpen ? "border-gold/55 bg-white/10" : "border-white/12 bg-white/5"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setAberto(isOpen ? null : i)}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center gap-4 px-5 py-4 text-left"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold font-display text-[11px] font-extrabold text-wine-950">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-display text-[17px] font-bold">{d.t}</span>
+                    <span className="ml-auto text-2xl leading-none text-gold">{isOpen ? "−" : "+"}</span>
+                  </button>
+                  <div
+                    className="grid transition-all duration-[250ms] ease-out"
+                    style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-5 pb-5 pl-[62px] text-[17px] leading-relaxed text-white/80">{d.d}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="orbit reveal" aria-hidden>
+          <div className="orbit-ring" />
+          <div className="orbit-ring orbit-ring-2" />
+          <div className="orbit-ring orbit-ring-3" />
+          <div className="orbit-spin">
+            {chipsOrbital.map((c, i) => (
+              <div key={c} className="orbit-chip" style={{ "--a": `${i * 60}deg` } as CSSProperties}>
+                <span>{c}</span>
+              </div>
+            ))}
+          </div>
+          <div className="orbit-core">
+            <img src={isotipo.url} alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ListaCheck({ itens }: { itens: string[] }) {
+  return (
+    <ul className="mb-8 space-y-2.5">
+      {itens.map((t) => (
+        <li key={t} className="flex gap-3 text-[17px] leading-snug text-[#43303A]">
+          <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#FBF0DC] text-gold-dark">
+            <Check size={12} strokeWidth={3} aria-hidden />
+          </span>
+          {t}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Mock({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div className="grid w-full max-w-[340px] gap-3 rounded-2xl border border-white/20 bg-white/10 p-6 text-white backdrop-blur-md">
+      <b className="font-display text-[15px] font-bold text-gold">{titulo}</b>
+      {children}
+    </div>
+  );
+}
+
+function Barra({ w }: { w: number }) {
+  return (
+    <div className="h-2.5 overflow-hidden rounded-full bg-white/15">
+      <i className="block h-full rounded-full bg-linear-to-r from-gold-dark to-gold" style={{ width: `${w}%` }} />
+    </div>
+  );
+}
+
+function Passo({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 text-[16px]">
+      <i className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-gold text-wine-950 not-italic">
+        <Check size={13} strokeWidth={3} aria-hidden />
+      </i>
+      {children}
+    </div>
+  );
+}
+
+function Bloco({
+  id,
+  numero,
+  invertido,
+  titulo,
+  texto,
+  itens,
+  cta,
+  origem,
+  visual,
+}: {
+  id: string;
+  numero: string;
+  invertido?: boolean;
+  titulo: string;
+  texto: string;
+  itens: string[];
+  cta: string;
+  origem: OrigemCta;
+  visual: React.ReactNode;
+}) {
+  return (
+    <div id={id} className="ancora reveal grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      <div
+        className={`relative grid min-h-[320px] place-items-center overflow-hidden rounded-3xl bg-linear-to-br from-wine-900 to-[#7C1638] px-6 py-12 shadow-card sm:px-9 ${
+          invertido ? "lg:order-2" : ""
+        }`}
+      >
+        <span className="absolute left-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-gold font-display text-[13px] font-extrabold text-wine-950">
+          {numero}
+        </span>
+        {visual}
+      </div>
+      <div>
+        <h3 className="mb-4 font-display text-[clamp(24px,3vw,32px)] font-extrabold leading-tight text-wine-900">
+          {titulo}
+        </h3>
+        <p className="mb-6 text-[18px] leading-relaxed text-gray-deep">{texto}</p>
+        <ListaCheck itens={itens} />
+        <CtaFormulario origem={origem} className="btn-primary rounded-full px-8 py-4 font-display text-base font-bold">
+          {cta}
+        </CtaFormulario>
+      </div>
+    </div>
+  );
+}
+
+function Blocos() {
+  return (
+    <section className="bg-white px-5 py-24 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <CabecalhoSecao eyebrow="SOLUÇÕES">Encontre a solução certa para você</CabecalhoSecao>
+        <div className="space-y-20 sm:space-y-24">
+          <Bloco
+            id="bloco-mensal"
+            numero="01"
+            titulo="Uma contabilidade que te acompanha todo mês"
+            texto="Muitos empresários recebem guias todo mês e não entendem nada do que acontece com os números. A Almore cuida de toda a rotina fiscal, pessoal e contábil — e traduz tudo em um relatório consultivo mensal."
+            itens={[
+              "Apuração de impostos e obrigações acessórias",
+              "Folha de pagamento, pró-labore e controle de férias",
+              "DRE, balancete e conciliações bancárias",
+              "Relatório consultivo mensal",
+            ]}
+            cta="Quero uma contabilidade consultiva"
+            origem="solucao-mensal"
+            visual={
+              <Mock titulo="Relatório consultivo">
+                <Barra w={82} />
+                <Barra w={64} />
+                <Barra w={90} />
+                <Barra w={48} />
+              </Mock>
+            }
+          />
+          <Bloco
+            id="bloco-troca"
+            numero="02"
+            invertido
+            titulo="Troque de contador sem complicações"
+            texto="Seu contador atual só responde quando você pergunta? A migração para a Almore é simples, rápida e sem riscos. Cuidamos de toda a transição, sem interromper nenhuma obrigação da sua empresa."
+            itens={[
+              "Migração segura e sem burocracia",
+              "Emissão de notas e pagamento de guias sem interrupção",
+              "Transferência de documentos e acessos",
+              "Diagnóstico da sua situação atual",
+            ]}
+            cta="Trocar de contador"
+            origem="solucao-troca"
+            visual={
+              <Mock titulo="Migração sem estresse">
+                <Passo>Distrato com o escritório anterior</Passo>
+                <Passo>Documentos e acessos transferidos</Passo>
+                <Passo>Notas e guias sem interrupção</Passo>
+                <Passo>Reunião de alinhamento</Passo>
+              </Mock>
+            }
+          />
+          <Bloco
+            id="bloco-plan"
+            numero="03"
+            titulo="Pague menos imposto, dentro da lei"
+            texto="Empresas sem orientação contábil pagam, em média, 12% mais imposto do que deveriam. A Almore audita a classificação fiscal, acompanha o faturamento e a alíquota efetiva e aponta o caminho legal mais leve para a sua empresa."
+            itens={[
+              "Auditoria mensal de classificação fiscal",
+              "Acompanhamento de faturamento e alíquota efetiva",
+              "Planejamento tributário inicial e estratégico",
+              "Consultoria revisional e de precificação",
+            ]}
+            cta="Quero pagar menos imposto"
+            origem="solucao-planejamento"
+            visual={
+              <Mock titulo="Alíquota efetiva">
+                <Barra w={70} />
+                <Barra w={55} />
+                <Barra w={40} />
+                <small className="text-[14px] text-white/75">Auditoria fiscal + planejamento tributário</small>
+              </Mock>
+            }
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Processo() {
+  return (
+    <section id="processo" className="ancora px-5 py-24 sm:py-28 bg-linear-to-br from-wine-950 to-wine-900">
+      <div className="mx-auto max-w-6xl">
+        <CabecalhoSecao eyebrow="NOSSO PROCESSO" escuro>
+          O que acontece quando você vira cliente <span className="text-gold">Almore</span>
+        </CabecalhoSecao>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {processo.map((p, i) => (
+            <div
+              key={p.t}
+              className="reveal rounded-2xl border border-white/14 bg-white/6 p-7 transition-all duration-200 hover:-translate-y-1 hover:border-gold/50 hover:bg-white/10"
+            >
+              <span className="mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-gold font-display text-[13px] font-extrabold text-wine-950">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="font-display text-[20px] font-extrabold text-white">{p.t}</h3>
+              <p className="mt-2 text-[17px] leading-relaxed text-white/78">{p.d}</p>
             </div>
           ))}
         </div>
@@ -597,45 +919,52 @@ const coresPlano: Record<string, string> = {
   Ouro: "#C4A02C",
 };
 
+/**
+ * Nenhum plano é destacado por padrão: os três nascem iguais. O destaque é só
+ * do hover — o card sobe, vira bordô e o botão fica dourado.
+ */
 function PlanCard({
   name,
   subtitle,
   items,
   origem,
+  cta,
 }: {
   name: string;
   subtitle: string;
   items: string[];
   origem: OrigemCta;
+  cta: string;
 }) {
   const cor = coresPlano[name] ?? "#7C1638";
   return (
     <div
-      className="plan-card rounded-xl p-8 bg-white flex flex-col reveal shadow-card border-t-[4px] transition-all duration-200 ease-out hover:shadow-[0_8px_32px_rgba(0,0,0,0.13)]"
+      className="plan-card group reveal flex flex-col rounded-[22px] border border-border border-t-[4px] bg-white p-8 shadow-card transition-all duration-300 ease-out hover:-translate-y-2.5 hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)] md:max-lg:hover:translate-y-0"
       style={{ borderTopColor: cor }}
     >
-      <h3 className="flex items-center gap-3 font-display font-bold text-ink text-[28px]">
-        <span
-          aria-hidden
-          className="h-3 w-3 rounded-full shrink-0"
-          style={{ backgroundColor: cor }}
-        />
+      <h3 className="flex items-center gap-3 font-display text-[28px] font-bold text-wine-900 transition-colors duration-300 group-hover:text-white">
+        <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: cor }} />
         {name}
       </h3>
-      <p className="mt-2 italic text-gray-mid text-[19px]">{subtitle}</p>
-      <ul className="mt-6 space-y-3 flex-1">
+      <p className="mt-2 text-[18px] italic text-gray-mid transition-colors duration-300 group-hover:text-white/78">
+        {subtitle}
+      </p>
+      <ul className="mt-6 flex-1 space-y-3">
         {items.map((it) => (
-          <li key={it} className="flex gap-3 text-gray-deep text-[19px] leading-relaxed">
-            <span className="text-[#7C1638] font-bold shrink-0">✓</span>
+          <li
+            key={it}
+            className="flex gap-3 text-[18px] leading-relaxed text-gray-deep transition-colors duration-300 group-hover:text-white/92"
+          >
+            <span className="shrink-0 font-bold text-[#7C1638] transition-colors duration-300 group-hover:text-gold">✓</span>
             <span>{it}</span>
           </li>
         ))}
       </ul>
       <CtaFormulario
         origem={origem}
-        className="btn-primary mt-8 font-display font-semibold text-sm px-6 py-3 rounded-md w-full"
+        className="mt-8 w-full rounded-full border-2 border-[#7C1638] px-6 py-3 font-display text-[15px] font-bold text-[#7C1638] transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-wine-950"
       >
-        Quero este plano
+        {cta}
       </CtaFormulario>
     </div>
   );
@@ -643,18 +972,53 @@ function PlanCard({
 
 function Planos() {
   return (
-    <section id="planos" className="ancora bg-surface px-5 py-24 sm:py-32">
+    <section id="planos" className="ancora bg-surface px-5 py-24 sm:py-28">
       <div className="mx-auto max-w-6xl">
-        <div className="max-w-3xl reveal">
-          <div className="eyebrow text-gray-deep mb-6">PLANOS</div>
-          <h2 className="font-display font-bold text-ink text-[28px] sm:text-[36px] leading-[1.15] tracking-tight">
-            Escolha o plano certo para o seu negócio.
-          </h2>
+        <CabecalhoSecao
+          eyebrow="PLANOS"
+          sub="Planos para cada etapa da sua empresa. Cada um inclui tudo do anterior — e acrescenta mais."
+        >
+          Escolha o plano ideal para você
+        </CabecalhoSecao>
+        <div className="grid items-stretch gap-6 md:grid-cols-3">
+          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} origem="plano-bronze" cta="Começar agora" />
+          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} origem="plano-prata" cta="Começar agora" />
+          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} origem="plano-ouro" cta="Falar com especialista" />
         </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3 items-stretch">
-          <PlanCard name="Bronze" subtitle="Nosso atendimento essencial e completo." items={bronzeItems} origem="plano-bronze" />
-          <PlanCard name="Prata" subtitle="Inclui tudo do Bronze, e acrescenta:" items={prataItems} origem="plano-prata" />
-          <PlanCard name="Ouro" subtitle="Inclui tudo do Prata, e acrescenta:" items={ouroItems} origem="plano-ouro" />
+        <p className="reveal mt-8 text-center text-[16px] text-gray-deep">
+          * Valores sujeitos a ajuste conforme complexidade e regime tributário. Solicite uma proposta personalizada.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function Numeros() {
+  return (
+    <section className="px-5 py-20 text-white bg-linear-to-br from-[#7C1638] to-wine-900">
+      <div className="mx-auto max-w-6xl">
+        <p className="eyebrow mb-10 text-center text-white/65">
+          NÚMEROS QUE SUSTENTAM · NÃO É PROMESSA. É HISTÓRICO.
+        </p>
+        {/* Três colunas só a partir de lg. Entre md e lg cada card ficaria com
+            ~162px úteis, e "R$ 25 milhões" não cabe em nenhum tamanho legível
+            — era daí que vinha a quebra de linha que desalinhava a faixa. */}
+        <div className="grid gap-10 text-center lg:grid-cols-3 lg:gap-6">
+          {numeros.map(({ valor, legenda, Icone }) => (
+            <div key={valor} className="reveal">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-gold">
+                <Icone size={26} aria-hidden />
+              </div>
+              {/* O tamanho acompanha a largura da tela em vez de ser fixo: é o
+                  que garante que o maior dos três números caiba numa linha em
+                  qualquer viewport. Com todos numa linha só, as legendas se
+                  alinham sozinhas, sem precisar reservar altura. */}
+              <div className="font-display font-extrabold text-gold text-[clamp(34px,4vw,48px)] leading-none tracking-tight whitespace-nowrap">
+                {valor}
+              </div>
+              <p className="mx-auto mt-3 max-w-[260px] text-[17px] leading-relaxed text-white/80">{legenda}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -664,27 +1028,26 @@ function Planos() {
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="ancora bg-white px-5 py-24 sm:py-32">
-      <div className="mx-auto max-w-[720px]">
-        <div className="reveal">
-          <div className="eyebrow text-gray-deep mb-6">DÚVIDAS FREQUENTES</div>
-          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[36px] leading-[1.15] tracking-tight">
-            Perguntas que a gente recebe antes de começar.
-          </h2>
-        </div>
-        <div className="mt-12 space-y-3 reveal">
+    <section id="faq" className="ancora bg-white px-5 py-24 sm:py-28">
+      <div className="mx-auto max-w-[820px]">
+        <CabecalhoSecao eyebrow="DÚVIDAS FREQUENTES">Respostas para as suas principais dúvidas</CabecalhoSecao>
+        <div className="reveal space-y-3">
           {faqs.map((f, i) => {
             const isOpen = open === i;
             return (
-              <div key={i} className="bg-surface rounded-[10px] overflow-hidden">
+              <div
+                key={i}
+                className={`overflow-hidden rounded-[14px] border bg-white transition-all ${
+                  isOpen ? "border-[#7C1638] shadow-card" : "border-border"
+                }`}
+              >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between gap-6 text-left px-6 py-5"
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
                 >
-                  <span className="font-display font-semibold text-ink text-[19px] leading-snug">
-                    {f.q}
-                  </span>
-                  <span className="text-[#7C1638] text-2xl font-light shrink-0 leading-none w-6 text-center">
+                  <span className="font-display text-[19px] font-bold leading-snug text-wine-900">{f.q}</span>
+                  <span className="w-6 shrink-0 text-center text-2xl font-light leading-none text-[#7C1638]">
                     {isOpen ? "−" : "+"}
                   </span>
                 </button>
@@ -693,40 +1056,26 @@ function FAQ() {
                   style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-6 pb-5 text-gray-deep text-[18px] leading-[1.7]">{f.a}</p>
+                    <p className="px-6 pb-5 text-[18px] leading-[1.7] text-gray-deep">{f.a}</p>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function MudaParaVoce() {
-  const items = [
-    "Clareza nos números",
-    "Decisão com base real",
-    "Tranquilidade fiscal",
-    "Tempo de volta para o seu negócio",
-  ];
-  return (
-    <section className="px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl reveal">
-          <div className="eyebrow text-white/60 mb-6">O QUE MUDA PARA VOCÊ</div>
-          <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-            No fim, você ganha o que importa.
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2">
-          {items.map((t) => (
-            <div key={t} className="rounded-xl p-8 reveal" style={{ backgroundColor: "#68112F" }}>
-              <p className="font-display font-semibold text-white text-xl leading-snug">{t}</p>
-            </div>
-          ))}
+        <div className="reveal mt-10 rounded-2xl bg-surface px-6 py-9 text-center">
+          <h3 className="font-display text-[24px] font-extrabold text-wine-900">Ainda tem dúvidas?</h3>
+          <p className="mb-5 mt-2 text-[18px] text-gray-deep">
+            Fale com um especialista da Almore agora mesmo. Diagnóstico gratuito, sem compromisso.
+          </p>
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMERO}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary inline-block rounded-full px-8 py-4 font-display text-base font-bold"
+          >
+            Falar no WhatsApp
+          </a>
         </div>
       </div>
     </section>
@@ -735,29 +1084,109 @@ function MudaParaVoce() {
 
 function Reforma() {
   return (
-    <section className="bg-surface px-5 py-24 sm:py-32">
-      {/* Bloco centralizado, como as outras seções de texto corrido. A 720px a
-          linha quebrava cedo demais e o conjunto ficava apertado; 900px é a
-          mesma largura do formulário e dá respiro sem esticar a leitura. */}
-      <div className="mx-auto max-w-[900px]">
-        <div className="reveal">
-          <div className="eyebrow text-gray-deep mb-6">À FRENTE</div>
-          {/* text-balance distribui as palavras entre as linhas em vez de
-              encher a primeira e jogar o resto na segunda — sem ele, "já"
-              ficava órfão no fim da primeira linha. */}
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[40px] leading-[1.15] tracking-tight text-balance">
-            A maior reforma tributária em décadas <span className="text-[#7C1638]">já começou.</span>
-          </h2>
-          <p className="mt-8 text-[19px] leading-[1.7] text-gray-deep">
-            Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
-          </p>
-          <p className="mt-5 text-[19px] leading-[1.7] text-gray-deep">
-            Nós acompanhamos cada mudança e orientamos a sua empresa antes do prazo apertar.
-          </p>
-          <p className="mt-8 font-display font-semibold text-[#7C1638] text-xl leading-snug">
-            Com a Almore, você não descobre de última hora.
-          </p>
+    <section className="bg-surface px-5 pb-24 pt-4 sm:pb-28">
+      <div className="mx-auto max-w-6xl">
+        <div className="reveal relative grid items-center gap-10 overflow-hidden rounded-[28px] bg-linear-to-br from-wine-900 to-[#7C1638] p-8 text-white sm:p-14 lg:grid-cols-[1.2fr_1fr]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(227,176,91,0.35), transparent 70%)" }}
+          />
+          <div className="relative">
+            <div className="eyebrow mb-4 text-gold">À FRENTE</div>
+            {/* text-balance distribui as palavras entre as linhas em vez de
+                encher a primeira e jogar o resto na segunda. */}
+            <h2 className="mb-4 font-display text-[clamp(26px,3.4vw,38px)] font-extrabold leading-[1.15] tracking-tight text-balance">
+              A maior reforma tributária da história já começou.
+            </h2>
+            <p className="mb-3 text-[19px] leading-[1.7] text-white/85">
+              Os novos tributos sobre o consumo e as novas obrigações digitais já estão a caminho.
+            </p>
+            <p className="text-[19px] leading-[1.7] text-white/85">
+              Nós acompanhamos cada mudança e orientamos a sua empresa{" "}
+              <strong className="text-gold">antes do prazo apertar</strong>.
+            </p>
+          </div>
+          <div className="relative rounded-[20px] border border-white/18 bg-white/8 p-7">
+            <p className="mb-5 font-display text-[22px] font-bold leading-snug">
+              Com a Almore, você não descobre de última hora.
+            </p>
+            <CtaFormulario origem="reforma" className="btn-gold rounded-full px-8 py-4 font-display text-base font-bold">
+              Quero me preparar
+            </CtaFormulario>
+          </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Os três artigos mais recentes do blog.
+ *
+ * Busca no mesmo endpoint da listagem (/blog), só com limit=3. Sem a classe
+ * `reveal` nos cartões de propósito: eles aparecem depois da hidratação, e o
+ * useReveal só observa o que já existia quando rodou — ficariam invisíveis.
+ *
+ * Se a busca falhar, a seção continua com o chamamento para o blog; não vale
+ * quebrar a home por causa de uma lista de artigos.
+ */
+function BlogRecente() {
+  const [artigos, setArtigos] = useState<Artigo[]>([]);
+
+  useEffect(() => {
+    let vivo = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${REST_ARTIGOS}?status=eq.publicado&order=publicado_em.desc&limit=3&select=id,artigo_titulo,artigo_corpo,publicado_em`,
+          { headers: restHeaders },
+        );
+        if (!res.ok) return;
+        const dados = (await res.json()) as Artigo[];
+        if (vivo) setArtigos(dados);
+      } catch {
+        /* sem artigos na home; o link para /blog segue disponível */
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, []);
+
+  return (
+    <section id="blog" className="ancora bg-white px-5 py-24 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <CabecalhoSecao
+          eyebrow="BLOG"
+          sub="Notícias e análises sobre contabilidade, impostos, reforma tributária e gestão empresarial — do MEI ao Lucro Real."
+        >
+          Conteúdo que ajuda você a decidir melhor
+        </CabecalhoSecao>
+        {artigos.length > 0 && (
+          <div className="grid gap-6 md:grid-cols-3">
+            {artigos.map((a) => (
+              <Link
+                key={a.id}
+                to="/blog/$slug"
+                params={{ slug: articlePath(a).replace("/blog/", "") }}
+                className="card-hover flex flex-col rounded-2xl border border-border bg-white p-7 hover:border-[#7C1638]"
+              >
+                <span className="eyebrow mb-3 !text-[11px] text-[#7C1638]">{formatDate(a.publicado_em)}</span>
+                <h3 className="mb-3 font-display text-[20px] font-extrabold leading-snug text-wine-900">
+                  {a.artigo_titulo}
+                </h3>
+                <p className="flex-1 text-[17px] leading-relaxed text-gray-deep">{excerpt(a.artigo_corpo, 170)}</p>
+                <span className="mt-5 font-display text-[15px] font-bold text-[#7C1638]">Ler artigo →</span>
+              </Link>
+            ))}
+          </div>
+        )}
+        <p className="mt-10 text-center">
+          <Link to="/blog" className="btn-primary inline-block rounded-full px-8 py-4 font-display text-base font-bold">
+            Ver todos os artigos
+          </Link>
+        </p>
       </div>
     </section>
   );
@@ -770,28 +1199,64 @@ function Reforma() {
  * em form.almorecontabilidade.com.br. A secao mantem o id "contato" porque o
  * botao do menu e os links /#contato continuam apontando para ca.
  */
-function Formulario() {
-  const href = useLinkFormulario("contato");
+function Contato() {
   return (
-    <section id="contato" className="ancora px-5 py-24 sm:py-32" style={{ backgroundColor: "#7C1638" }}>
-      <div className="mx-auto max-w-[760px] text-center reveal">
-        <div className="eyebrow text-white/60 mb-6">FALE COM A ALMORE</div>
-        <h2 className="font-display font-bold text-white text-[32px] sm:text-[40px] leading-[1.15] tracking-tight">
-          Estamos à disposição.
+    <section
+      id="contato"
+      className="ancora px-5 py-24 text-white sm:py-28 bg-linear-to-br from-wine-950 to-wine-800"
+    >
+      <div className="reveal mx-auto max-w-[820px] text-center">
+        <div className="eyebrow mb-4 text-gold">VAMOS CONVERSAR?</div>
+        <h2 className="font-display text-[clamp(30px,4vw,44px)] font-extrabold leading-[1.15] tracking-tight text-balance">
+          Comece agora e pare de pagar imposto a mais
         </h2>
-        <p className="mt-5 text-white/80 text-[19px]">
-          É só falar com a gente: é rápido, como tudo por aqui.
+        <p className="mx-auto mt-5 max-w-[600px] text-[19px] leading-relaxed text-white/82">
+          Diagnóstico gratuito, sem compromisso. Nossa equipe entende a sua situação e apresenta as
+          melhores oportunidades. É só falar com a gente: é rápido, como tudo por aqui.
         </p>
-        <a
-          href={href}
-          className="btn-on-dark mt-10 inline-block text-center font-display font-bold text-base px-8 py-4 rounded-md"
-        >
-          Quero um diagnóstico gratuito
-        </a>
+        <ul className="my-8 flex flex-wrap justify-center gap-x-8 gap-y-3">
+          {["Diagnóstico gratuito", "Sem burocracia", "Resposta rápida", "Atendimento consultivo"].map((t) => (
+            <li key={t} className="flex items-center gap-2 font-display text-[16px] font-semibold">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gold/25 text-gold">
+                <Check size={13} strokeWidth={3} aria-hidden />
+              </span>
+              {t}
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-wrap justify-center gap-4">
+          <CtaFormulario origem="contato" className="btn-gold rounded-full px-9 py-4 font-display text-base font-bold">
+            Quero meu diagnóstico gratuito
+          </CtaFormulario>
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMERO}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost-light rounded-full px-9 py-4 font-display text-base font-bold"
+          >
+            Falar no WhatsApp
+          </a>
+        </div>
+        <p className="mt-8 text-[17px] text-white/70">
+          Prefere escrever?{" "}
+          <a className="font-semibold text-gold hover:underline" href={`mailto:${EMAIL_COMERCIAL}`}>
+            {EMAIL_COMERCIAL}
+          </a>{" "}
+          · WhatsApp{" "}
+          <a
+            className="font-semibold text-gold hover:underline"
+            href={`https://wa.me/${WHATSAPP_NUMERO}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {WHATSAPP_EXIBICAO}
+          </a>
+        </p>
       </div>
     </section>
   );
 }
+
 function WhatsAppFlutuante() {
   return (
     <a
@@ -811,19 +1276,54 @@ function WhatsAppFlutuante() {
 
 function Footer() {
   return (
-    <footer className="px-5 py-14" style={{ backgroundColor: "#1A1A1A" }}>
-      <div className="mx-auto max-w-6xl text-center">
-        <img
-          src={logoWhite.url}
-          alt="Almore Inteligência Contábil"
-          className="h-10 w-auto mx-auto opacity-90"
-        />
-        <p className="mt-5 text-[#8a8a8a] text-sm">CNPJ: 67.132.226/0001-17</p>
-        <a href="/politica-de-privacidade" className="mt-3 inline-block text-[#8a8a8a] text-sm underline hover:text-white">Política de Privacidade</a>
-        <div className="mt-8 mx-auto max-w-md h-px bg-white/15" />
-        <p className="mt-6 text-[#7a7a7a] text-[19px]">
-          © 2025 Almore Inteligência Contábil. Todos os direitos reservados.
-        </p>
+    <footer className="bg-wine-950 px-5 py-16 text-white/75">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 border-b border-white/12 pb-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          <div>
+            <img src={logoWhite.url} alt="Almore Inteligência Contábil" className="mb-4 h-10 w-auto" />
+            <p className="max-w-[320px] text-[16px] leading-relaxed">
+              Contabilidade consultiva, rápida e próxima — para empresas que querem decidir com clareza
+              e crescer com segurança.
+            </p>
+          </div>
+          <div>
+            <h4 className="eyebrow mb-4 text-gold">ESPECIALIDADES</h4>
+            <ul className="space-y-2.5 text-[16px]">
+              <li><a className="hover:text-gold" href="#bloco-mensal">Contabilidade Mensal</a></li>
+              <li><a className="hover:text-gold" href="#bloco-plan">Planejamento Tributário</a></li>
+              <li><a className="hover:text-gold" href="#bloco-troca">Troca de Contador</a></li>
+              <li><a className="hover:text-gold" href="#planos">Departamento Pessoal</a></li>
+              <li><a className="hover:text-gold" href="#planos">Imposto de Renda</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="eyebrow mb-4 text-gold">ATENDIMENTO</h4>
+            <ul className="space-y-2.5 text-[16px]">
+              <li>
+                <a className="hover:text-gold" href={`https://wa.me/${WHATSAPP_NUMERO}`} target="_blank" rel="noopener noreferrer">
+                  WhatsApp: {WHATSAPP_EXIBICAO}
+                </a>
+              </li>
+              <li>
+                <a className="hover:text-gold break-all" href={`mailto:${EMAIL_COMERCIAL}`}>
+                  {EMAIL_COMERCIAL}
+                </a>
+              </li>
+              <li>
+                <a className="hover:text-gold" href={SITE_URL}>
+                  {SITE_EXIBICAO}
+                </a>
+              </li>
+              <li><Link className="hover:text-gold" to="/blog">Blog</Link></li>
+              <li><a className="hover:text-gold" href="#contato">Diagnóstico gratuito</a></li>
+              <li><a className="hover:text-gold" href="/politica-de-privacidade">Política de Privacidade</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-6 text-[15px] text-white/55">
+          <span>© {new Date().getFullYear()} Almore Inteligência Contábil. Todos os direitos reservados.</span>
+          <span>CNPJ: 67.132.226/0001-17</span>
+        </div>
       </div>
     </footer>
   );

@@ -26,7 +26,16 @@ export const URL_FORMULARIO = "https://form.almorecontabilidade.com.br/formulari
 const IDS_DE_CLIQUE = ["gclid", "gbraid", "wbraid", "fbclid", "msclkid", "ttclid"];
 
 /** Qual botão da home originou o clique. Vira utm_content. */
-export type OrigemCta = "hero" | "plano-bronze" | "plano-prata" | "plano-ouro" | "contato";
+export type OrigemCta =
+  | "hero"
+  | "plano-bronze"
+  | "plano-prata"
+  | "plano-ouro"
+  | "solucao-mensal"
+  | "solucao-troca"
+  | "solucao-planejamento"
+  | "reforma"
+  | "contato";
 
 /**
  * Monta a URL do formulário a partir dos parâmetros da página atual.

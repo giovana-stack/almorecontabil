@@ -16,16 +16,32 @@ export function SiteNavbar() {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#f0eeeb]">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center">
+        <a href="/" className="flex shrink-0 items-center mr-3">
           <img src={logoBordeaux.url} alt="Almore Inteligência Contábil" className="h-9 w-auto" />
         </a>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 sm:gap-5">
+          {/* Home só no celular; de md para cima entram as âncoras da página
+              inicial. Os href são "/#..." para funcionarem também a partir do
+              blog e da área logada. */}
           <a
             href="/"
-            className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+            className="md:hidden font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
           >
             Home
           </a>
+          {[
+            ["Sobre Nós", "/#sobre"],
+            ["Soluções", "/#solucoes"],
+            ["Planos", "/#planos"],
+          ].map(([rotulo, destino]) => (
+            <a
+              key={destino}
+              href={destino}
+              className="hidden md:inline font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+            >
+              {rotulo}
+            </a>
+          ))}
           <a
             href="/blog"
             className="font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
@@ -59,9 +75,10 @@ export function SiteNavbar() {
           <a
             href="/#contato"
             onClick={handleFalar}
-            className="btn-primary font-display font-semibold text-sm px-5 py-2.5 rounded-md"
+            className="btn-primary whitespace-nowrap font-display font-semibold text-sm px-4 sm:px-5 py-2.5 rounded-md"
           >
-            Falar com a Almore
+            <span className="sm:hidden">Falar</span>
+            <span className="hidden sm:inline">Falar com a Almore</span>
           </a>
         </div>
       </div>
