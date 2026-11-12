@@ -22,7 +22,6 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 
 import logoWhite from "@/assets/almore-logo-white.png.asset.json";
 import isotipo from "@/assets/almore-isotipo.png.asset.json";
-import heroNew from "@/assets/hero-new.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -429,51 +428,49 @@ function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden min-h-[92vh] flex items-center px-5 sm:px-10 py-24"
+      className="relative overflow-hidden min-h-[92vh] flex items-start lg:items-center px-5 sm:px-10 py-24 max-lg:pt-[330px] sm:max-lg:pt-[430px]"
       style={{ backgroundColor: "#7C1638" }}
     >
       {/* Background Image - Absolute, now positioned to the LEFT */}
-      <div aria-hidden className="absolute left-0 top-0 w-full md:w-[75%] h-full pointer-events-none">
+      <div aria-hidden className="absolute left-0 top-0 w-full h-[380px] sm:h-[480px] lg:h-full lg:w-[62%] pointer-events-none">
         <img
-          src={heroNew.url}
+          src="/hero-almore.webp"
           alt=""
-          /* A foto é retrato (720x1280) num container largo, então o cover
-             precisa ampliá-la muito e só cabe uma faixa horizontal dela. Com
-             o padrão vertical de 50% essa faixa caía no meio da imagem — ou
-             seja, na camisa, com o rosto cortado fora. 18% sobe o recorte
-             para a altura do rosto. O ideal mesmo é uma foto deitada. */
-          className="absolute inset-0 w-full h-full object-cover object-[35%_20%] md:object-[50%_18%]"
+          /* Foto retrato (922x1152) da dupla, em public/hero-almore.webp.
+             De lg para cima o container tem 62% da largura, então o cover mostra quase a foto
+             inteira e a dupla fica na faixa esquerda, longe do texto. O
+             recorte vertical (35%) mantém rostos e tronco no quadro. Se a
+             foto for trocada, ajuste o object-position. Abaixo de lg a foto vai para o
+             topo (380/480px de altura), com degradê vertical para o bordô, e o
+             texto fica embaixo; a máscara lateral está em .hero-foto (styles.css). */
+          className="absolute inset-0 w-full h-full object-cover hero-foto object-[50%_40%] lg:object-[50%_35%] lg:origin-[50%_55%] lg:[transform:translateX(-12%)_scale(1.25)]"
           style={{
-            filter: "grayscale(100%) brightness(0.6)",
-            WebkitMaskImage:
-              "linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
-            maskImage:
-              "linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 10%, black 50%)",
+            filter: "grayscale(100%) brightness(1.2) contrast(1.05)",
           }}
         />
         {/* Bordeaux tone match overlay */}
         <div
           className="absolute inset-0"
-          style={{ background: "#7C1638", opacity: 0.6, mixBlendMode: "multiply" }}
+          style={{ background: "#7C1638", opacity: 0.5, mixBlendMode: "multiply" }}
         />
         {/* Horizontal fade from bordeaux into photo (Text area is on the right) */}
         <div
-          className="absolute right-0 top-0 h-full w-[60%]"
+          className="absolute right-0 top-0 h-full w-[40%] max-lg:hidden"
           style={{
             background:
-              "linear-gradient(to left, #7C1638 0%, rgba(124,22,56,0.95) 40%, rgba(124,22,56,0) 100%)",
+              "linear-gradient(to left, #7C1638 0%, rgba(124,22,56,0.9) 30%, rgba(124,22,56,0) 100%)",
           }}
         />
         {/* Bottom fade for transition to next section */}
         <div
-          className="absolute bottom-0 left-0 h-[180px] w-full"
+          className="absolute bottom-0 left-0 h-[180px] max-lg:h-[65%] w-full"
           style={{
             background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
           }}
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl w-full flex md:justify-end">
+      <div className="relative mx-auto max-w-7xl w-full flex lg:justify-end">
         {/* 700px: a 520 o título quebrava em quatro linhas e sobrava vazio ao
             lado; o text-balance reparte as palavras entre as linhas. */}
         <div className="w-full max-w-[700px] text-white reveal">
@@ -533,10 +530,10 @@ function OQueFazemos() {
           {solucoes.map(({ titulo, desc, itens, Icone, href, destaque }) => (
             <article
               key={titulo}
-              className={`reveal relative flex flex-col rounded-2xl p-8 border card-hover ${
+              className={`reveal relative flex flex-col group rounded-2xl p-8 border transition-all duration-300 ease-out hover:-translate-y-2.5 ${
                 destaque
-                  ? "bg-linear-to-br from-wine-900 to-wine-800 border-gold text-white"
-                  : "bg-white border-border"
+                  ? "bg-linear-to-br from-wine-900 to-wine-800 border-gold text-white hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
+                  : "bg-white border-border hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
               }`}
             >
               {destaque && (
@@ -546,20 +543,20 @@ function OQueFazemos() {
               )}
               <div
                 className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${
-                  destaque ? "bg-white/12 text-gold" : "bg-[#F6E6EB] text-[#7C1638]"
+                  destaque ? "bg-white/12 text-gold" : "bg-[#F6E6EB] text-[#7C1638] transition-colors duration-300 group-hover:bg-white/12 group-hover:text-gold"
                 }`}
               >
                 <Icone size={22} aria-hidden />
               </div>
-              <h3 className={`font-display font-extrabold text-[22px] ${destaque ? "text-white" : "text-wine-900"}`}>
+              <h3 className={`font-display font-extrabold text-[22px] ${destaque ? "text-white" : "text-wine-900 transition-colors duration-300 group-hover:text-white"}`}>
                 {titulo}
               </h3>
-              <p className={`mt-3 text-[17px] leading-relaxed ${destaque ? "text-white/80" : "text-gray-deep"}`}>
+              <p className={`mt-3 text-[17px] leading-relaxed ${destaque ? "text-white/80" : "text-gray-deep transition-colors duration-300 group-hover:text-white/80"}`}>
                 {desc}
               </p>
               <ul className="mt-5 flex-1 space-y-2.5">
                 {itens.map((it) => (
-                  <li key={it} className={`flex gap-2.5 text-[17px] ${destaque ? "text-white/90" : "text-[#4D3B44]"}`}>
+                  <li key={it} className={`flex gap-2.5 text-[17px] ${destaque ? "text-white/90" : "text-[#4D3B44] transition-colors duration-300 group-hover:text-white/90"}`}>
                     <span className="text-gold-dark font-bold" aria-hidden>→</span>
                     <span>{it}</span>
                   </li>
@@ -568,7 +565,7 @@ function OQueFazemos() {
               <a
                 href={href}
                 className={`mt-6 font-display text-[15px] font-bold ${
-                  destaque ? "text-gold hover:text-white" : "text-[#7C1638] hover:text-gold-dark"
+                  destaque ? "text-gold hover:text-white" : "text-[#7C1638] transition-colors duration-300 group-hover:text-gold hover:text-gold-dark"
                 }`}
               >
                 Saiba mais →
@@ -943,8 +940,9 @@ const coresPlano: Record<string, string> = {
 };
 
 /**
- * Nenhum plano é destacado por padrão: os três nascem iguais. O destaque é só
- * do hover — o card sobe, vira bordô e o botão fica dourado.
+ * O plano nasce em destaque (bordô, borda e botão dourados) e sem animação: com
+ * um plano só não há o que comparar. Se MOSTRAR_TODOS_OS_PLANOS voltar a ser
+ * true, os três cards aparecem todos assim — nesse caso vale rever o destaque.
  */
 function PlanCard({
   name,
@@ -965,30 +963,30 @@ function PlanCard({
   const cor = coresPlano[name] ?? "#7C1638";
   return (
     <div
-      className="plan-card group reveal flex flex-col rounded-[22px] border border-border border-t-[4px] bg-white p-8 shadow-card transition-all duration-300 ease-out hover:-translate-y-2.5 hover:border-gold hover:bg-linear-to-br hover:from-wine-900 hover:to-[#7C1638] hover:shadow-[0_26px_50px_rgba(74,13,34,0.35)] md:max-lg:hover:translate-y-0"
+      className="plan-card reveal flex flex-col rounded-[22px] border border-gold border-t-[4px] bg-linear-to-br from-wine-900 to-[#7C1638] p-8 text-white shadow-[0_26px_50px_rgba(74,13,34,0.35)]"
       style={{ borderTopColor: cor }}
     >
-      <h3 className="flex items-center gap-3 font-display text-[28px] font-bold text-wine-900 transition-colors duration-300 group-hover:text-white">
+      <h3 className="flex items-center gap-3 font-display text-[28px] font-bold text-white">
         <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: cor }} />
         {name}
       </h3>
-      <p className="mt-2 text-[18px] italic text-gray-mid transition-colors duration-300 group-hover:text-white/78">
+      <p className="mt-2 text-[18px] italic text-white/78">
         {subtitle}
       </p>
       <ul className={`mt-6 flex-1 ${largo ? "grid gap-x-10 gap-y-3 sm:grid-cols-2" : "space-y-3"}`}>
         {items.map((it) => (
           <li
             key={it}
-            className="flex gap-3 text-[18px] leading-relaxed text-gray-deep transition-colors duration-300 group-hover:text-white/92"
+            className="flex gap-3 text-[18px] leading-relaxed text-white/92"
           >
-            <span className="shrink-0 font-bold text-[#7C1638] transition-colors duration-300 group-hover:text-gold">✓</span>
+            <span className="shrink-0 font-bold text-gold">✓</span>
             <span>{it}</span>
           </li>
         ))}
       </ul>
       <CtaFormulario
         origem={origem}
-        className="mt-8 w-full rounded-full border-2 border-[#7C1638] px-6 py-3 font-display text-[15px] font-bold text-[#7C1638] transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-wine-950"
+        className="mt-8 w-full rounded-full border-2 border-gold bg-gold px-6 py-3 font-display text-[15px] font-bold text-wine-950 transition-colors hover:border-gold-dark hover:bg-gold-dark"
       >
         {cta}
       </CtaFormulario>

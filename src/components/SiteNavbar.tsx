@@ -20,12 +20,12 @@ export function SiteNavbar() {
           <img src={logoBordeaux.url} alt="Almore Inteligência Contábil" className="h-9 w-auto" />
         </a>
         <div className="flex items-center gap-3 sm:gap-5">
-          {/* Home só no celular; de md para cima entram as âncoras da página
+          {/* Home só em telas pequenas; de lg para cima entram as âncoras da página
               inicial. Os href são "/#..." para funcionarem também a partir do
               blog e da área logada. */}
           <a
             href="/"
-            className="md:hidden font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+            className="hidden sm:inline lg:hidden font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
           >
             Home
           </a>
@@ -37,7 +37,7 @@ export function SiteNavbar() {
             <a
               key={destino}
               href={destino}
-              className="hidden md:inline font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
+              className="hidden lg:inline whitespace-nowrap font-display font-semibold text-sm text-[#7C1638] hover:text-[#68112F] transition-colors"
             >
               {rotulo}
             </a>
