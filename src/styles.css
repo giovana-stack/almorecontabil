@@ -319,16 +319,6 @@
   height: 0;
 }
 
-/* Foto do hero: a máscara lateral só existe de lg para cima, onde o texto fica
-   ao lado da foto. Abaixo disso a foto é um banner no topo e o degradê vertical
-   vem de um div no próprio componente. */
-@media (min-width: 1024px) {
-  .hero-foto {
-    -webkit-mask-image: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.1) 10%, black 50%);
-    mask-image: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.1) 10%, black 50%);
-  }
-}
-
 /* Carrossel 3D de "O que fazemos": só no celular. De md para cima vale a grade do Tailwind. */
 @media (max-width: 767px) {
   .carrossel-3d {

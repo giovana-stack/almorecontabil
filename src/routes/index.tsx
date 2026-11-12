@@ -428,22 +428,29 @@ function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden min-h-[92vh] flex items-start lg:items-center px-5 sm:px-10 py-24 max-lg:pt-[330px] sm:max-lg:pt-[430px]"
+      className="relative overflow-hidden min-h-[92vh] flex items-start xl:items-center px-5 sm:px-10 py-24 max-xl:pt-[330px] sm:max-xl:pt-[430px]"
       style={{ backgroundColor: "#7C1638" }}
     >
-      {/* Background Image - Absolute, now positioned to the LEFT */}
-      <div aria-hidden className="absolute left-0 top-0 w-full h-[380px] sm:h-[480px] lg:h-full lg:w-[62%] pointer-events-none">
+      {/* Foto de fundo.
+          A foto original tem 922x1152 px, pouca resolução para cobrir uma tela
+          larga. Por isso, de xl para cima ela NÃO é esticada: o container tem a
+          proporção exata da foto (aspect-[922/1152]), a altura da seção e no
+          máximo o tamanho natural (1152px). O resto da largura é o bordô do
+          fundo, e o degradê da direita faz a foto sumir nele. Resultado: a foto
+          nunca passa de 1x de ampliação (em telas comuns ela até é reduzida, o
+          que deixa nítida). Abaixo de xl ela vira um banner no topo (380/480px
+          de altura) com degradê vertical, e o texto fica embaixo.
+          A foto está espelhada na horizontal (scaleX(-1)), pedido do cliente.
+          Para ficar ainda melhor, trocar por um original maior (>= 2000px de
+          altura) mantendo o nome public/hero-almore.webp. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-0 h-[380px] w-full sm:h-[480px] xl:aspect-[922/1152] xl:h-full xl:max-h-[1152px] xl:w-auto"
+      >
         <img
           src="/hero-almore.webp"
           alt=""
-          /* Foto retrato (922x1152) da dupla, em public/hero-almore.webp.
-             De lg para cima o container tem 62% da largura, então o cover mostra quase a foto
-             inteira e a dupla fica na faixa esquerda, longe do texto. O
-             recorte vertical (35%) mantém rostos e tronco no quadro. Se a
-             foto for trocada, ajuste o object-position. Abaixo de lg a foto vai para o
-             topo (380/480px de altura), com degradê vertical para o bordô, e o
-             texto fica embaixo; a máscara lateral está em .hero-foto (styles.css). */
-          className="absolute inset-0 w-full h-full object-cover hero-foto object-[50%_40%] lg:object-[50%_35%] lg:origin-[50%_55%] lg:[transform:translateX(-12%)_scale(1.25)]"
+          className="absolute inset-0 h-full w-full object-cover object-[50%_40%] [transform:scaleX(-1)]"
           style={{
             filter: "grayscale(100%) brightness(1.2) contrast(1.05)",
           }}
@@ -455,22 +462,22 @@ function Hero() {
         />
         {/* Horizontal fade from bordeaux into photo (Text area is on the right) */}
         <div
-          className="absolute right-0 top-0 h-full w-[40%] max-lg:hidden"
+          className="absolute right-0 top-0 h-full w-[55%] max-xl:hidden"
           style={{
             background:
-              "linear-gradient(to left, #7C1638 0%, rgba(124,22,56,0.9) 30%, rgba(124,22,56,0) 100%)",
+              "linear-gradient(to left, #7C1638 0%, rgba(124,22,56,0.9) 25%, rgba(124,22,56,0) 100%)",
           }}
         />
         {/* Bottom fade for transition to next section */}
         <div
-          className="absolute bottom-0 left-0 h-[180px] max-lg:h-[65%] w-full"
+          className="absolute bottom-0 left-0 h-[180px] max-xl:h-[65%] w-full"
           style={{
             background: "linear-gradient(to top, #7C1638 0%, transparent 100%)",
           }}
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl w-full flex lg:justify-end">
+      <div className="relative mx-auto max-w-7xl w-full flex xl:justify-end">
         {/* 700px: a 520 o título quebrava em quatro linhas e sobrava vazio ao
             lado; o text-balance reparte as palavras entre as linhas. */}
         <div className="w-full max-w-[700px] text-white reveal">
